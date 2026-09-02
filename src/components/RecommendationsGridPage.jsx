@@ -149,30 +149,10 @@ export function RecommendationsGridPage({
         </button>
 
         <div className="flex flex-wrap items-center gap-2">
-          {onOpenTrioDemo && (
-            <button
-              onClick={onOpenTrioDemo}
-              className="inline-flex items-center space-x-1.5 text-xs font-black bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-4 py-2.5 rounded-2xl shadow-sm transition"
-            >
-              <Landmark className="w-3.5 h-3.5 text-amber-300" />
-              <span>{isTa ? "மூன்று முகப்பு நேரலை (Triple Demo)" : "Triple-Portal Ecosystem View"}</span>
-            </button>
-          )}
-
-          {onOpenSplitDemo && (
-            <button
-              onClick={onOpenSplitDemo}
-              className="inline-flex items-center space-x-1.5 text-xs font-black bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-2xl shadow-sm transition"
-            >
-              <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-              <span>{isTa ? "நடுவர் நேரடி திரை (Split Demo)" : "Judge Split-Screen Demo"}</span>
-            </button>
-          )}
-
           {onOpenLocator && (
             <button
               onClick={onOpenLocator}
-              className="inline-flex items-center space-x-1.5 text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2.5 rounded-2xl shadow-xs transition"
+              className="inline-flex items-center space-x-1.5 text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2.5 rounded-2xl shadow-xs transition cursor-pointer"
             >
               <MapPin className="w-3.5 h-3.5 text-emerald-600" />
               <span>{isTa ? "அருகிலுள்ள வங்கிகள்" : "Find Channel Partners"}</span>
