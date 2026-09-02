@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   Globe, Building2, MapPin, LayoutDashboard, UserCheck, ShieldCheck, 
-  Calculator, Bot, FileText, Sparkles, Radio, Laptop, Zap, Check 
+  Calculator, Bot, FileText, Sparkles, Radio, Laptop, Zap, Check, Landmark 
 } from 'lucide-react';
 
 export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontSize, setFontSize }) {
@@ -33,7 +33,7 @@ export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontS
           </div>
         </div>
 
-        {/* Center Multi-Page Navigation Links */}
+        {/* Center Multi-Portal Navigation Links */}
         <nav className="hidden xl:flex items-center space-x-1 text-xs font-bold">
           
           {/* Landing Page (/) */}
@@ -83,7 +83,33 @@ export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontS
             }`}
           >
             <Radio className="w-3.5 h-3.5 text-indigo-500 animate-pulse" />
-            <span>{isTa ? "அரசு நிர்வாக முகப்பு" : "Alpha Portal"}</span>
+            <span>{isTa ? "அரசு நிர்வாகம்" : "Alpha Portal"}</span>
+          </button>
+
+          {/* Beta Portal Bank Console (/beta-portal) */}
+          <button
+            onClick={() => setView('beta-portal')}
+            className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 ${
+              view === 'beta-portal'
+                ? 'bg-emerald-900 text-white shadow-xs' 
+                : 'text-emerald-900 bg-emerald-50 hover:bg-emerald-100'
+            }`}
+          >
+            <Landmark className="w-3.5 h-3.5 text-emerald-600" />
+            <span>{isTa ? "வங்கி ஒப்புதல்" : "Beta Portal"}</span>
+          </button>
+
+          {/* Triple Demo View (/demo-trio) */}
+          <button
+            onClick={() => setView('demo-trio')}
+            className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 ${
+              view === 'demo-trio'
+                ? 'bg-gradient-to-r from-emerald-600 to-indigo-600 text-white shadow-xs' 
+                : 'text-slate-900 bg-gradient-to-r from-emerald-50 to-indigo-50 hover:from-emerald-100 hover:to-indigo-100 border border-slate-300'
+            }`}
+          >
+            <Zap className="w-3.5 h-3.5 text-amber-400" />
+            <span>{isTa ? "3-முகப்பு நேரலை" : "Trio Demo"}</span>
           </button>
 
           {/* Split Demo View (/demo-split) */}
@@ -91,38 +117,12 @@ export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontS
             onClick={() => setView('demo-split')}
             className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 ${
               view === 'demo-split' || view === 'split-demo'
-                ? 'bg-emerald-800 text-white shadow-xs' 
-                : 'text-emerald-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200'
-            }`}
-          >
-            <Laptop className="w-3.5 h-3.5 text-emerald-600" />
-            <span>{isTa ? "நடுவர் நேரடி திரை" : "Demo Split"}</span>
-          </button>
-
-          {/* Financial Calculator */}
-          <button
-            onClick={() => setView('calc')}
-            className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1 ${
-              view === 'calc' 
                 ? 'bg-slate-900 text-white shadow-xs' 
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
-            <Calculator className="w-3.5 h-3.5 text-blue-500" />
-            <span>{isTa ? "கால்குலேட்டர்" : "Calculator"}</span>
-          </button>
-
-          {/* Partner Locator */}
-          <button
-            onClick={() => setView('locator')}
-            className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1 ${
-              view === 'locator' 
-                ? 'bg-slate-900 text-white shadow-xs' 
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            <MapPin className="w-3.5 h-3.5 text-emerald-500" />
-            <span>{isTa ? "வங்கி வரைபடம்" : "Locator"}</span>
+            <Laptop className="w-3.5 h-3.5 text-slate-500" />
+            <span>{isTa ? "இரட்டை திரை" : "Split"}</span>
           </button>
 
           {/* AI Mitra Counselor */}

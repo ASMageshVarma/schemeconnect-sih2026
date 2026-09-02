@@ -11,7 +11,9 @@ import { LandingPage } from './components/LandingPage';
 import { FormVerificationPage } from './components/FormVerificationPage';
 import { RecommendationsGridPage } from './components/RecommendationsGridPage';
 import { AlphaPortalConsole } from './components/AlphaPortalConsole';
+import { BetaPortalBank } from './components/BetaPortalBank';
 import { SplitDemoView } from './components/SplitDemoView';
+import { TripleDemoView } from './components/TripleDemoView';
 import { FinancialCalculator } from './components/FinancialCalculator';
 import { CenterLocator } from './components/CenterLocator';
 import { AdminCMS } from './components/AdminCMS';
@@ -21,7 +23,7 @@ import { TRANSLATIONS } from './data/translations';
 
 export default function App() {
   const [lang, setLang] = useState('en'); // Default 'en' or 'ta'
-  const [view, setView] = useState('landing'); // 'landing', 'find-schemes', 'recommendations', 'alpha-portal', 'demo-split', 'calc', 'locator', 'counselor', 'admin'
+  const [view, setView] = useState('landing'); // 'landing', 'find-schemes', 'recommendations', 'alpha-portal', 'beta-portal', 'demo-split', 'demo-trio', 'calc', 'locator', 'counselor', 'admin'
   
   // Default Benchmark Test State:
   // Age: 39 | Area: Urban | Sector: Street Vendor | Income: ₹2,00,000 | SHG Member: No
@@ -40,6 +42,7 @@ export default function App() {
     documents: ["Aadhaar Card", "Bank Account Passbook", "Community Certificate", "Income Certificate"]
   });
 
+  const [referredSchemeForBank, setReferredSchemeForBank] = useState(null);
   const [fontSize, setFontSize] = useState('base'); // 'sm', 'base', 'lg'
 
   const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
@@ -56,13 +59,53 @@ export default function App() {
     setView('recommendations');
   };
 
+  const handleRouteToBank = (scheme) => {
+    setReferredSchemeForBank(scheme);
+    try {
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    } catch (e) {}
+    setView('beta-portal');
+  };
+
   const getFontSizeClass = () => {
     if (fontSize === 'lg') return 'text-lg';
     if (fontSize === 'sm') return 'text-sm';
     return 'text-base';
   };
 
-  // Split-Screen Judge Pitch View
+  // 1. Triple-Portal Ecosystem Pitch View (/demo-trio)
+  if (view === 'demo-trio') {
+    return (
+      <div className={`min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between ${getFontSizeClass()}`}>
+        <Navbar
+          lang={lang}
+          setLang={setLang}
+          t={t}
+          view={view}
+          setView={setView}
+          isOnline={true}
+          fontSize={fontSize}
+          setFontSize={setFontSize}
+        />
+        <TripleDemoView
+          userProfile={currentProfile}
+          lang={lang}
+          t={t}
+          onEditProfile={() => setView('find-schemes')}
+          onOpenCalculator={() => setView('calc')}
+          onOpenLocator={() => setView('locator')}
+          onOpenCounselor={() => setView('counselor')}
+          onRouteToBank={handleRouteToBank}
+        />
+      </div>
+    );
+  }
+
+  // 2. Split-Screen Pitch View (/demo-split)
   if (view === 'demo-split' || view === 'split-demo') {
     return (
       <div className={`min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between ${getFontSizeClass()}`}>
@@ -139,7 +182,9 @@ export default function App() {
             onOpenLocator={() => setView('locator')}
             onOpenCounselor={() => setView('counselor')}
             onOpenSplitDemo={() => setView('demo-split')}
+            onOpenTrioDemo={() => setView('demo-trio')}
             onOpenAdmin={() => setView('alpha-portal')}
+            onRouteToBank={handleRouteToBank}
           />
         )}
 
@@ -147,6 +192,19 @@ export default function App() {
         {view === 'alpha-portal' && (
           <AlphaPortalConsole
             onOpenSplitDemo={() => setView('demo-split')}
+          />
+        )}
+
+        {/* PAGE 5: BETA PORTAL BANK CONSOLE (/beta-portal) */}
+        {view === 'beta-portal' && (
+          <BetaPortalBank
+            referredScheme={referredSchemeForBank}
+            userProfile={currentProfile}
+            lang={lang}
+            t={t}
+            onBackToSchemeConnect={() => setView('recommendations')}
+            onOpenSplitDemo={() => setView('demo-split')}
+            onOpenTrioDemo={() => setView('demo-trio')}
           />
         )}
 
@@ -199,16 +257,16 @@ export default function App() {
       </main>
 
       {/* Floating AI Mitra Chat Drawer */}
-      {view !== 'counselor' && view !== 'demo-split' && (
+      {view !== 'counselor' && view !== 'demo-split' && view !== 'demo-trio' && (
         <AiCounselorChat lang={lang} t={t} currentProfile={currentProfile} />
       )}
 
       {/* Clean Footer */}
-      {view !== 'demo-split' && (
+      {view !== 'demo-split' && view !== 'demo-trio' && (
         <footer className="bg-white border-t border-slate-200/80 py-6 text-center text-xs text-slate-500">
           <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
             <span className="font-semibold text-slate-700">
-              SchemeConnect & Alpha Portal — SIH 2026 Proof of Concept
+              SchemeConnect, Alpha Portal & Beta Portal — SIH 2026 Production Ecosystem
             </span>
             <span>
               Developed by <strong>Team TechTitans</strong> (SIH-9E972H) • Saranathan College of Engineering

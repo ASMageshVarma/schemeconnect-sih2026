@@ -3,7 +3,7 @@ import {
   CheckCircle2, Lock, Unlock, Sparkles, Filter, ArrowLeft, 
   FileText, UserCheck, Shield, ChevronRight, Search, 
   MapPin, Radio, Calculator, Bot, AlertTriangle, IndianRupee, 
-  Volume2, Check, ArrowRight 
+  Volume2, Check, ArrowRight, Landmark 
 } from 'lucide-react';
 import { LiveSchemeCard } from './LiveSchemeCard';
 import { rankAlphaSchemes } from '../utils/alphaMatcher';
@@ -19,15 +19,15 @@ export function RecommendationsGridPage({
   onOpenLocator, 
   onOpenCounselor,
   onOpenSplitDemo,
-  onOpenAdmin 
+  onOpenTrioDemo,
+  onOpenAdmin,
+  onRouteToBank 
 }) {
   const isTa = lang === "ta";
   const [schemes, setSchemes] = useState(getAlphaSchemes());
   const [activeFilter, setActiveFilter] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [lastLiveStreamEvent, setLastLiveStreamEvent] = useState(null);
-  const [voiceApplyScheme, setVoiceApplyScheme] = useState(null);
-  const [isApplyingVoice, setIsApplyingVoice] = useState(false);
   const [selectedSchemeDetail, setSelectedSchemeDetail] = useState(null);
 
   // Realtime WebSocket Subscription
@@ -79,19 +79,10 @@ export function RecommendationsGridPage({
     return matchTab && matchSearch;
   });
 
-  const handleVoiceApply = (scheme) => {
-    setVoiceApplyScheme(scheme);
-    setIsApplyingVoice(true);
-
-    const spokenPrompt = isTa
-      ? `${scheme.scheme_name_ta}. உங்கள் ஆதார் மற்றும் வங்கி கணக்கு விவரங்கள் இணைக்கப்பட்டுள்ளன. இத்திட்டத்திற்கு 100% அரசு மானியத்துடன் விண்ணப்பிக்க உறுதி செய்கிறீர்களா?`
-      : `Applying for ${scheme.scheme_name}. Your verified KYC documents have been attached. Total Sanctioned Amount: ₹${Number(scheme.sanctioned_amount).toLocaleString('en-IN')}. Confirming application submission.`;
-
-    speakText(spokenPrompt, lang);
-
-    setTimeout(() => {
-      setIsApplyingVoice(false);
-    }, 4000);
+  const handleBankApplicationRoute = (scheme) => {
+    if (onRouteToBank) {
+      onRouteToBank(scheme);
+    }
   };
 
   return (
@@ -130,6 +121,16 @@ export function RecommendationsGridPage({
         </button>
 
         <div className="flex flex-wrap items-center gap-2">
+          {onOpenTrioDemo && (
+            <button
+              onClick={onOpenTrioDemo}
+              className="inline-flex items-center space-x-1.5 text-xs font-black bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-4 py-2.5 rounded-2xl shadow-sm transition"
+            >
+              <Landmark className="w-3.5 h-3.5 text-amber-300" />
+              <span>{isTa ? "மூன்று முகப்பு நேரலை (Triple Demo)" : "Triple-Portal Ecosystem View"}</span>
+            </button>
+          )}
+
           {onOpenSplitDemo && (
             <button
               onClick={onOpenSplitDemo}
@@ -146,7 +147,7 @@ export function RecommendationsGridPage({
               className="inline-flex items-center space-x-1.5 text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2.5 rounded-2xl shadow-xs transition"
             >
               <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-              <span>{isTa ? "அருகிலுள்ள வங்கிகள் (Partner Locator)" : "Find Channel Partners"}</span>
+              <span>{isTa ? "அருகிலுள்ள வங்கிகள்" : "Find Channel Partners"}</span>
             </button>
           )}
         </div>
@@ -252,7 +253,7 @@ export function RecommendationsGridPage({
               </h2>
             </div>
             <span className="text-xs font-semibold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300">
-              {isTa ? "செயல்பாட்டில் உள்ளது • விண்ணப்பிக்கலாம்" : "Active UI • Fast-Track Apply Enabled"}
+              {isTa ? "செயல்பாட்டில் உள்ளது • வங்கிக்கு விண்ணப்பிக்கலாம்" : "Active UI • Direct Bank Handshake Enabled"}
             </span>
           </div>
 
@@ -264,7 +265,7 @@ export function RecommendationsGridPage({
                 userProfile={userProfile}
                 lang={lang}
                 onSelect={(s) => setSelectedSchemeDetail(s)}
-                onApply={(s) => handleVoiceApply(s)}
+                onApply={(s) => handleBankApplicationRoute(s)}
                 onOpenCalculator={onOpenCalculator}
                 onOpenLocator={onOpenLocator}
               />
@@ -302,65 +303,6 @@ export function RecommendationsGridPage({
                 onOpenLocator={onOpenLocator}
               />
             ))}
-          </div>
-        </div>
-      )}
-
-      {/* Voice Application Modal */}
-      {voiceApplyScheme && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 text-center">
-            
-            <div className="w-16 h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-4 animate-pulse">
-              <Bot className="w-8 h-8" />
-            </div>
-
-            <h3 className="text-lg font-black text-slate-900 mb-1">
-              {isTa ? "குரல் வழி விண்ணப்ப உதவி (Voice Apply)" : "Fast-Track Voice Application"}
-            </h3>
-            <p className="text-xs font-bold text-blue-700 mb-4">
-              {isTa ? voiceApplyScheme.scheme_name_ta : voiceApplyScheme.scheme_name}
-            </p>
-
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-left text-xs space-y-2 mb-5">
-              <div className="flex justify-between">
-                <span className="text-slate-500">{isTa ? "விண்ணப்பதாரர்:" : "Applicant:"}</span>
-                <span className="font-bold text-slate-900">{userProfile.name}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">{isTa ? "கடன் தொகை:" : "Sanction Amount:"}</span>
-                <span className="font-black text-blue-700">₹{Number(voiceApplyScheme.sanctioned_amount).toLocaleString('en-IN')}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">{isTa ? "அரசு சலுகை வட்டி:" : "Interest Rate:"}</span>
-                <span className="font-black text-emerald-700">{voiceApplyScheme.concessional_interest_rate || 5.0}% p.a.</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">{isTa ? "தகுதி நிலை:" : "Eligibility Status:"}</span>
-                <span className="font-bold text-emerald-700">100% {isTa ? "சரிபார்க்கப்பட்டது" : "Verified Match"}</span>
-              </div>
-            </div>
-
-            {isApplyingVoice ? (
-              <div className="text-xs font-bold text-slate-600 py-2 flex items-center justify-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-blue-600 animate-ping"></span>
-                <span>{isTa ? "விண்ணப்ப ஆவணம் உருவாக்கப்படுகிறது..." : "Generating digital voucher token..."}</span>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <div className="p-3 bg-emerald-50 rounded-xl text-emerald-800 text-xs font-bold border border-emerald-200 flex items-center justify-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>{isTa ? "விண்ணப்பம் வெற்றிகரமாக பதிவு செய்யப்பட்டது!" : "Application Submitted Successfully!"}</span>
-                </div>
-                <button
-                  onClick={() => setVoiceApplyScheme(null)}
-                  className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition"
-                >
-                  {isTa ? "மூடுக (Close)" : "Close"}
-                </button>
-              </div>
-            )}
-
           </div>
         </div>
       )}
@@ -424,13 +366,13 @@ export function RecommendationsGridPage({
                 {selectedSchemeDetail.is_eligible ? (
                   <button
                     onClick={() => {
-                      handleVoiceApply(selectedSchemeDetail);
+                      handleBankApplicationRoute(selectedSchemeDetail);
                       setSelectedSchemeDetail(null);
                     }}
-                    className="flex-1 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-xs transition flex items-center justify-center gap-1.5 shadow-md"
+                    className="flex-1 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl font-black text-xs transition flex items-center justify-center gap-1.5 shadow-md"
                   >
-                    <span>{isTa ? "குரல் வழியில் விண்ணப்பிக்க" : "Apply via Voice & Online"}</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <Landmark className="w-4 h-4 text-amber-300" />
+                    <span>{isTa ? "வங்கி கடன் விண்ணப்பத்தை தொடர்க ➔" : "Route to Partner Bank for Direct Sanction ➔"}</span>
                   </button>
                 ) : (
                   <div className="w-full text-center text-xs text-amber-900 font-bold bg-amber-50 p-3 rounded-2xl border border-amber-200">
