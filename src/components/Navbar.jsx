@@ -46,17 +46,30 @@ export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontS
           {/* ── Segmented Portal Workspace Switcher ── */}
           <div className="flex items-center bg-slate-100/90 p-1 rounded-2xl border border-slate-200 overflow-x-auto text-xs font-black gap-0.5">
 
-            {/* SchemeConnect */}
+            {/* 1. Applicant Input (Comes first!) */}
             <button
-              onClick={() => setView('recommendations')}
+              onClick={() => setView('find-schemes')}
               className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 shrink-0 ${
-                ['recommendations', 'landing', 'find-schemes', 'feed'].includes(view)
-                  ? 'bg-white text-blue-900 shadow-xs border border-slate-200/60'
+                view === 'find-schemes'
+                  ? 'bg-white text-blue-900 shadow-xs border border-slate-200/60 font-black'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-              <span>{L("SchemeConnect", "திட்டங்கள்", "स्कीमकनेक्ट")}</span>
+              <span>{L("Applicant Input", "விண்ணப்ப பதிவு", "आवेदक इनपुट")}</span>
+            </button>
+
+            {/* 2. ALL SCHEMES (Separate section!) */}
+            <button
+              onClick={() => setView('all-schemes')}
+              className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 shrink-0 ${
+                view === 'all-schemes'
+                  ? 'bg-indigo-900 text-white shadow-xs font-black'
+                  : 'text-indigo-900 hover:bg-indigo-100/60'
+              }`}
+            >
+              <Building2 className="w-3.5 h-3.5 text-indigo-400" />
+              <span>{L("ALL SCHEMES (20)", "அனைத்து திட்டங்கள்", "सभी योजनाएँ (20)")}</span>
             </button>
 
             {/* Calculator */}
@@ -154,20 +167,26 @@ export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontS
         </div>
 
         {/* Row 2: SchemeConnect Sub-Navigation */}
-        {['recommendations', 'find-schemes', 'locator', 'calc', 'landing', 'counselor'].includes(view) && (
+        {['recommendations', 'find-schemes', 'all-schemes', 'locator', 'calc', 'landing', 'counselor'].includes(view) && (
           <div className="py-2 border-t border-slate-100 flex items-center justify-between overflow-x-auto gap-3 text-xs font-bold">
             <div className="flex items-center space-x-1 shrink-0">
-              <button
-                onClick={() => setView('recommendations')}
-                className={`px-3 py-1 rounded-lg transition ${view === 'recommendations' ? 'bg-blue-50 text-blue-700 font-black' : 'text-slate-500 hover:text-slate-900'}`}
-              >
-                {L("20 Schemes Grid", "20 திட்டங்கள்", "20 योजनाएँ")}
-              </button>
               <button
                 onClick={() => setView('find-schemes')}
                 className={`px-3 py-1 rounded-lg transition flex items-center gap-1 ${view === 'find-schemes' ? 'bg-blue-50 text-blue-700 font-black' : 'text-slate-500 hover:text-slate-900'}`}
               >
-                <span>🎙️ {L("Voice & OCR Intake", "குரல் / OCR பதிவு", "वॉयस और OCR")}</span>
+                <span>🎙️ {L("Applicant Input", "விண்ணப்பப் பதிவு", "आवेदक इनपुट")}</span>
+              </button>
+              <button
+                onClick={() => setView('all-schemes')}
+                className={`px-3 py-1 rounded-lg transition flex items-center gap-1 ${view === 'all-schemes' ? 'bg-indigo-50 text-indigo-800 font-black' : 'text-slate-500 hover:text-slate-900'}`}
+              >
+                <span>🏛️ {L("ALL SCHEMES (20)", "அனைத்து திட்டங்கள் (20)", "सभी योजनाएँ (20)")}</span>
+              </button>
+              <button
+                onClick={() => setView('recommendations')}
+                className={`px-3 py-1 rounded-lg transition flex items-center gap-1 ${view === 'recommendations' ? 'bg-blue-50 text-blue-700 font-black' : 'text-slate-500 hover:text-slate-900'}`}
+              >
+                <span>🎯 {L("My Eligible Matches", "என் தகுதி திட்டங்கள்", "मेरी पात्र योजनाएँ")}</span>
               </button>
               <button
                 onClick={() => setView('calc')}

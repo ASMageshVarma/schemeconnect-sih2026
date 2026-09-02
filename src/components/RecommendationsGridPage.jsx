@@ -36,17 +36,6 @@ export function RecommendationsGridPage({
   const [selectedSchemeDetail, setSelectedSchemeDetail] = useState(null);
   const [gazetteScheme, setGazetteScheme] = useState(null); // Alpha Gazette modal
 
-  // Safe user profile fallback if accessed directly
-  const safeProfile = userProfile || {
-    name: "Beneficiary Applicant",
-    age: 38,
-    area: "Urban",
-    sector: "Street Vendor",
-    income: 180000,
-    caste: "SC/ST",
-    shg_membership: "No"
-  };
-
   // Realtime WebSocket Subscription
   useEffect(() => {
     const unsubscribe = subscribeToAlphaChanges((updatedSchemes, meta) => {
@@ -65,9 +54,9 @@ export function RecommendationsGridPage({
     return unsubscribe;
   }, []);
 
-  const rankedSchemes = rankAlphaSchemes(schemes, safeProfile, lang);
-  const eligibleSchemes = rankedSchemes.filter(s => s.is_eligible);
-  const ineligibleSchemes = rankedSchemes.filter(s => !s.is_eligible);
+  const rankedSchemes = userProfile ? rankAlphaSchemes(schemes, userProfile, lang) : schemes;
+  const eligibleSchemes = userProfile ? rankedSchemes.filter(s => s.is_eligible) : [];
+  const ineligibleSchemes = userProfile ? rankedSchemes.filter(s => !s.is_eligible) : schemes;
 
   // Filters
   const filterTabs = [
@@ -188,60 +177,91 @@ export function RecommendationsGridPage({
       </div>
 
       {/* Citizen Summary Profile Banner */}
-      <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl mb-8 relative overflow-hidden">
-        <div className="absolute right-0 top-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+      {/* Citizen Summary Profile Banner */}
+      {!userProfile ? (
+        <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl mb-8 border border-blue-900 flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
-            <div className="inline-flex items-center space-x-2 bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-xs font-bold border border-blue-400/30 mb-3">
-              <UserCheck className="w-3.5 h-3.5" />
-              <span>{L("Verified Beneficiary Profile", "சரிபார்க்கப்பட்ட குடிமகன் சுயவிவரம்", "सत्यापित लाभार्थी प्रोफ़ाइल")}</span>
+            <div className="inline-flex items-center space-x-2 bg-amber-400/20 text-amber-300 px-3 py-1 rounded-full text-xs font-bold border border-amber-400/30 mb-2">
+              <UserCheck className="w-3.5 h-3.5 text-amber-300" />
+              <span>{L("Step 1: Complete Beneficiary Intake", "படி 1: புதிய விண்ணப்பப் பதிவு", "चरण 1: नया आवेदक पंजीकरण")}</span>
             </div>
-
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              {safeProfile.name || "Beneficiary Applicant"} ({safeProfile.age || 38} {L("Yrs", "வயது", "वर्ष")})
-            </h1>
-
-            <div className="flex flex-wrap gap-2 mt-3 text-xs">
-              <span className="bg-white/10 px-3 py-1 rounded-xl font-semibold border border-white/10">
-                {safeProfile.area || "Urban"} {L("Area", "பகுதி", "क्षेत्र")}
-              </span>
-              <span className="bg-blue-600/60 px-3 py-1 rounded-xl font-semibold border border-blue-400/40">
-                {safeProfile.sector || "Street Vendor"}
-              </span>
-              <span className="bg-white/10 px-3 py-1 rounded-xl font-semibold border border-white/10">
-                ₹{Number(safeProfile.income || 180000).toLocaleString('en-IN')} / {L("Yr", "ஆண்டு வருமானம்", "वार्षिक")}
-              </span>
-              <span className="bg-white/10 px-3 py-1 rounded-xl font-semibold border border-white/10">
-                {safeProfile.caste || "SC/ST"}
-              </span>
-              <span className="bg-white/10 px-3 py-1 rounded-xl font-semibold border border-white/10">
-                {L("SHG Status:", "சுயஉதவிக்குழு:", "SHG स्थिति:")} {safeProfile.shg_membership === "Yes" ? L("Member", "உறுப்பினர்", "सदस्य") : L("Non-Member", "உறுப்பினர் இல்லை", "गैर-सदस्य")}
-              </span>
-            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-white">
+              {L("Please Fill the Applicant Input Form First", "முதலில் புதிய விண்ணப்பதாரர் படிவத்தை நிரப்பவும்", "कृपया पहले नया आवेदक इनपुट फ़ॉर्म भरें")}
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
+              {L(
+                "You haven't submitted your applicant details yet. Complete the 7-parameter intake form with Voice or OCR to calculate your exact 100% eligible welfare schemes.",
+                "நீங்கள் இன்னும் உங்கள் சுயவிவரத்தை பதிவு செய்யவில்லை. உங்களுக்கான துல்லியமான 100% தகுதியான திட்டங்களை கணக்கிட குரல் அல்லது OCR மூலம் பதிவு செய்யவும்.",
+                "आपने अभी तक आवेदक विवरण दर्ज नहीं किया है। अपनी सटीक 100% पात्र योजनाएँ देखने के लिए वॉयस या OCR द्वारा फ़ॉर्म भरें।"
+              )}
+            </p>
           </div>
+          <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+            <button
+              onClick={onEditProfile}
+              className="px-6 py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-2xl font-black text-xs shadow-lg transition flex items-center justify-center space-x-2 cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4 text-amber-300" />
+              <span>{L("Open Applicant Input Form ➔", "விண்ணப்ப படிவத்தை திறக்க ➔", "आवेदक इनपुट फ़ॉर्म खोलें ➔")}</span>
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl mb-8 relative overflow-hidden">
+          <div className="absolute right-0 top-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-          {/* Matches & Live Score Box */}
-          <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/10 shrink-0">
-            <div className="text-center px-4 border-r border-white/10">
-              <span className="text-3xl font-black text-emerald-400 block">
-                {eligibleSchemes.length}
-              </span>
-              <span className="text-[10px] text-slate-300 font-bold uppercase tracking-wider">
-                {L("100% Eligible", "100% தகுதியானவை", "100% पात्र")}
-              </span>
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+            <div>
+              <div className="inline-flex items-center space-x-2 bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-xs font-bold border border-blue-400/30 mb-3">
+                <UserCheck className="w-3.5 h-3.5" />
+                <span>{L("Verified Beneficiary Profile", "சரிபார்க்கப்பட்ட குடிமகன் சுயவிவரம்", "सत्यापित लाभार्थी प्रोफ़ाइल")}</span>
+              </div>
+
+              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                {userProfile.name} ({userProfile.age} {L("Yrs", "வயது", "वर्ष")})
+              </h1>
+
+              <div className="flex flex-wrap gap-2 mt-3 text-xs">
+                <span className="bg-white/10 px-3 py-1 rounded-xl font-semibold border border-white/10">
+                  {userProfile.area} {L("Area", "பகுதி", "क्षेत्र")}
+                </span>
+                <span className="bg-blue-600/60 px-3 py-1 rounded-xl font-semibold border border-blue-400/40">
+                  {userProfile.sector}
+                </span>
+                <span className="bg-white/10 px-3 py-1 rounded-xl font-semibold border border-white/10">
+                  ₹{Number(userProfile.income).toLocaleString('en-IN')} / {L("Yr", "ஆண்டு வருமானம்", "वार्षिक")}
+                </span>
+                <span className="bg-white/10 px-3 py-1 rounded-xl font-semibold border border-white/10">
+                  {userProfile.caste}
+                </span>
+                <span className="bg-white/10 px-3 py-1 rounded-xl font-semibold border border-white/10">
+                  {L("SHG Status:", "சுயஉதவிக்குழு:", "SHG स्थिति:")} {userProfile.shg_membership === "Yes" ? L("Member", "உறுப்பினர்", "सदस्य") : L("Non-Member", "உறுப்பினர் இல்லை", "गैर-सदस्य")}
+                </span>
+              </div>
             </div>
-            <div className="text-center px-4">
-              <span className="text-3xl font-black text-amber-400 block">
-                {ineligibleSchemes.length}
-              </span>
-              <span className="text-[10px] text-slate-300 font-bold uppercase tracking-wider">
-                {L("Locked / Frozen", "நிறுத்தப்பட்டவை", "अपात्र / लॉक")}
-              </span>
+
+            {/* Matches & Live Score Box */}
+            <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/10 shrink-0">
+              <div className="text-center px-4 border-r border-white/10">
+                <span className="text-3xl font-black text-emerald-400 block">
+                  {eligibleSchemes.length}
+                </span>
+                <span className="text-[10px] text-slate-300 font-bold uppercase tracking-wider">
+                  {L("100% Eligible", "100% தகுதியானவை", "100% पात्र")}
+                </span>
+              </div>
+              <div className="text-center px-4">
+                <span className="text-3xl font-black text-amber-400 block">
+                  {ineligibleSchemes.length}
+                </span>
+                <span className="text-[10px] text-slate-300 font-bold uppercase tracking-wider">
+                  {L("Locked / Frozen", "நிறுத்தப்பட்டவை", "अपात्र / लॉक")}
+                </span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Filter Tabs & Search Bar */}
       <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mb-8 flex flex-col lg:flex-row items-center justify-between gap-4">

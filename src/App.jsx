@@ -16,6 +16,7 @@ import { CenterLocator } from './components/CenterLocator';
 import { AdminCMS } from './components/AdminCMS';
 import { AiCounselorChat } from './components/AiCounselorChat';
 import { ConsentModal } from './components/ConsentModal';
+import { AllSchemesCatalog } from './components/AllSchemesCatalog';
 
 import { TRANSLATIONS } from './data/translations';
 import { hasConsented, grantConsent, revokeConsent } from './config/portalConfig';
@@ -24,8 +25,8 @@ export default function App() {
   // ── Language: 'en' | 'ta' | 'hi' ─────────────────────────────────────────
   const [lang, setLang] = useState('en');
 
-  // ── View Router ────────────────────────────────────────────────────────────
-  const [view, setView] = useState('landing');
+  // ── View Router: New Applicant Input Page comes first! ─────────────────────
+  const [view, setView] = useState('find-schemes');
 
   // ── Zero Hardcoded: profile starts null until user fills the form ──────────
   const [currentProfile, setCurrentProfile] = useState(null);
@@ -45,9 +46,7 @@ export default function App() {
 
   // ── Consent-gated navigation ──────────────────────────────────────────────
   const navigateTo = (targetView) => {
-    // find-schemes requires consent
-    const consentRequired = ['find-schemes', 'recommendations'];
-    if (consentRequired.includes(targetView) && !consentGranted) {
+    if (targetView === 'recommendations' && !consentGranted && currentProfile) {
       setPendingViewAfterConsent(targetView);
       setShowConsentModal(true);
       return;
@@ -57,13 +56,12 @@ export default function App() {
 
   // ── Logo / brand click: reset session ─────────────────────────────────────
   const handleLogoClick = () => {
-    // Full session reset: clear profile, revoke consent (new consent required)
     setCurrentProfile(null);
     revokeConsent();
     setConsentGranted(false);
     setReferredSchemeForBank(null);
     setBetaJWTPayload(null);
-    setView('landing');
+    setView('find-schemes');
   };
 
   // ── Consent Modal handlers ────────────────────────────────────────────────
@@ -174,14 +172,25 @@ export default function App() {
             onNavigate={navigateTo} />
         )}
 
-        {/* FORM — consent gated */}
+        {/* FORM — Applicant Input Page (Comes First!) */}
         {(view === 'find-schemes' || view === 'form') && (
           <FormVerificationPage
             initialProfile={null}
             lang={lang}
             t={t}
             onSubmit={handleProfileSubmitted}
-            onBack={() => setView('landing')}
+            onBack={() => setView('all-schemes')}
+          />
+        )}
+
+        {/* ALL SCHEMES CATALOG (Dedicated Separate Section) */}
+        {(view === 'all-schemes' || view === 'catalog') && (
+          <AllSchemesCatalog
+            lang={lang}
+            t={t}
+            onStartIntake={() => navigateTo('find-schemes')}
+            onOpenCalculator={(scheme) => navigateTo('calc')}
+            onOpenAlphaPortal={() => navigateTo('alpha-portal')}
           />
         )}
 
