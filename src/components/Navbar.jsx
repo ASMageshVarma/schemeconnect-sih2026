@@ -1,16 +1,18 @@
 import React from 'react';
 import { 
   Globe, Building2, MapPin, LayoutDashboard, UserCheck, ShieldCheck, 
-  Calculator, Bot, FileText, Sparkles, Radio, Laptop, Zap 
+  Calculator, Bot, FileText, Sparkles, Radio, Laptop, Zap, Check 
 } from 'lucide-react';
 
-export function Navbar({ lang, setLang, t, view, setView, isOnline, fontSize, setFontSize }) {
+export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontSize, setFontSize }) {
+  const isTa = lang === "ta";
+
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 transition-all shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
         {/* Brand & Emblem */}
-        <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => setView('feed')}>
+        <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => setView('landing')}>
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-500 via-white to-green-600 p-0.5 shadow-sm">
             <div className="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center">
               <Building2 className="w-5 h-5 text-amber-400" />
@@ -26,28 +28,52 @@ export function Navbar({ lang, setLang, t, view, setView, isOnline, fontSize, se
               </span>
             </div>
             <p className="text-[10px] text-slate-500 font-medium hidden md:block">
-              Team TechTitans (SIH-9E972H) • MoSJE & Alpha Portal
+              {isTa ? "குழு: டெக் டைட்டன்ஸ் (SIH-9E972H)" : "Team TechTitans (SIH-9E972H)"}
             </p>
           </div>
         </div>
 
-        {/* Center Navigation Links */}
-        <nav className="hidden lg:flex items-center space-x-1 text-xs font-bold">
+        {/* Center Multi-Page Navigation Links */}
+        <nav className="hidden xl:flex items-center space-x-1 text-xs font-bold">
           
-          {/* SchemeConnect Feed */}
+          {/* Landing Page (/) */}
           <button
-            onClick={() => setView('feed')}
+            onClick={() => setView('landing')}
+            className={`px-3 py-1.5 rounded-xl transition ${
+              view === 'landing' || view === 'home'
+                ? 'bg-slate-900 text-white shadow-xs' 
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+          >
+            {isTa ? "முகப்பு" : "Home"}
+          </button>
+
+          {/* Find Schemes (/find-schemes) */}
+          <button
+            onClick={() => setView('find-schemes')}
             className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1 ${
-              view === 'feed' || view === 'home'
+              view === 'find-schemes' || view === 'form'
                 ? 'bg-slate-900 text-white shadow-xs' 
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>SchemeConnect Feed</span>
+            <span>{isTa ? "திட்டங்களை தேடுக" : "Find Schemes"}</span>
           </button>
 
-          {/* Alpha Portal Console */}
+          {/* Recommendations (/recommendations) */}
+          <button
+            onClick={() => setView('recommendations')}
+            className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1 ${
+              view === 'recommendations' || view === 'feed'
+                ? 'bg-slate-900 text-white shadow-xs' 
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+            }`}
+          >
+            <span>{isTa ? "பரிந்துரைகள்" : "Recommendations"}</span>
+          </button>
+
+          {/* Alpha Portal Console (/alpha-portal) */}
           <button
             onClick={() => setView('alpha-portal')}
             className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 ${
@@ -57,20 +83,20 @@ export function Navbar({ lang, setLang, t, view, setView, isOnline, fontSize, se
             }`}
           >
             <Radio className="w-3.5 h-3.5 text-indigo-500 animate-pulse" />
-            <span>Alpha Portal</span>
+            <span>{isTa ? "அரசு நிர்வாக முகப்பு" : "Alpha Portal"}</span>
           </button>
 
-          {/* Split Demo Mode (Judge Pitch View) */}
+          {/* Split Demo View (/demo-split) */}
           <button
-            onClick={() => setView('split-demo')}
+            onClick={() => setView('demo-split')}
             className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 ${
-              view === 'split-demo'
+              view === 'demo-split' || view === 'split-demo'
                 ? 'bg-emerald-800 text-white shadow-xs' 
                 : 'text-emerald-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200'
             }`}
           >
             <Laptop className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Split Demo View</span>
+            <span>{isTa ? "நடுவர் நேரடி திரை" : "Demo Split"}</span>
           </button>
 
           {/* Financial Calculator */}
@@ -83,7 +109,7 @@ export function Navbar({ lang, setLang, t, view, setView, isOnline, fontSize, se
             }`}
           >
             <Calculator className="w-3.5 h-3.5 text-blue-500" />
-            <span>Calculator</span>
+            <span>{isTa ? "கால்குலேட்டர்" : "Calculator"}</span>
           </button>
 
           {/* Partner Locator */}
@@ -96,7 +122,7 @@ export function Navbar({ lang, setLang, t, view, setView, isOnline, fontSize, se
             }`}
           >
             <MapPin className="w-3.5 h-3.5 text-emerald-500" />
-            <span>Partner Locator</span>
+            <span>{isTa ? "வங்கி வரைபடம்" : "Locator"}</span>
           </button>
 
           {/* AI Mitra Counselor */}
@@ -114,7 +140,7 @@ export function Navbar({ lang, setLang, t, view, setView, isOnline, fontSize, se
 
         </nav>
 
-        {/* Right Controls */}
+        {/* Right Controls: Font Scaling & Language Switcher */}
         <div className="flex items-center space-x-2 sm:space-x-3">
           
           {/* Font Scaler Accessibility */}
@@ -142,18 +168,28 @@ export function Navbar({ lang, setLang, t, view, setView, isOnline, fontSize, se
             </button>
           </div>
 
-          {/* Language Selector Dropdown */}
-          <div className="relative flex items-center">
-            <select
-              value={lang}
-              onChange={(e) => setLang(e.target.value)}
-              className="appearance-none pl-7 pr-7 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 text-xs font-bold rounded-xl cursor-pointer outline-none transition shadow-xs"
+          {/* Language Toggle Button (EN / தமிழ்) */}
+          <div className="flex items-center bg-blue-50 p-1 rounded-2xl border border-blue-200 text-xs font-bold">
+            <button
+              onClick={() => setLang('en')}
+              className={`px-2.5 py-1 rounded-xl transition ${
+                lang === 'en' 
+                  ? 'bg-blue-600 text-white shadow-xs font-black' 
+                  : 'text-blue-900 hover:bg-blue-100'
+              }`}
             >
-              <option value="en">English</option>
-              <option value="ta">தமிழ் (Tamil)</option>
-              <option value="hi">हिन्दी (Hindi)</option>
-            </select>
-            <Globe className="w-3.5 h-3.5 text-blue-600 absolute left-2 pointer-events-none" />
+              English
+            </button>
+            <button
+              onClick={() => setLang('ta')}
+              className={`px-2.5 py-1 rounded-xl transition ${
+                lang === 'ta' 
+                  ? 'bg-blue-600 text-white shadow-xs font-black' 
+                  : 'text-blue-900 hover:bg-blue-100'
+              }`}
+            >
+              தமிழ்
+            </button>
           </div>
 
         </div>
