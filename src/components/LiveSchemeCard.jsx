@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   CheckCircle, AlertTriangle, Lock, Unlock, ArrowRight, 
   Volume2, VolumeX, Sparkles, Building2, ShieldCheck, IndianRupee, 
-  Clock, Info, ChevronRight, UserCheck, Landmark
+  Clock, Info, ChevronRight, UserCheck, Landmark, Calculator
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
@@ -66,7 +66,7 @@ export function LiveSchemeCard({
       layout
       initial={{ opacity: 0, y: 15 }}
       animate={{ 
-        opacity: isEligible ? 1 : 0.7,
+        opacity: isEligible ? 1 : 0.75,
         scale: justUnlocked ? [1, 1.03, 1] : 1
       }}
       transition={{ duration: 0.35 }}
@@ -75,7 +75,7 @@ export function LiveSchemeCard({
           ? (justUnlocked 
               ? 'bg-gradient-to-br from-emerald-50 via-white to-blue-50 border-emerald-500 shadow-xl ring-4 ring-emerald-400/30' 
               : 'bg-white border-slate-200 shadow-sm hover:shadow-lg hover:border-blue-400')
-          : 'bg-slate-50/80 border-dashed border-slate-300 grayscale-[60%] hover:grayscale-0 hover:bg-white'
+          : 'bg-slate-50/90 border-dashed border-slate-300 grayscale-[60%] hover:grayscale-0 hover:bg-white'
       }`}
     >
       
@@ -146,7 +146,7 @@ export function LiveSchemeCard({
         </p>
 
         {/* Sanctioned Amount & Key Specs Grid */}
-        <div className={`p-3.5 rounded-2xl border mb-4 ${isEligible ? 'bg-slate-50 border-slate-200/80' : 'bg-slate-100/70 border-slate-200'}`}>
+        <div className={`p-3.5 rounded-2xl border mb-3 ${isEligible ? 'bg-slate-50 border-slate-200/80' : 'bg-slate-100/70 border-slate-200'}`}>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div>
               <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
@@ -174,14 +174,28 @@ export function LiveSchemeCard({
             </div>
             <div className="text-right">
               <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
-                {isTa ? "சுயஉதவிக்குழு" : "SHG Status"}
+                {isTa ? "வட்டி விகிதம்" : "Interest Rate"}
               </span>
-              <span className={`text-xs font-bold ${scheme.shg_membership === 'Mandatory' ? 'text-purple-700' : 'text-slate-600'}`}>
-                {scheme.shg_membership}
+              <span className="text-xs font-black text-emerald-700">
+                {scheme.concessional_interest_rate || 5.0}% p.a.
               </span>
             </div>
           </div>
         </div>
+
+        {/* Quick Calculator Trigger Link on Card */}
+        {onOpenCalculator && (
+          <button
+            onClick={() => onOpenCalculator(scheme)}
+            className="w-full py-1.5 px-3 mb-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-[11px] font-bold transition flex items-center justify-between"
+          >
+            <div className="flex items-center gap-1.5">
+              <Calculator className="w-3.5 h-3.5 text-emerald-600" />
+              <span>{isTa ? "மாதாந்திர EMI & சேமிப்பை கணக்கிடுக" : "Simulate Monthly EMI & Subsidy"}</span>
+            </div>
+            <ArrowRight className="w-3 h-3 text-emerald-600" />
+          </button>
+        )}
 
         {/* ========================================================= */}
         {/* FAILED CRITERIA BANNER (FOR INELIGIBLE / FROZEN SCHEMES)   */}
@@ -227,7 +241,7 @@ export function LiveSchemeCard({
               className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-black py-2.5 px-3.5 rounded-xl flex items-center justify-center space-x-1.5 shadow-md transition"
             >
               <Landmark className="w-3.5 h-3.5 text-amber-300" />
-              <span>{isTa ? "வங்கிக்கு விண்ணப்பிக்க ➔" : "Apply / Route to Partner Bank ➔"}</span>
+              <span>{isTa ? "வங்கிக்கு விண்ணப்பிக்க ➔" : "Apply / Route to Bank ➔"}</span>
             </button>
 
             <button
