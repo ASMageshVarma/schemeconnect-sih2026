@@ -1,9 +1,5 @@
 import React, { useState } from 'react';
-import { 
-  Sparkles, Mic, Camera, FileText, ArrowRight, ShieldCheck, 
-  Building2, Users, CheckCircle2, TrendingUp, Landmark, Award, 
-  MapPin, Calculator, Bot, ChevronRight, Zap, Radio, Laptop
-} from 'lucide-react';
+import { Bot } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 import { Navbar } from './components/Navbar';
@@ -19,58 +15,87 @@ import { FinancialCalculator } from './components/FinancialCalculator';
 import { CenterLocator } from './components/CenterLocator';
 import { AdminCMS } from './components/AdminCMS';
 import { AiCounselorChat } from './components/AiCounselorChat';
+import { ConsentModal } from './components/ConsentModal';
 
 import { TRANSLATIONS } from './data/translations';
+import { hasConsented, grantConsent, revokeConsent } from './config/portalConfig';
 
 export default function App() {
-  const [lang, setLang] = useState('en'); // Default 'en' or 'ta'
-  const [view, setView] = useState('landing'); // 'landing', 'find-schemes', 'recommendations', 'alpha-portal', 'beta-portal', 'demo-split', 'demo-trio', 'calc', 'locator', 'counselor', 'admin'
-  
-  // Default Benchmark Test State:
-  // Age: 39 | Area: Urban | Sector: Street Vendor | Income: ₹2,00,000 | SHG Member: No
-  const [currentProfile, setCurrentProfile] = useState({
-    name: "Rajan S.",
-    age: 39,
-    area: "Urban",
-    sector: "Street Vendor",
-    income: 200000,
-    annual_income: 200000,
-    shg_membership: "No",
-    gender: "Male",
-    caste: "SC/ST",
-    district: "Tiruchirappalli",
-    state: "Tamil Nadu",
-    documents: ["Aadhaar Card", "Bank Account Passbook", "Community Certificate", "Income Certificate"]
-  });
+  // ── Language: 'en' | 'ta' | 'hi' ─────────────────────────────────────────
+  const [lang, setLang] = useState('en');
 
+  // ── View Router ────────────────────────────────────────────────────────────
+  const [view, setView] = useState('landing');
+
+  // ── Zero Hardcoded: profile starts null until user fills the form ──────────
+  const [currentProfile, setCurrentProfile] = useState(null);
+
+  // ── Consent Gate (sessionStorage backed) ─────────────────────────────────
+  const [consentGranted, setConsentGranted] = useState(hasConsented());
+  const [showConsentModal, setShowConsentModal] = useState(false);
+  const [pendingViewAfterConsent, setPendingViewAfterConsent] = useState(null);
+
+  // ── Beta Portal JWT State ─────────────────────────────────────────────────
   const [referredSchemeForBank, setReferredSchemeForBank] = useState(null);
   const [betaJWTPayload, setBetaJWTPayload] = useState(null);
   const [showJWTGateway, setShowJWTGateway] = useState(false);
-  const [fontSize, setFontSize] = useState('base'); // 'sm', 'base', 'lg'
 
+  const [fontSize, setFontSize] = useState('base');
   const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
 
+  // ── Consent-gated navigation ──────────────────────────────────────────────
+  const navigateTo = (targetView) => {
+    // find-schemes requires consent
+    const consentRequired = ['find-schemes', 'recommendations'];
+    if (consentRequired.includes(targetView) && !consentGranted) {
+      setPendingViewAfterConsent(targetView);
+      setShowConsentModal(true);
+      return;
+    }
+    setView(targetView);
+  };
+
+  // ── Logo / brand click: reset session ─────────────────────────────────────
+  const handleLogoClick = () => {
+    // Full session reset: clear profile, revoke consent (new consent required)
+    setCurrentProfile(null);
+    revokeConsent();
+    setConsentGranted(false);
+    setReferredSchemeForBank(null);
+    setBetaJWTPayload(null);
+    setView('landing');
+  };
+
+  // ── Consent Modal handlers ────────────────────────────────────────────────
+  const handleConsentAccepted = (consentLang) => {
+    grantConsent();
+    setConsentGranted(true);
+    setShowConsentModal(false);
+    if (consentLang && consentLang !== lang) setLang(consentLang);
+    setView(pendingViewAfterConsent || 'find-schemes');
+    setPendingViewAfterConsent(null);
+  };
+
+  const handleConsentDeclined = () => {
+    setShowConsentModal(false);
+    setPendingViewAfterConsent(null);
+    setView('landing');
+  };
+
+  // ── Form submitted ─────────────────────────────────────────────────────────
   const handleProfileSubmitted = (profile) => {
     setCurrentProfile(profile);
-    try {
-      confetti({
-        particleCount: 70,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
-    } catch (e) {}
+    try { confetti({ particleCount: 70, spread: 70, origin: { y: 0.6 } }); } catch {}
     setView('recommendations');
   };
 
+  // ── Route to Bank (with JWT gateway) ─────────────────────────────────────
   const handleRouteToBank = (scheme) => {
     setReferredSchemeForBank(scheme);
-    // Show the JWT Token Gateway modal to decode/verify token before entering Beta Portal
     if (scheme._jwtToken) {
       setShowJWTGateway(true);
     } else {
-      try {
-        confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
-      } catch (e) {}
+      try { confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } }); } catch {}
       setView('beta-portal');
     }
   };
@@ -78,9 +103,7 @@ export default function App() {
   const handleJWTTokenAccepted = (jwtPayload) => {
     setBetaJWTPayload(jwtPayload);
     setShowJWTGateway(false);
-    try {
-      confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
-    } catch (e) {}
+    try { confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } }); } catch {}
     setView('beta-portal');
   };
 
@@ -90,93 +113,71 @@ export default function App() {
     return 'text-base';
   };
 
-  // 1. Triple-Portal Ecosystem Pitch View (/demo-trio)
+  // ── Triple-Portal Pitch Views (no consent needed — demo only) ────────────
   if (view === 'demo-trio') {
     return (
-      <div className={`min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between ${getFontSizeClass()}`}>
-        <Navbar
-          lang={lang}
-          setLang={setLang}
-          t={t}
-          view={view}
-          setView={setView}
-          isOnline={true}
-          fontSize={fontSize}
-          setFontSize={setFontSize}
-        />
-        <TripleDemoView
-          userProfile={currentProfile}
-          lang={lang}
-          t={t}
-          onEditProfile={() => setView('find-schemes')}
-          onOpenCalculator={() => setView('calc')}
-          onOpenLocator={() => setView('locator')}
-          onOpenCounselor={() => setView('counselor')}
-          onRouteToBank={handleRouteToBank}
-        />
+      <div className={`min-h-screen bg-slate-950 text-slate-100 flex flex-col ${getFontSizeClass()}`}>
+        <Navbar lang={lang} setLang={setLang} t={t} view={view} setView={navigateTo}
+          isOnline={true} fontSize={fontSize} setFontSize={setFontSize} onLogoClick={handleLogoClick} />
+        <TripleDemoView userProfile={currentProfile} lang={lang} t={t}
+          onEditProfile={() => navigateTo('find-schemes')} onOpenCalculator={() => navigateTo('calc')}
+          onOpenLocator={() => navigateTo('locator')} onOpenCounselor={() => navigateTo('counselor')}
+          onRouteToBank={handleRouteToBank} />
       </div>
     );
   }
 
-  // 2. Split-Screen Pitch View (/demo-split)
   if (view === 'demo-split' || view === 'split-demo') {
     return (
-      <div className={`min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between ${getFontSizeClass()}`}>
-        <Navbar
-          lang={lang}
-          setLang={setLang}
-          t={t}
-          view={view}
-          setView={setView}
-          isOnline={true}
-          fontSize={fontSize}
-          setFontSize={setFontSize}
-        />
-        <SplitDemoView
-          userProfile={currentProfile}
-          lang={lang}
-          t={t}
-          onEditProfile={() => setView('find-schemes')}
-          onOpenCalculator={() => setView('calc')}
-          onOpenLocator={() => setView('locator')}
-          onOpenCounselor={() => setView('counselor')}
-        />
+      <div className={`min-h-screen bg-slate-950 text-slate-100 flex flex-col ${getFontSizeClass()}`}>
+        <Navbar lang={lang} setLang={setLang} t={t} view={view} setView={navigateTo}
+          isOnline={true} fontSize={fontSize} setFontSize={setFontSize} onLogoClick={handleLogoClick} />
+        <SplitDemoView userProfile={currentProfile} lang={lang} t={t}
+          onEditProfile={() => navigateTo('find-schemes')} onOpenCalculator={() => navigateTo('calc')}
+          onOpenLocator={() => navigateTo('locator')} onOpenCounselor={() => navigateTo('counselor')} />
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen bg-slate-50/70 text-slate-900 flex flex-col justify-between ${getFontSizeClass()}`}>
-      
-      {/* Top Navigation Bar */}
-      <Navbar
-        lang={lang}
-        setLang={setLang}
-        t={t}
-        view={view}
-        setView={setView}
-        isOnline={true}
-        fontSize={fontSize}
-        setFontSize={setFontSize}
-      />
+    <div className={`min-h-screen bg-slate-50/70 text-slate-900 flex flex-col ${getFontSizeClass()}`}>
 
-      {/* Main View Area */}
+      {/* Consent Modal Overlay */}
+      {showConsentModal && (
+        <ConsentModal
+          initialLang={lang}
+          onAccept={handleConsentAccepted}
+          onDecline={handleConsentDeclined}
+        />
+      )}
+
+      {/* JWT Token Gateway Overlay */}
+      {showJWTGateway && referredSchemeForBank && (
+        <BetaTokenGateway
+          referredScheme={referredSchemeForBank}
+          userProfile={currentProfile}
+          lang={lang}
+          onTokenAccepted={handleJWTTokenAccepted}
+          onDismiss={() => { setShowJWTGateway(false); setView('beta-portal'); }}
+        />
+      )}
+
+      {/* Top Navigation */}
+      <Navbar lang={lang} setLang={setLang} t={t} view={view} setView={navigateTo}
+        isOnline={true} fontSize={fontSize} setFontSize={setFontSize} onLogoClick={handleLogoClick} />
+
       <main className="flex-1">
-        
-        {/* PAGE 1: LANDING PAGE (/) */}
+
+        {/* LANDING PAGE */}
         {(view === 'landing' || view === 'home') && (
-          <LandingPage
-            lang={lang}
-            setLang={setLang}
-            t={t}
-            onNavigate={(page) => setView(page)}
-          />
+          <LandingPage lang={lang} setLang={setLang} t={t}
+            onNavigate={navigateTo} />
         )}
 
-        {/* PAGE 2: FORM & VERIFICATION PAGE (/find-schemes) */}
+        {/* FORM — consent gated */}
         {(view === 'find-schemes' || view === 'form') && (
           <FormVerificationPage
-            initialProfile={currentProfile}
+            initialProfile={null}
             lang={lang}
             t={t}
             onSubmit={handleProfileSubmitted}
@@ -184,7 +185,7 @@ export default function App() {
           />
         )}
 
-        {/* PAGE 3: RECOMMENDATION RESULTS GRID (/recommendations) */}
+        {/* RECOMMENDATIONS */}
         {(view === 'recommendations' || view === 'feed' || view === 'results') && (
           <RecommendationsGridPage
             userProfile={currentProfile}
@@ -201,14 +202,12 @@ export default function App() {
           />
         )}
 
-        {/* PAGE 4: ALPHA PORTAL ADMIN CONSOLE (/alpha-portal) */}
+        {/* ALPHA PORTAL */}
         {view === 'alpha-portal' && (
-          <AlphaPortalConsole
-            onOpenSplitDemo={() => setView('demo-split')}
-          />
+          <AlphaPortalConsole lang={lang} onOpenSplitDemo={() => setView('demo-split')} />
         )}
 
-        {/* PAGE 5: BETA PORTAL BANK CONSOLE (/beta-portal) */}
+        {/* BETA PORTAL */}
         {view === 'beta-portal' && (
           <BetaPortalBank
             referredScheme={referredSchemeForBank}
@@ -222,35 +221,24 @@ export default function App() {
           />
         )}
 
-        {/* JWT TOKEN GATEWAY OVERLAY — intercepts SchemeConnect → Beta bank routing */}
-        {showJWTGateway && referredSchemeForBank && (
-          <BetaTokenGateway
-            referredScheme={referredSchemeForBank}
-            userProfile={currentProfile}
-            lang={lang}
-            onTokenAccepted={handleJWTTokenAccepted}
-            onDismiss={() => { setShowJWTGateway(false); setView('beta-portal'); }}
-          />
-        )}
-
         {/* FINANCIAL CALCULATOR */}
         {view === 'calc' && (
           <div className="py-4">
             <FinancialCalculator
-              initialProjectCost={currentProfile?.estimated_cost || 140000}
+              initialProjectCost={currentProfile?.estimated_cost || null}
               lang={lang}
               t={t}
             />
           </div>
         )}
 
-        {/* GEO-SPATIAL PARTNER LOCATOR */}
+        {/* GEO-SPATIAL LOCATOR */}
         {view === 'locator' && (
           <div className="py-4">
             <CenterLocator
               lang={lang}
               t={t}
-              defaultDistrict={currentProfile?.district || "Tiruchirappalli"}
+              defaultDistrict={currentProfile?.district || ""}
             />
           </div>
         )}
@@ -264,7 +252,7 @@ export default function App() {
                 <span>AI Mitra Welfare Counselor</span>
               </div>
               <h2 className="text-xl font-black text-slate-900 mb-4">
-                Conversational Welfare Counselor (English & தமிழ்)
+                Conversational Welfare Counselor (English / தமிழ் / हिंदी)
               </h2>
               <AiCounselorChat lang={lang} t={t} isEmbedded={true} currentProfile={currentProfile} />
             </div>
@@ -273,28 +261,25 @@ export default function App() {
 
         {/* ADMIN CMS */}
         {view === 'admin' && (
-          <AdminCMS
-            lang={lang}
-            t={t}
-          />
+          <AdminCMS lang={lang} t={t} />
         )}
 
       </main>
 
-      {/* Floating AI Mitra Chat Drawer */}
+      {/* Floating AI Mitra (global) */}
       {view !== 'counselor' && view !== 'demo-split' && view !== 'demo-trio' && (
         <AiCounselorChat lang={lang} t={t} currentProfile={currentProfile} />
       )}
 
-      {/* Clean Footer */}
+      {/* Footer */}
       {view !== 'demo-split' && view !== 'demo-trio' && (
         <footer className="bg-white border-t border-slate-200/80 py-6 text-center text-xs text-slate-500">
           <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
             <span className="font-semibold text-slate-700">
-              SchemeConnect, Alpha Portal & Beta Portal — SIH 2026 Production Ecosystem
+              SchemeConnect · Alpha Portal · Beta Portal — SIH 2026 Triple-Portal Ecosystem
             </span>
             <span>
-              Developed by <strong>Team TechTitans</strong> (SIH-9E972H) • Saranathan College of Engineering
+              Team <strong>TechTitans</strong> (SIH-9E972H) · Saranathan College of Engineering
             </span>
           </div>
         </footer>

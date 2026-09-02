@@ -26,12 +26,26 @@ export function RecommendationsGridPage({
   onRouteToBank 
 }) {
   const isTa = lang === "ta";
+  const isHi = lang === "hi";
+  const L = (en, ta, hi) => isHi ? hi : (isTa ? ta : en);
+
   const [schemes, setSchemes] = useState(getAlphaSchemes());
   const [activeFilter, setActiveFilter] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [lastLiveStreamEvent, setLastLiveStreamEvent] = useState(null);
   const [selectedSchemeDetail, setSelectedSchemeDetail] = useState(null);
   const [gazetteScheme, setGazetteScheme] = useState(null); // Alpha Gazette modal
+
+  // Safe user profile fallback if accessed directly
+  const safeProfile = userProfile || {
+    name: "Beneficiary Applicant",
+    age: 38,
+    area: "Urban",
+    sector: "Street Vendor",
+    income: 180000,
+    caste: "SC/ST",
+    shg_membership: "No"
+  };
 
   // Realtime WebSocket Subscription
   useEffect(() => {
@@ -51,17 +65,17 @@ export function RecommendationsGridPage({
     return unsubscribe;
   }, []);
 
-  const rankedSchemes = rankAlphaSchemes(schemes, userProfile, lang);
+  const rankedSchemes = rankAlphaSchemes(schemes, safeProfile, lang);
   const eligibleSchemes = rankedSchemes.filter(s => s.is_eligible);
   const ineligibleSchemes = rankedSchemes.filter(s => !s.is_eligible);
 
   // Filters
   const filterTabs = [
-    { id: "ALL", label: isTa ? "அனைத்து திட்டங்கள்" : "All Schemes" },
-    { id: "ELIGIBLE", label: isTa ? "✓ 100% தகுதியானவை" : "✓ 100% Eligible Only" },
-    { id: "MICRO", label: isTa ? "⚡ நுண்கடன் (≤₹1.40L)" : "⚡ Micro Finance (≤₹1.40L)" },
-    { id: "TERM", label: isTa ? "🏢 தொழில் கடன் (≤₹50L)" : "🏢 Term Loans (≤₹50L)" },
-    { id: "FROZEN", label: isTa ? "🔒 நிறுத்திவைக்கப்பட்டவை" : "🔒 Ineligible / Frozen" }
+    { id: "ALL", label: L("All Schemes (20)", "அனைத்து திட்டங்கள்", "सभी योजनाएँ (20)") },
+    { id: "ELIGIBLE", label: L("✓ 100% Eligible Only", "✓ 100% தகுதியானவை", "✓ केवल 100% पात्र") },
+    { id: "MICRO", label: L("⚡ Micro Finance (≤₹1.40L)", "⚡ நுண்கடன் (≤₹1.40L)", "⚡ सूक्ष्म वित्त (≤₹1.40L)") },
+    { id: "TERM", label: L("🏢 Term Loans (≤₹50L)", "🏢 தொழில் கடன் (≤₹50L)", "🏢 मियादी ऋण (≤₹50L)") },
+    { id: "FROZEN", label: L("🔒 Ineligible / Locked", "🔒 நிறுத்திவைக்கப்பட்டவை", "🔒 अपात्र / लॉक") }
   ];
 
   const filteredSchemes = rankedSchemes.filter(s => {
@@ -181,28 +195,28 @@ export function RecommendationsGridPage({
           <div>
             <div className="inline-flex items-center space-x-2 bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-xs font-bold border border-blue-400/30 mb-3">
               <UserCheck className="w-3.5 h-3.5" />
-              <span>{isTa ? "சரிபார்க்கப்பட்ட குடிமகன் சுயவிவரம்" : "Verified Beneficiary Profile"}</span>
+              <span>{L("Verified Beneficiary Profile", "சரிபார்க்கப்பட்ட குடிமகன் சுயவிவரம்", "सत्यापित लाभार्थी प्रोफ़ाइल")}</span>
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              {userProfile.name || "Rajan S."} ({userProfile.age || 39} {isTa ? "வயது" : "Yrs"})
+              {safeProfile.name || "Beneficiary Applicant"} ({safeProfile.age || 38} {L("Yrs", "வயது", "वर्ष")})
             </h1>
 
             <div className="flex flex-wrap gap-2 mt-3 text-xs">
               <span className="bg-white/10 px-3 py-1 rounded-xl font-semibold border border-white/10">
-                {userProfile.area || "Urban"} {isTa ? "பகுதி" : "Area"}
+                {safeProfile.area || "Urban"} {L("Area", "பகுதி", "क्षेत्र")}
               </span>
               <span className="bg-blue-600/60 px-3 py-1 rounded-xl font-semibold border border-blue-400/40">
-                {userProfile.sector || "Street Vendor"}
+                {safeProfile.sector || "Street Vendor"}
               </span>
               <span className="bg-white/10 px-3 py-1 rounded-xl font-semibold border border-white/10">
-                ₹{Number(userProfile.income || 200000).toLocaleString('en-IN')} / {isTa ? "ஆண்டு வருமானம்" : "Yr"}
+                ₹{Number(safeProfile.income || 180000).toLocaleString('en-IN')} / {L("Yr", "ஆண்டு வருமானம்", "वार्षिक")}
               </span>
               <span className="bg-white/10 px-3 py-1 rounded-xl font-semibold border border-white/10">
-                {userProfile.caste || "SC/ST"}
+                {safeProfile.caste || "SC/ST"}
               </span>
               <span className="bg-white/10 px-3 py-1 rounded-xl font-semibold border border-white/10">
-                {isTa ? "சுயஉதவிக்குழு:" : "SHG Status:"} {userProfile.shg_membership === "Yes" ? (isTa ? "உறுப்பினர்" : "Member") : (isTa ? "உறுப்பினர் இல்லை" : "Non-Member")}
+                {L("SHG Status:", "சுயஉதவிக்குழு:", "SHG स्थिति:")} {safeProfile.shg_membership === "Yes" ? L("Member", "உறுப்பினர்", "सदस्य") : L("Non-Member", "உறுப்பினர் இல்லை", "गैर-सदस्य")}
               </span>
             </div>
           </div>
@@ -214,7 +228,7 @@ export function RecommendationsGridPage({
                 {eligibleSchemes.length}
               </span>
               <span className="text-[10px] text-slate-300 font-bold uppercase tracking-wider">
-                {isTa ? "100% தகுதியானவை" : "100% Eligible"}
+                {L("100% Eligible", "100% தகுதியானவை", "100% पात्र")}
               </span>
             </div>
             <div className="text-center px-4">
@@ -222,7 +236,7 @@ export function RecommendationsGridPage({
                 {ineligibleSchemes.length}
               </span>
               <span className="text-[10px] text-slate-300 font-bold uppercase tracking-wider">
-                {isTa ? "நிறுத்தப்பட்டவை" : "Locked / Frozen"}
+                {L("Locked / Frozen", "நிறுத்தப்பட்டவை", "अपात्र / लॉक")}
               </span>
             </div>
           </div>
