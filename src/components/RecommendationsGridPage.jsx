@@ -11,6 +11,7 @@ import { rankAlphaSchemes } from '../utils/alphaMatcher';
 import { getAlphaSchemes, subscribeToAlphaChanges } from '../utils/realtimeSync';
 import { speakText } from '../utils/speech';
 import { generateReferralJWT } from '../utils/jwtToken';
+import { navigateToBeta, navigateToAlpha } from '../config/portalConfig';
 
 export function RecommendationsGridPage({ 
   userProfile, 
@@ -86,16 +87,20 @@ export function RecommendationsGridPage({
   });
 
   const handleBankApplicationRoute = (scheme) => {
+    // Generate signed JWT referral token (15-min expiry)
+    const { token, payload, referralId } = generateReferralJWT(scheme, userProfile, {
+      trustScore: 98,
+      ekycVerified: true,
+      ocrConfidence: 96,
+      udyamVerified: true,
+      aaCashflowVerified: true
+    });
+    
+    // Launch Beta Portal in a SEPARATE BROWSER TAB
+    navigateToBeta(token, referralId, true);
+
     if (onRouteToBank) {
-      // Generate signed JWT referral token (15-min expiry)
-      const { token, payload, referralId } = generateReferralJWT(scheme, userProfile, {
-        trustScore: 98,
-        ekycVerified: true,
-        ocrConfidence: 96,
-        udyamVerified: true,
-        aaCashflowVerified: true
-      });
-      // Attach JWT token to scheme for Beta Portal Gateway
+      // Attach JWT token to scheme for Beta Portal Gateway if rendered in-page
       onRouteToBank({ ...scheme, _jwtToken: token, _referralId: referralId, _jwtPayload: payload });
     }
   };

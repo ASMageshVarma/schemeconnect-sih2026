@@ -123,3 +123,6 @@ export function verifyAndDecodeReferralJWT(tokenString) {
     return null;
   }
 }
+
+export const decodeReferralJWT = verifyAndDecodeReferralJWT;
+

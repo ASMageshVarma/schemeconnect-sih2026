@@ -1,8 +1,8 @@
-import React from 'react';
 import {
   Globe, Building2, MapPin, Calculator, Bot, Sparkles,
-  Radio, Landmark, Zap, RefreshCw
+  Radio, Landmark, Zap, RefreshCw, ExternalLink
 } from 'lucide-react';
+import { openTriplePortalTabs, navigateToAlpha, navigateToBeta } from '../config/portalConfig';
 
 export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontSize, setFontSize, onLogoClick }) {
   const isTa = lang === "ta";
@@ -85,30 +85,24 @@ export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontS
               <span>{L("🧮 Calculator", "🧮 கால்குலேட்டர்", "🧮 कैलकुलेटर")}</span>
             </button>
 
-            {/* Alpha Portal */}
+            {/* Alpha Portal (Gov) */}
             <button
-              onClick={() => setView('alpha-portal')}
-              className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 shrink-0 ${
-                view === 'alpha-portal'
-                  ? 'bg-indigo-900 text-white shadow-xs'
-                  : 'text-indigo-900 hover:bg-indigo-100/60'
-              }`}
+              onClick={() => navigateToAlpha("", true)}
+              className="px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 shrink-0 bg-indigo-950 hover:bg-indigo-900 text-indigo-200 border border-indigo-800/80 cursor-pointer shadow-xs"
+              title="Launch Alpha Portal (Gov Administration) in a separate browser tab"
             >
-              <Radio className="w-3.5 h-3.5 text-indigo-500 animate-pulse" />
-              <span>{L("Alpha Portal", "அரசு நிர்வாகம்", "अल्फा पोर्टल")}</span>
+              <Radio className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
+              <span>{L("Alpha Portal ↗", "அரசு நிர்வாகம் ↗", "अल्फा पोर्टल ↗")}</span>
             </button>
 
-            {/* Beta Portal */}
+            {/* Beta Portal (Bank) */}
             <button
-              onClick={() => setView('beta-portal')}
-              className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 shrink-0 ${
-                view === 'beta-portal'
-                  ? 'bg-emerald-800 text-white shadow-xs'
-                  : 'text-emerald-900 hover:bg-emerald-100/60'
-              }`}
+              onClick={() => navigateToBeta("", "", true)}
+              className="px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 shrink-0 bg-emerald-950 hover:bg-emerald-900 text-emerald-200 border border-emerald-800/80 cursor-pointer shadow-xs"
+              title="Launch Beta Portal (Bank Sanctions) in a separate browser tab"
             >
-              <Landmark className="w-3.5 h-3.5 text-emerald-600" />
-              <span>{L("Beta Portal", "வங்கி அனுமதி", "बीटा पोर्टल")}</span>
+              <Landmark className="w-3.5 h-3.5 text-emerald-400" />
+              <span>{L("Beta Portal ↗", "வங்கி அனுமதி ↗", "बीटा पोर्टल ↗")}</span>
             </button>
 
             {/* Judge Demo */}
@@ -205,16 +199,20 @@ export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontS
             </div>
 
             {/* Demo Pitch Links */}
-            <div className="flex items-center space-x-2 shrink-0">
-              <span className="text-[10px] text-slate-400 font-bold uppercase hidden sm:block">
-                {L("Pitch:", "நிகழ்வு:", "पिच:")}
-              </span>
+            <div className="flex items-center space-x-1.5 shrink-0">
+              <button 
+                onClick={openTriplePortalTabs}
+                className="px-2.5 py-1 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-black rounded-xl text-[11px] flex items-center gap-1 shadow-sm transition cursor-pointer"
+                title="Launch Alpha Gov, SchemeConnect, and Beta Bank in 3 separate browser tabs"
+              >
+                <span>🚀 3-Tabs Launcher ↗</span>
+              </button>
               <button onClick={() => setView('demo-split')}
-                className="px-2.5 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[11px] font-bold">
+                className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-bold">
                 2-Pane
               </button>
               <button onClick={() => setView('demo-trio')}
-                className="px-2.5 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 rounded-md text-[11px] font-bold">
+                className="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 rounded-lg text-[11px] font-bold">
                 3-Pane
               </button>
             </div>

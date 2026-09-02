@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Bot } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Bot, Landmark, CheckCircle2, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 import { Navbar } from './components/Navbar';
@@ -17,11 +17,22 @@ import { AdminCMS } from './components/AdminCMS';
 import { AiCounselorChat } from './components/AiCounselorChat';
 import { ConsentModal } from './components/ConsentModal';
 import { AllSchemesCatalog } from './components/AllSchemesCatalog';
+import { AlphaApp } from './AlphaApp';
+import { BetaApp } from './BetaApp';
 
 import { TRANSLATIONS } from './data/translations';
-import { hasConsented, grantConsent, revokeConsent } from './config/portalConfig';
+import { hasConsented, grantConsent, revokeConsent, detectActivePortal } from './config/portalConfig';
 
 export default function App() {
+  // ── Standalone Portal Detection for Separate Tabs/Domains ────────────────
+  const activePortal = detectActivePortal();
+  if (activePortal === 'alpha') {
+    return <AlphaApp />;
+  }
+  if (activePortal === 'beta') {
+    return <BetaApp />;
+  }
+
   // ── Language: 'en' | 'ta' | 'hi' ─────────────────────────────────────────
   const [lang, setLang] = useState('en');
 
@@ -40,6 +51,23 @@ export default function App() {
   const [referredSchemeForBank, setReferredSchemeForBank] = useState(null);
   const [betaJWTPayload, setBetaJWTPayload] = useState(null);
   const [showJWTGateway, setShowJWTGateway] = useState(false);
+
+  // ── Realtime Cross-Tab Sanction Callback from Beta Bank Portal ───────────
+  const [sanctionNotification, setSanctionNotification] = useState(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !("BroadcastChannel" in window)) return;
+    const channel = new BroadcastChannel("schemeconnect_sanctions");
+    channel.onmessage = (event) => {
+      if (event.data) {
+        setSanctionNotification(event.data);
+        try { confetti({ particleCount: 90, spread: 80, origin: { y: 0.6 } }); } catch {}
+        const timer = setTimeout(() => setSanctionNotification(null), 12000);
+        return () => clearTimeout(timer);
+      }
+    };
+    return () => channel.close();
+  }, []);
 
   const [fontSize, setFontSize] = useState('base');
   const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
@@ -158,6 +186,37 @@ export default function App() {
           onTokenAccepted={handleJWTTokenAccepted}
           onDismiss={() => { setShowJWTGateway(false); setView('beta-portal'); }}
         />
+      )}
+
+      {/* Real-time Cross-Tab Sanction Toast */}
+      {sanctionNotification && (
+        <div className="fixed bottom-6 right-6 z-50 max-w-md bg-slate-950 text-white border-2 border-emerald-500 rounded-3xl p-4 shadow-2xl animate-bounce flex items-start gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+            <Landmark className="w-5 h-5 text-emerald-400" />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-black uppercase text-emerald-400 tracking-wider">
+                Cross-Tab Callback (Beta Bank Portal)
+              </span>
+              <button 
+                onClick={() => setSanctionNotification(null)}
+                className="text-slate-400 hover:text-white text-xs cursor-pointer ml-2"
+              >
+                ✕
+              </button>
+            </div>
+            <h4 className="text-sm font-black text-white mt-0.5">
+              🎉 Loan Sanction Approved!
+            </h4>
+            <p className="text-xs text-slate-300 mt-1">
+              Bank Officer approved <b>{sanctionNotification.schemeName || "Concessional Loan"}</b> for <b>{sanctionNotification.beneficiaryName || "Beneficiary"}</b>.
+            </p>
+            <div className="mt-2 text-[10px] font-mono text-emerald-300 bg-emerald-950/80 px-2 py-1 rounded-lg border border-emerald-800/60">
+              Ref: {sanctionNotification.referralId || "SANCTION-CONFIRMED"} • 100% Disbursed
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Top Navigation */}

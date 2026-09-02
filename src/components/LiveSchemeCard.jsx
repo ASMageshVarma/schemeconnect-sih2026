@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { speakText, stopSpeaking } from '../utils/speech';
 import { generateReferralJWT } from '../utils/jwtToken';
+import { navigateToAlpha } from '../config/portalConfig';
 
 export function LiveSchemeCard({
   scheme,
@@ -170,12 +171,16 @@ export function LiveSchemeCard({
           <div className="flex gap-2 mb-3">
             {/* Verify on Alpha Portal (Official Gazette) */}
             <button
-              onClick={() => onSelect && onSelect({ ...scheme, _openGazette: true })}
+              onClick={() => {
+                navigateToAlpha(scheme.scheme_id, true);
+                if (onSelect) onSelect({ ...scheme, _openGazette: true });
+              }}
               className="flex-1 py-1.5 px-2.5 bg-slate-50 hover:bg-indigo-50 text-slate-700 hover:text-indigo-800 border border-slate-200 hover:border-indigo-300 rounded-xl text-[11px] font-bold transition flex items-center justify-center gap-1 cursor-pointer"
+              title="Open Official Gazette on Alpha Portal (New Tab)"
             >
               <Building2 className="w-3 h-3 text-indigo-600" />
-              <span>{L("Verify on Gov Gazette", "Gov அதிகாரப்பூர்வ சரிபார்", "सरकारी गजट सत्यापन")}</span>
-              <ExternalLink className="w-2.5 h-2.5 text-slate-400" />
+              <span>{L("Verify on Gov Gazette ↗", "அரசிதழ் சரிபார் ↗", "सरकारी गजट ↗")}</span>
+              <ExternalLink className="w-2.5 h-2.5 text-indigo-400" />
             </button>
 
             {/* JWT Token Preview */}
