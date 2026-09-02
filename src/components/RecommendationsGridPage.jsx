@@ -6,9 +6,11 @@ import {
   Volume2, Check, ArrowRight, Landmark 
 } from 'lucide-react';
 import { LiveSchemeCard } from './LiveSchemeCard';
+import { AlphaGazetteModal } from './AlphaGazetteModal';
 import { rankAlphaSchemes } from '../utils/alphaMatcher';
 import { getAlphaSchemes, subscribeToAlphaChanges } from '../utils/realtimeSync';
 import { speakText } from '../utils/speech';
+import { generateReferralJWT } from '../utils/jwtToken';
 
 export function RecommendationsGridPage({ 
   userProfile, 
@@ -29,6 +31,7 @@ export function RecommendationsGridPage({
   const [searchQuery, setSearchQuery] = useState("");
   const [lastLiveStreamEvent, setLastLiveStreamEvent] = useState(null);
   const [selectedSchemeDetail, setSelectedSchemeDetail] = useState(null);
+  const [gazetteScheme, setGazetteScheme] = useState(null); // Alpha Gazette modal
 
   // Realtime WebSocket Subscription
   useEffect(() => {
@@ -81,7 +84,24 @@ export function RecommendationsGridPage({
 
   const handleBankApplicationRoute = (scheme) => {
     if (onRouteToBank) {
-      onRouteToBank(scheme);
+      // Generate signed JWT referral token (15-min expiry)
+      const { token, payload, referralId } = generateReferralJWT(scheme, userProfile, {
+        trustScore: 98,
+        ekycVerified: true,
+        ocrConfidence: 96,
+        udyamVerified: true,
+        aaCashflowVerified: true
+      });
+      // Attach JWT token to scheme for Beta Portal Gateway
+      onRouteToBank({ ...scheme, _jwtToken: token, _referralId: referralId, _jwtPayload: payload });
+    }
+  };
+
+  const handleSelectScheme = (scheme) => {
+    if (scheme._openGazette) {
+      setGazetteScheme(scheme);
+    } else {
+      setSelectedSchemeDetail(scheme);
     }
   };
 
@@ -264,7 +284,7 @@ export function RecommendationsGridPage({
                 scheme={scheme}
                 userProfile={userProfile}
                 lang={lang}
-                onSelect={(s) => setSelectedSchemeDetail(s)}
+                onSelect={handleSelectScheme}
                 onApply={(s) => handleBankApplicationRoute(s)}
                 onOpenCalculator={onOpenCalculator}
                 onOpenLocator={onOpenLocator}
@@ -298,7 +318,7 @@ export function RecommendationsGridPage({
                 scheme={scheme}
                 userProfile={userProfile}
                 lang={lang}
-                onSelect={(s) => setSelectedSchemeDetail(s)}
+                onSelect={handleSelectScheme}
                 onOpenCalculator={onOpenCalculator}
                 onOpenLocator={onOpenLocator}
               />
@@ -385,6 +405,15 @@ export function RecommendationsGridPage({
 
           </div>
         </div>
+      )}
+
+      {/* Alpha Portal Official Gazette Verification Modal */}
+      {gazetteScheme && (
+        <AlphaGazetteModal
+          scheme={gazetteScheme}
+          lang={lang}
+          onClose={() => setGazetteScheme(null)}
+        />
       )}
 
     </div>

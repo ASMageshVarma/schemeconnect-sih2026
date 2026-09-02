@@ -12,6 +12,7 @@ import { FormVerificationPage } from './components/FormVerificationPage';
 import { RecommendationsGridPage } from './components/RecommendationsGridPage';
 import { AlphaPortalConsole } from './components/AlphaPortalConsole';
 import { BetaPortalBank } from './components/BetaPortalBank';
+import { BetaTokenGateway } from './components/BetaTokenGateway';
 import { SplitDemoView } from './components/SplitDemoView';
 import { TripleDemoView } from './components/TripleDemoView';
 import { FinancialCalculator } from './components/FinancialCalculator';
@@ -43,6 +44,8 @@ export default function App() {
   });
 
   const [referredSchemeForBank, setReferredSchemeForBank] = useState(null);
+  const [betaJWTPayload, setBetaJWTPayload] = useState(null);
+  const [showJWTGateway, setShowJWTGateway] = useState(false);
   const [fontSize, setFontSize] = useState('base'); // 'sm', 'base', 'lg'
 
   const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
@@ -61,12 +64,22 @@ export default function App() {
 
   const handleRouteToBank = (scheme) => {
     setReferredSchemeForBank(scheme);
+    // Show the JWT Token Gateway modal to decode/verify token before entering Beta Portal
+    if (scheme._jwtToken) {
+      setShowJWTGateway(true);
+    } else {
+      try {
+        confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+      } catch (e) {}
+      setView('beta-portal');
+    }
+  };
+
+  const handleJWTTokenAccepted = (jwtPayload) => {
+    setBetaJWTPayload(jwtPayload);
+    setShowJWTGateway(false);
     try {
-      confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
+      confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
     } catch (e) {}
     setView('beta-portal');
   };
@@ -199,12 +212,24 @@ export default function App() {
         {view === 'beta-portal' && (
           <BetaPortalBank
             referredScheme={referredSchemeForBank}
+            betaJWTPayload={betaJWTPayload}
             userProfile={currentProfile}
             lang={lang}
             t={t}
             onBackToSchemeConnect={() => setView('recommendations')}
             onOpenSplitDemo={() => setView('demo-split')}
             onOpenTrioDemo={() => setView('demo-trio')}
+          />
+        )}
+
+        {/* JWT TOKEN GATEWAY OVERLAY — intercepts SchemeConnect → Beta bank routing */}
+        {showJWTGateway && referredSchemeForBank && (
+          <BetaTokenGateway
+            referredScheme={referredSchemeForBank}
+            userProfile={currentProfile}
+            lang={lang}
+            onTokenAccepted={handleJWTTokenAccepted}
+            onDismiss={() => { setShowJWTGateway(false); setView('beta-portal'); }}
           />
         )}
 
