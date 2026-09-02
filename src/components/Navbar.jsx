@@ -1,5 +1,8 @@
 import React from 'react';
-import { Globe, Building2, MapPin, LayoutDashboard, UserCheck, ShieldCheck, Calculator, Bot, FileText, Sparkles } from 'lucide-react';
+import { 
+  Globe, Building2, MapPin, LayoutDashboard, UserCheck, ShieldCheck, 
+  Calculator, Bot, FileText, Sparkles, Radio, Laptop, Zap 
+} from 'lucide-react';
 
 export function Navbar({ lang, setLang, t, view, setView, isOnline, fontSize, setFontSize }) {
   return (
@@ -7,7 +10,7 @@ export function Navbar({ lang, setLang, t, view, setView, isOnline, fontSize, se
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
         {/* Brand & Emblem */}
-        <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => setView('home')}>
+        <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => setView('feed')}>
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-500 via-white to-green-600 p-0.5 shadow-sm">
             <div className="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center">
               <Building2 className="w-5 h-5 text-amber-400" />
@@ -16,102 +19,99 @@ export function Navbar({ lang, setLang, t, view, setView, isOnline, fontSize, se
           <div>
             <div className="flex items-center space-x-2">
               <span className="font-black text-base tracking-tight text-slate-900 group-hover:text-blue-600 transition">
-                {t.app_title || "SchemeConnect"}
+                SchemeConnect
               </span>
               <span className="text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-200/60">
                 SIH26092
               </span>
             </div>
             <p className="text-[10px] text-slate-500 font-medium hidden md:block">
-              {lang === 'ta' ? "சமூக நீதி அமைச்சகம் • குழு: டெக் டைட்டன்ஸ்" : (lang === 'hi' ? "सामाजिक न्याय मंत्रालय • टीम टेक टाइटन्स" : "MoSJE • Team TechTitans (SIH-9E972H)")}
+              Team TechTitans (SIH-9E972H) • MoSJE & Alpha Portal
             </p>
           </div>
         </div>
 
         {/* Center Navigation Links */}
         <nav className="hidden lg:flex items-center space-x-1 text-xs font-bold">
-          <button
-            onClick={() => setView('home')}
-            className={`px-3.5 py-1.5 rounded-xl transition ${
-              view === 'home' 
-                ? 'bg-slate-900 text-white shadow-xs' 
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            {t.nav_home || "Home"}
-          </button>
           
+          {/* SchemeConnect Feed */}
           <button
-            onClick={() => setView('form')}
-            className={`px-3.5 py-1.5 rounded-xl transition flex items-center space-x-1 ${
-              view === 'form' || view === 'voice' || view === 'results'
+            onClick={() => setView('feed')}
+            className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1 ${
+              view === 'feed' || view === 'home'
                 ? 'bg-slate-900 text-white shadow-xs' 
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>{t.nav_recommender || "AI Recommender"}</span>
+            <span>SchemeConnect Feed</span>
           </button>
 
+          {/* Alpha Portal Console */}
+          <button
+            onClick={() => setView('alpha-portal')}
+            className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 ${
+              view === 'alpha-portal'
+                ? 'bg-indigo-900 text-white shadow-xs' 
+                : 'text-indigo-900 bg-indigo-50 hover:bg-indigo-100'
+            }`}
+          >
+            <Radio className="w-3.5 h-3.5 text-indigo-500 animate-pulse" />
+            <span>Alpha Portal</span>
+          </button>
+
+          {/* Split Demo Mode (Judge Pitch View) */}
+          <button
+            onClick={() => setView('split-demo')}
+            className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 ${
+              view === 'split-demo'
+                ? 'bg-emerald-800 text-white shadow-xs' 
+                : 'text-emerald-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200'
+            }`}
+          >
+            <Laptop className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Split Demo View</span>
+          </button>
+
+          {/* Financial Calculator */}
           <button
             onClick={() => setView('calc')}
-            className={`px-3.5 py-1.5 rounded-xl transition flex items-center space-x-1 ${
+            className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1 ${
               view === 'calc' 
                 ? 'bg-slate-900 text-white shadow-xs' 
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <Calculator className="w-3.5 h-3.5 text-blue-500" />
-            <span>{t.nav_calc || "Financial Calculator"}</span>
+            <span>Calculator</span>
           </button>
 
+          {/* Partner Locator */}
           <button
             onClick={() => setView('locator')}
-            className={`px-3.5 py-1.5 rounded-xl transition flex items-center space-x-1 ${
+            className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1 ${
               view === 'locator' 
                 ? 'bg-slate-900 text-white shadow-xs' 
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <MapPin className="w-3.5 h-3.5 text-emerald-500" />
-            <span>{t.nav_locator || "Partner Locator"}</span>
+            <span>Partner Locator</span>
           </button>
 
+          {/* AI Mitra Counselor */}
           <button
             onClick={() => setView('counselor')}
-            className={`px-3.5 py-1.5 rounded-xl transition flex items-center space-x-1 ${
+            className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1 ${
               view === 'counselor' 
                 ? 'bg-slate-900 text-white shadow-xs' 
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <Bot className="w-3.5 h-3.5 text-purple-500" />
-            <span>{t.nav_mitra || "AI Mitra"}</span>
+            <span>AI Mitra</span>
           </button>
 
-          <button
-            onClick={() => setView('ocr')}
-            className={`px-3.5 py-1.5 rounded-xl transition flex items-center space-x-1 ${
-              view === 'ocr' 
-                ? 'bg-slate-900 text-white shadow-xs' 
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            <FileText className="w-3.5 h-3.5 text-slate-500" />
-            <span>{t.nav_ocr || "OCR Auto-Fill"}</span>
-          </button>
-
-          <button
-            onClick={() => setView('admin')}
-            className={`px-3.5 py-1.5 rounded-xl transition flex items-center space-x-1 ${
-              view === 'admin' 
-                ? 'bg-slate-900 text-white shadow-xs' 
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-            }`}
-          >
-            <LayoutDashboard className="w-3.5 h-3.5 text-indigo-500" />
-            <span>{t.nav_cms || "MoSJE CMS"}</span>
-          </button>
         </nav>
 
         {/* Right Controls */}
@@ -149,8 +149,8 @@ export function Navbar({ lang, setLang, t, view, setView, isOnline, fontSize, se
               onChange={(e) => setLang(e.target.value)}
               className="appearance-none pl-7 pr-7 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 text-xs font-bold rounded-xl cursor-pointer outline-none transition shadow-xs"
             >
-              <option value="ta">தமிழ் (Tamil)</option>
               <option value="en">English</option>
+              <option value="ta">தமிழ் (Tamil)</option>
               <option value="hi">हिन्दी (Hindi)</option>
             </select>
             <Globe className="w-3.5 h-3.5 text-blue-600 absolute left-2 pointer-events-none" />
