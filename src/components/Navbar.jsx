@@ -1,225 +1,54 @@
-import {
-  Globe, Building2, MapPin, Calculator, Bot, Sparkles,
-  Radio, Landmark, Zap, RefreshCw, ExternalLink
-} from 'lucide-react';
-import { openTriplePortalTabs, navigateToAlpha, navigateToBeta } from '../config/portalConfig';
+import React from 'react';
+import { Building2, Globe } from 'lucide-react';
 
-export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontSize, setFontSize, onLogoClick }) {
-  const isTa = lang === "ta";
-  const isHi = lang === "hi";
-
-  const L = (en, ta, hi) => isHi ? hi : (isTa ? ta : en);
-
+export function Navbar({ lang = "en", setLang, onLogoClick }) {
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+    <header className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-        {/* Row 1: Brand + Portal Switcher + Controls */}
-        <div className="h-16 flex items-center justify-between gap-2 sm:gap-3">
-
-          {/* Brand Logo — clicks to reset session */}
+        <div className="h-16 flex items-center justify-between">
+          
+          {/* Brand Logo & Title — Clicking resets active session and routes to / */}
           <div
-            className="flex items-center space-x-2.5 cursor-pointer group shrink-0"
-            onClick={onLogoClick || (() => setView('landing'))}
-            title="Reset session & return home"
+            onClick={onLogoClick}
+            className="flex items-center space-x-3 cursor-pointer group"
+            title="Reset active session memory & return to homepage"
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-500 via-white to-green-600 p-0.5 shadow-sm">
-              <div className="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center">
-                <Building2 className="w-5 h-5 text-amber-400" />
-              </div>
+            <div className="w-10 h-10 rounded-xl bg-[#1e3a8a] text-white flex items-center justify-center shadow-xs">
+              <Building2 className="w-5 h-5 text-white" />
             </div>
             <div>
-              <div className="flex items-center space-x-1.5">
-                <span className="font-black text-base tracking-tight text-slate-900 group-hover:text-blue-600 transition">
+              <div className="flex items-center space-x-2">
+                <span className="font-bold text-lg text-slate-900 tracking-tight group-hover:text-[#1e3a8a] transition">
                   SchemeConnect
                 </span>
-                <span className="text-[10px] font-black bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-200/60 hidden sm:inline">
+                <span className="text-[10px] font-semibold bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
                   SIH26092
                 </span>
               </div>
-              <p className="text-[10px] text-slate-500 font-bold hidden lg:block">
-                {L("Team TechTitans (SIH-9E972H)", "குழு: டெக் டைட்டன்ஸ் (SIH-9E972H)", "टीम टेकटाइटन्स (SIH-9E972H)")}
+              <p className="text-[11px] text-slate-500 font-medium hidden sm:block">
+                Ministry of Social Justice & Empowerment • Government of India
               </p>
             </div>
           </div>
 
-          {/* ── Segmented Portal Workspace Switcher ── */}
-          <div className="flex items-center bg-slate-100/90 p-1 rounded-2xl border border-slate-200 overflow-x-auto text-xs font-black gap-0.5">
-
-            {/* 1. Applicant Input (Comes first!) */}
-            <button
-              onClick={() => setView('find-schemes')}
-              className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 shrink-0 ${
-                view === 'find-schemes'
-                  ? 'bg-white text-blue-900 shadow-xs border border-slate-200/60 font-black'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
+          {/* Unified Global Language Dropdown (i18n Switcher) */}
+          <div className="flex items-center space-x-2">
+            <Globe className="w-4 h-4 text-slate-500 hidden sm:inline" />
+            <select
+              value={lang}
+              onChange={(e) => setLang(e.target.value)}
+              aria-label="Select Language"
+              className="bg-slate-100 border border-slate-300 text-slate-800 text-sm font-medium rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-slate-500 outline-none cursor-pointer hover:bg-slate-200 transition"
             >
-              <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-              <span>{L("Applicant Input", "விண்ணப்ப பதிவு", "आवेदक इनपुट")}</span>
-            </button>
-
-            {/* 2. ALL SCHEMES (Separate section!) */}
-            <button
-              onClick={() => setView('all-schemes')}
-              className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 shrink-0 ${
-                view === 'all-schemes'
-                  ? 'bg-indigo-900 text-white shadow-xs font-black'
-                  : 'text-indigo-900 hover:bg-indigo-100/60'
-              }`}
-            >
-              <Building2 className="w-3.5 h-3.5 text-indigo-400" />
-              <span>{L("ALL SCHEMES (20)", "அனைத்து திட்டங்கள்", "सभी योजनाएँ (20)")}</span>
-            </button>
-
-            {/* Calculator */}
-            <button
-              onClick={() => setView('calc')}
-              className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 shrink-0 ${
-                view === 'calc'
-                  ? 'bg-white text-emerald-900 shadow-xs border border-slate-200/60'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Calculator className="w-3.5 h-3.5 text-emerald-600" />
-              <span>{L("🧮 Calculator", "🧮 கால்குலேட்டர்", "🧮 कैलकुलेटर")}</span>
-            </button>
-
-            {/* Alpha Portal (Gov) */}
-            <button
-              onClick={() => navigateToAlpha("", true)}
-              className="px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 shrink-0 bg-indigo-950 hover:bg-indigo-900 text-indigo-200 border border-indigo-800/80 cursor-pointer shadow-xs"
-              title="Launch Alpha Portal (Gov Administration) in a separate browser tab"
-            >
-              <Radio className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
-              <span>{L("Alpha Portal ↗", "அரசு நிர்வாகம் ↗", "अल्फा पोर्टल ↗")}</span>
-            </button>
-
-            {/* Beta Portal (Bank) */}
-            <button
-              onClick={() => navigateToBeta("", "", true)}
-              className="px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 shrink-0 bg-emerald-950 hover:bg-emerald-900 text-emerald-200 border border-emerald-800/80 cursor-pointer shadow-xs"
-              title="Launch Beta Portal (Bank Sanctions) in a separate browser tab"
-            >
-              <Landmark className="w-3.5 h-3.5 text-emerald-400" />
-              <span>{L("Beta Portal ↗", "வங்கி அனுமதி ↗", "बीटा पोर्टल ↗")}</span>
-            </button>
-
-            {/* Judge Demo */}
-            <button
-              onClick={() => setView('demo-trio')}
-              className={`px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5 shrink-0 ${
-                view === 'demo-trio' || view === 'demo-split'
-                  ? 'bg-slate-900 text-white shadow-xs'
-                  : 'text-slate-700 hover:bg-slate-200'
-              }`}
-            >
-              <Zap className="w-3.5 h-3.5 text-amber-400" />
-              <span>{L("⚡ Judge Demo", "⚡ நடுவர் நேரலை", "⚡ जज डेमो")}</span>
-            </button>
-
+              <option value="en">English</option>
+              <option value="ta">தமிழ் (Tamil)</option>
+              <option value="hi">हिंदी (Hindi)</option>
+            </select>
           </div>
 
-          {/* Right Controls */}
-          <div className="flex items-center space-x-2 shrink-0">
-
-            {/* 3-way Language Toggle */}
-            <div className="flex items-center bg-blue-50 p-1 rounded-2xl border border-blue-200 text-xs font-bold">
-              {[
-                { code: "en", label: "EN" },
-                { code: "ta", label: "தமிழ்" },
-                { code: "hi", label: "हिं" }
-              ].map(({ code, label }) => (
-                <button
-                  key={code}
-                  onClick={() => setLang(code)}
-                  className={`px-2.5 py-1 rounded-xl transition ${
-                    lang === code
-                      ? 'bg-blue-600 text-white shadow-xs font-black'
-                      : 'text-blue-900 hover:bg-blue-100'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            {/* AI Mitra Quick Access */}
-            <button
-              onClick={() => setView('counselor')}
-              className={`p-2 rounded-xl transition ${
-                view === 'counselor'
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-slate-100 text-slate-700 hover:bg-purple-50 hover:text-purple-700'
-              }`}
-              title="AI Mitra Welfare Assistant"
-            >
-              <Bot className="w-4 h-4" />
-            </button>
-
-          </div>
         </div>
-
-        {/* Row 2: SchemeConnect Sub-Navigation */}
-        {['recommendations', 'find-schemes', 'all-schemes', 'locator', 'calc', 'landing', 'counselor'].includes(view) && (
-          <div className="py-2 border-t border-slate-100 flex items-center justify-between overflow-x-auto gap-3 text-xs font-bold">
-            <div className="flex items-center space-x-1 shrink-0">
-              <button
-                onClick={() => setView('find-schemes')}
-                className={`px-3 py-1 rounded-lg transition flex items-center gap-1 ${view === 'find-schemes' ? 'bg-blue-50 text-blue-700 font-black' : 'text-slate-500 hover:text-slate-900'}`}
-              >
-                <span>🎙️ {L("Applicant Input", "விண்ணப்பப் பதிவு", "आवेदक इनपुट")}</span>
-              </button>
-              <button
-                onClick={() => setView('all-schemes')}
-                className={`px-3 py-1 rounded-lg transition flex items-center gap-1 ${view === 'all-schemes' ? 'bg-indigo-50 text-indigo-800 font-black' : 'text-slate-500 hover:text-slate-900'}`}
-              >
-                <span>🏛️ {L("ALL SCHEMES (20)", "அனைத்து திட்டங்கள் (20)", "सभी योजनाएँ (20)")}</span>
-              </button>
-              <button
-                onClick={() => setView('recommendations')}
-                className={`px-3 py-1 rounded-lg transition flex items-center gap-1 ${view === 'recommendations' ? 'bg-blue-50 text-blue-700 font-black' : 'text-slate-500 hover:text-slate-900'}`}
-              >
-                <span>🎯 {L("My Eligible Matches", "என் தகுதி திட்டங்கள்", "मेरी पात्र योजनाएँ")}</span>
-              </button>
-              <button
-                onClick={() => setView('calc')}
-                className={`px-3 py-1 rounded-lg transition flex items-center gap-1 ${view === 'calc' ? 'bg-emerald-50 text-emerald-700 font-black' : 'text-slate-500 hover:text-slate-900'}`}
-              >
-                <Calculator className="w-3 h-3 text-emerald-600" />
-                <span>{L("Financial Calculator", "நிதி கால்குலேட்டர்", "वित्त कैलकुलेटर")}</span>
-              </button>
-              <button
-                onClick={() => setView('locator')}
-                className={`px-3 py-1 rounded-lg transition flex items-center gap-1 ${view === 'locator' ? 'bg-blue-50 text-blue-700 font-black' : 'text-slate-500 hover:text-slate-900'}`}
-              >
-                <MapPin className="w-3 h-3 text-emerald-600" />
-                <span>{L("Bank Locator", "வங்கி வரைபடம்", "बैंक लोकेटर")}</span>
-              </button>
-            </div>
-
-            {/* Demo Pitch Links */}
-            <div className="flex items-center space-x-1.5 shrink-0">
-              <button 
-                onClick={openTriplePortalTabs}
-                className="px-2.5 py-1 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-black rounded-xl text-[11px] flex items-center gap-1 shadow-sm transition cursor-pointer"
-                title="Launch Alpha Gov, SchemeConnect, and Beta Bank in 3 separate browser tabs"
-              >
-                <span>🚀 3-Tabs Launcher ↗</span>
-              </button>
-              <button onClick={() => setView('demo-split')}
-                className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-bold">
-                2-Pane
-              </button>
-              <button onClick={() => setView('demo-trio')}
-                className="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 rounded-lg text-[11px] font-bold">
-                3-Pane
-              </button>
-            </div>
-          </div>
-        )}
-
       </div>
     </header>
   );
 }
+export default Navbar;
