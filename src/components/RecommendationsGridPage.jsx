@@ -149,6 +149,16 @@ export function RecommendationsGridPage({
         </button>
 
         <div className="flex flex-wrap items-center gap-2">
+          {onOpenCalculator && (
+            <button
+              onClick={onOpenCalculator}
+              className="inline-flex items-center space-x-1.5 text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2.5 rounded-2xl shadow-xs transition cursor-pointer"
+            >
+              <Calculator className="w-3.5 h-3.5 text-emerald-600" />
+              <span>{isTa ? "நிதி கால்குலேட்டர்" : "Financial Calculator"}</span>
+            </button>
+          )}
+
           {onOpenLocator && (
             <button
               onClick={onOpenLocator}

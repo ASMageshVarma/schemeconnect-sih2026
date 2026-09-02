@@ -1,5 +1,5 @@
 import React from 'react';
-import { Building2, Bot } from 'lucide-react';
+import { Building2, Bot, Calculator } from 'lucide-react';
 
 export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontSize, setFontSize, onLogoClick }) {
   const isTa = lang === "ta";
@@ -40,9 +40,24 @@ export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontS
             </div>
           </div>
 
-          {/* Right Controls: Language Switcher and AI Mitra */}
-          <div className="flex items-center space-x-3 shrink-0">
+          {/* Right Controls: Calculator, Language Switcher and AI Mitra */}
+          <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
             
+            {/* Financial Calculator Button */}
+            <button
+              type="button"
+              onClick={() => setView('calc')}
+              className={`px-3 py-1.5 rounded-xl transition cursor-pointer text-xs font-bold flex items-center gap-1.5 ${
+                view === 'calc'
+                  ? 'bg-[#1e3a8a] text-white shadow-xs font-black'
+                  : 'bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200'
+              }`}
+              title="Financial Subsidy & EMI Calculator"
+            >
+              <Calculator className="w-3.5 h-3.5 text-emerald-600" />
+              <span>{L("Calculator", "கால்குலேட்டர்", "कैलकुलेटर")}</span>
+            </button>
+
             {/* Clean Trilingual Selector */}
             <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold">
               {[

@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { 
   Calculator, IndianRupee, Percent, Clock, ShieldCheck, 
-  TrendingDown, Info, ArrowRight, Download, CheckCircle2, AlertTriangle, Sparkles, Building2
+  TrendingDown, Info, ArrowRight, ArrowLeft, Download, CheckCircle2, AlertTriangle, Sparkles, Building2
 } from 'lucide-react';
 
-export function FinancialCalculator({ initialProjectCost = 140000, initialSchemeType = "Micro Finance", lang = "ta", t }) {
+export function FinancialCalculator({ initialProjectCost = 140000, initialSchemeType = "Micro Finance", lang = "ta", t, onBack }) {
   const [projectCost, setProjectCost] = useState(initialProjectCost);
   const [loanSharePct, setLoanSharePct] = useState(90); // 90% Scheme Concessional Lending
   const [interestRate, setInterestRate] = useState(6.5); // Concessional rate
@@ -120,6 +120,17 @@ export function FinancialCalculator({ initialProjectCost = 140000, initialScheme
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fadeIn">
       
+      {/* Back Button */}
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="mb-4 inline-flex items-center space-x-2 text-xs font-bold text-slate-700 hover:text-blue-600 bg-white border border-slate-200 px-4 py-2 rounded-xl shadow-xs transition cursor-pointer"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>{lang === 'ta' ? "← பின்செல்க" : "← Back"}</span>
+        </button>
+      )}
+
       {/* Header Banner */}
       <div className="mb-8">
         <div className="inline-flex items-center space-x-2 bg-blue-50 text-blue-800 px-3.5 py-1 rounded-full text-xs font-bold mb-2 border border-blue-200">

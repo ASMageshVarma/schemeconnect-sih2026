@@ -296,6 +296,7 @@ export default function App() {
               initialProjectCost={currentProfile?.estimated_cost || null}
               lang={lang}
               t={t}
+              onBack={() => setView(currentProfile ? 'recommendations' : 'find-schemes')}
             />
           </div>
         )}
