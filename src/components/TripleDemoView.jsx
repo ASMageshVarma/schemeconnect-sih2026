@@ -20,6 +20,21 @@ export function TripleDemoView({
   const isTa = lang === "ta";
   const [selectedSchemeForBank, setSelectedSchemeForBank] = useState(null);
 
+  // Dedicated demo benchmark profile (39 yrs old) ensures NSFDC Micro (age_max: 38)
+  // starts LOCKED / FROZEN so clicking "Extend NSFDC Age: 38 ➔ 40" demonstrates live unlocking!
+  const demoProfile = userProfile || {
+    name: "Rajan S.",
+    age: 39,
+    area: "Urban",
+    sector: "Street Vendor",
+    income: 200000,
+    caste: "SC/ST",
+    shg_membership: "No",
+    gender: "Male",
+    district: "Tiruchirappalli",
+    state: "Tamil Nadu"
+  };
+
   return (
     <div className="w-full min-h-screen bg-slate-950 p-2 sm:p-4 text-slate-100 animate-fadeIn flex flex-col">
       
@@ -92,13 +107,14 @@ export function TripleDemoView({
 
           <div className="scale-95 origin-top">
             <RecommendationsGridPage
-              userProfile={userProfile}
+              userProfile={demoProfile}
               lang={lang}
               t={t}
               onEditProfile={onEditProfile}
               onOpenCalculator={onOpenCalculator}
               onOpenLocator={onOpenLocator}
               onOpenCounselor={onOpenCounselor}
+              onRouteToBank={(scheme) => setSelectedSchemeForBank(scheme)}
             />
           </div>
         </div>
@@ -120,7 +136,7 @@ export function TripleDemoView({
           <div className="scale-95 origin-top">
             <BetaPortalBank
               referredScheme={selectedSchemeForBank}
-              userProfile={userProfile}
+              userProfile={demoProfile}
               lang={lang}
               t={t}
             />

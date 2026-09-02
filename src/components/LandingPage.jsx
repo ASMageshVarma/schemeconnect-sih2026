@@ -174,10 +174,17 @@ export function LandingPage({
                     : "When ministries adjust age or income caps in Alpha Portal, SchemeConnect unlocks frozen cards live without refresh."}
                 </p>
               </div>
-              <div className="flex items-center space-x-1.5 text-xs font-bold text-emerald-600">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onNavigate("demo-split");
+                }}
+                className="flex items-center space-x-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-800 transition cursor-pointer bg-emerald-50 hover:bg-emerald-100 px-3 py-2 rounded-xl w-fit"
+              >
                 <span>{isTa ? "செயல்விளக்கத்தை பார்க்க" : "View Live Sync"}</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition" />
-              </div>
+              </button>
             </div>
 
           </div>

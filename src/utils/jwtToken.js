@@ -33,21 +33,35 @@ export function generateReferralJWT(scheme, userProfile, verificationAudit = {})
   const now = Date.now();
   const expiresAt = now + 15 * 60 * 1000; // 15 Minutes Expiration
 
+  // Safe profile fallback so null/undefined profile never throws
+  const profile = userProfile || {
+    name: "Rajan S.",
+    age: 39,
+    area: "Urban",
+    sector: "Street Vendor",
+    income: 200000,
+    caste: "SC/ST",
+    shg_membership: "No",
+    gender: "Male",
+    district: "Tiruchirappalli",
+    state: "Tamil Nadu"
+  };
+
   const payload = {
     iss: "schemeconnect.in",
     aud: "beta-banking.schemeconnect.in",
-    sub: userProfile.name || "Rajan S.",
+    sub: profile.name || "Rajan S.",
     referral_id: referralId,
-    user_id: userProfile.id || "USR-TN-98214",
-    applicant_name: userProfile.name || "Rajan S.",
-    applicant_age: Number(userProfile.age) || 39,
-    area: userProfile.area || "Urban",
-    sector: userProfile.sector || "Street Vendor",
-    annual_income: Number(userProfile.income) || 200000,
-    social_category: userProfile.caste || "SC/ST",
-    gender: userProfile.gender || "Male",
-    district: userProfile.district || "Tiruchirappalli",
-    state: userProfile.state || "Tamil Nadu",
+    user_id: profile.id || "USR-TN-98214",
+    applicant_name: profile.name || "Rajan S.",
+    applicant_age: Number(profile.age) || 39,
+    area: profile.area || "Urban",
+    sector: profile.sector || "Street Vendor",
+    annual_income: Number(profile.income) || 200000,
+    social_category: profile.caste || "SC/ST",
+    gender: profile.gender || "Male",
+    district: profile.district || "Tiruchirappalli",
+    state: profile.state || "Tamil Nadu",
     scheme_id: scheme.scheme_id,
     scheme_name: scheme.scheme_name,
     sanction_amount: Number(scheme.sanctioned_amount) || 140000,
