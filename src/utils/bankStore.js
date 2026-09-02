@@ -23,44 +23,49 @@ const CHANNEL_NAME = "beta_bank_realtime_sync";
 
 export const PARTICIPATING_BANKS = [
   {
-    id: "STATE_BANK_OF_INDIA",
-    name: "State Bank of India (Lead Bank)",
-    name_ta: "பாரத ஸ்டேட் வங்கி (முதன்மை வங்கி)",
-    branch: "Tiruchirappalli Main Commercial Branch",
-    ifsc: "SBIN0001234",
-    lead_officer: "M. Saravanan (Chief Nodal Manager)",
-    npa_status: "Active (2.1% Low NPA)",
-    interest_concession: "0.25% Extra Subvention"
+    id: "ZETA_BANK",
+    name: "ZETA BANK",
+    focus_sector: "Urban Street Vendors & Micro-Credit",
+    max_loan_cap: 1000000,
+    interest_rate: 5.0,
+    branch: "Central Commercial Branch",
+    ifsc: "ZETA0001010"
   },
   {
-    id: "INDIAN_OVERSEAS_BANK",
-    name: "Indian Overseas Bank (SCA Nodal Partner)",
-    name_ta: "இந்தியன் ஓவர்சீஸ் வங்கி",
-    branch: "Cantonment SME Branch, Trichy",
-    ifsc: "IOBA0005678",
-    lead_officer: "K. Priyadharshini (Senior Credit Officer)",
-    npa_status: "Active (2.4% Verified)",
-    interest_concession: "Fast-Track 24-Hr Sanction"
+    id: "EPSILON_BANK",
+    name: "EPSILON BANK",
+    focus_sector: "Women Self-Help Groups & Artisans",
+    max_loan_cap: 1500000,
+    interest_rate: 5.5,
+    branch: "Empowerment Financial Hub",
+    ifsc: "EPSI0002020"
   },
   {
-    id: "TAMIL_NADU_GRAMA_BANK",
-    name: "Tamil Nadu Grama Bank (RRB Financial Partner)",
-    name_ta: "தமிழ்நாடு கிராம வங்கி (RRB)",
-    branch: "Tiruchirappalli Rural Division",
-    ifsc: "TNGB0009101",
-    lead_officer: "P. Vigneshwaran (Rural Loan Officer)",
-    npa_status: "Active (1.8% Low NPA)",
-    interest_concession: "Zero Processing Fee"
+    id: "MYBANK",
+    name: "MYBANK",
+    focus_sector: "Small Scale MSME & Term Loans",
+    max_loan_cap: 5000000,
+    interest_rate: 6.0,
+    branch: "Industrial Growth Branch",
+    ifsc: "MYBK0003030"
   },
   {
-    id: "CANARA_BANK",
-    name: "Canara Bank (MSME Specialized Branch)",
-    name_ta: "கனரா வங்கி (MSME சிறப்பு கிளை)",
-    branch: "Thillai Nagar Branch, Trichy",
-    ifsc: "CNRB0001122",
-    lead_officer: "R. Anbarasan (Credit Lead)",
-    npa_status: "Active (2.8% Verified)",
-    interest_concession: "100% Digital Fast-Track"
+    id: "YOUR_BANK",
+    name: "YOUR BANK",
+    focus_sector: "SC/ST Concessional Credit & Agriculture",
+    max_loan_cap: 2500000,
+    interest_rate: 4.5,
+    branch: "Social Inclusion Branch",
+    ifsc: "YOUR0004040"
+  },
+  {
+    id: "BANK_TEK",
+    name: "BANK TEK",
+    focus_sector: "Digital Micro-Enterprises & Technology",
+    max_loan_cap: 2000000,
+    interest_rate: 5.25,
+    branch: "FinTech Operations Center",
+    ifsc: "BTEK0005050"
   }
 ];
 
