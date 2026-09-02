@@ -36,8 +36,8 @@ export default function App() {
   // ── Language: 'en' | 'ta' | 'hi' ─────────────────────────────────────────
   const [lang, setLang] = useState('en');
 
-  // ── View Router: / (Landing/Consent Gate) comes first ───────────────────
-  const [view, setView] = useState('landing');
+  // ── View Router: New Applicant Input Page comes first! ─────────────────────
+  const [view, setView] = useState('find-schemes');
 
   // ── Zero Hardcoded: profile starts null until user fills the form ──────────
   const [currentProfile, setCurrentProfile] = useState(null);
@@ -82,14 +82,14 @@ export default function App() {
     setView(targetView);
   };
 
-  // ── Logo / brand click: reset active session memory to null and route to / ─
+  // ── Logo / brand click: reset session ─────────────────────────────────────
   const handleLogoClick = () => {
     setCurrentProfile(null);
     revokeConsent();
     setConsentGranted(false);
     setReferredSchemeForBank(null);
     setBetaJWTPayload(null);
-    setView('landing');
+    setView('find-schemes');
   };
 
   // ── Consent Modal handlers ────────────────────────────────────────────────
@@ -143,7 +143,8 @@ export default function App() {
   if (view === 'demo-trio') {
     return (
       <div className={`min-h-screen bg-slate-950 text-slate-100 flex flex-col ${getFontSizeClass()}`}>
-        <Navbar lang={lang} setLang={setLang} onLogoClick={handleLogoClick} />
+        <Navbar lang={lang} setLang={setLang} t={t} view={view} setView={navigateTo}
+          isOnline={true} fontSize={fontSize} setFontSize={setFontSize} onLogoClick={handleLogoClick} />
         <TripleDemoView userProfile={currentProfile} lang={lang} t={t}
           onEditProfile={() => navigateTo('find-schemes')} onOpenCalculator={() => navigateTo('calc')}
           onOpenLocator={() => navigateTo('locator')} onOpenCounselor={() => navigateTo('counselor')}
@@ -155,7 +156,8 @@ export default function App() {
   if (view === 'demo-split' || view === 'split-demo') {
     return (
       <div className={`min-h-screen bg-slate-950 text-slate-100 flex flex-col ${getFontSizeClass()}`}>
-        <Navbar lang={lang} setLang={setLang} onLogoClick={handleLogoClick} />
+        <Navbar lang={lang} setLang={setLang} t={t} view={view} setView={navigateTo}
+          isOnline={true} fontSize={fontSize} setFontSize={setFontSize} onLogoClick={handleLogoClick} />
         <SplitDemoView userProfile={currentProfile} lang={lang} t={t}
           onEditProfile={() => navigateTo('find-schemes')} onOpenCalculator={() => navigateTo('calc')}
           onOpenLocator={() => navigateTo('locator')} onOpenCounselor={() => navigateTo('counselor')} />
@@ -217,24 +219,26 @@ export default function App() {
         </div>
       )}
 
-      {/* Top Navigation — Unified single i18n select dropdown & logo reset */}
-      <Navbar lang={lang} setLang={setLang} onLogoClick={handleLogoClick} />
+      {/* Top Navigation */}
+      <Navbar lang={lang} setLang={setLang} t={t} view={view} setView={navigateTo}
+        isOnline={true} fontSize={fontSize} setFontSize={setFontSize} onLogoClick={handleLogoClick} />
 
       <main className="flex-1">
 
-        {/* / ➔ MINIMALIST RULES, TERMS & PRIVACY CONSENT GATE */}
+        {/* LANDING PAGE */}
         {(view === 'landing' || view === 'home') && (
-          <LandingPage lang={lang} t={t} onNavigate={navigateTo} />
+          <LandingPage lang={lang} setLang={setLang} t={t}
+            onNavigate={navigateTo} />
         )}
 
-        {/* /find-schemes ➔ SINGLE INTAKE CONTAINER (Voice, OCR, 7 Fields) */}
+        {/* FORM — Applicant Input Page (Comes First!) */}
         {(view === 'find-schemes' || view === 'form') && (
           <FormVerificationPage
             initialProfile={null}
             lang={lang}
             t={t}
             onSubmit={handleProfileSubmitted}
-            onBack={() => setView('landing')}
+            onBack={() => setView('all-schemes')}
           />
         )}
 

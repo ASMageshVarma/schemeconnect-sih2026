@@ -125,12 +125,12 @@ export function LiveSchemeCard({
               {isPlayingAudio ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
             </button>
 
-            <span className={`px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 ${
+            <span className={`px-2.5 py-0.5 rounded-full text-xs font-black flex items-center gap-1 ${
               isEligible
-                ? 'bg-[#f0fdf4] text-[#166534] border border-[#bbf7d0]'
-                : 'bg-[#fef2f2] text-[#991b1b] border border-[#fecaca]'
+                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                : 'bg-amber-100 text-amber-800 border border-amber-300'
             }`}>
-              {isEligible ? <CheckCircle className="w-3.5 h-3.5 text-[#166534]" /> : <Lock className="w-3.5 h-3.5 text-[#991b1b]" />}
+              {isEligible ? <CheckCircle className="w-3 h-3 text-emerald-600" /> : <Lock className="w-3 h-3 text-amber-600" />}
               <span>{matchPercentage}% {isTa ? "பொருத்தம்" : "Match"}</span>
             </span>
           </div>
@@ -169,18 +169,18 @@ export function LiveSchemeCard({
         {/* Inter-Portal Handshake Buttons (for Eligible schemes) */}
         {isEligible && (
           <div className="flex gap-2 mb-3">
-            {/* Verify official Gazette on Alpha Portal */}
+            {/* Verify on Alpha Portal (Official Gazette) */}
             <button
               onClick={() => {
                 navigateToAlpha(scheme.scheme_id, true);
                 if (onSelect) onSelect({ ...scheme, _openGazette: true });
               }}
-              className="flex-1 py-1.5 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer"
-              title="Verify official Gazette on Alpha Portal (New Tab)"
+              className="flex-1 py-1.5 px-2.5 bg-slate-50 hover:bg-indigo-50 text-slate-700 hover:text-indigo-800 border border-slate-200 hover:border-indigo-300 rounded-xl text-[11px] font-bold transition flex items-center justify-center gap-1 cursor-pointer"
+              title="Open Official Gazette on Alpha Portal (New Tab)"
             >
-              <Building2 className="w-3.5 h-3.5 text-slate-600" />
-              <span>{L("Verify official Gazette on Alpha Portal ↗", "அரசிதழ் சரிபார் (ஆல்பா) ↗", "सरकारी गजट सत्यापन (अल्फा) ↗")}</span>
-              <ExternalLink className="w-3 h-3 text-slate-400" />
+              <Building2 className="w-3 h-3 text-indigo-600" />
+              <span>{L("Verify on Gov Gazette ↗", "அரசிதழ் சரிபார் ↗", "सरकारी गजट ↗")}</span>
+              <ExternalLink className="w-2.5 h-2.5 text-indigo-400" />
             </button>
 
             {/* JWT Token Preview */}
@@ -288,14 +288,14 @@ export function LiveSchemeCard({
           <>
             <button
               onClick={() => onApply ? onApply(scheme) : onSelect(scheme)}
-              className="flex-1 bg-[#1e3a8a] hover:bg-[#172554] text-white text-xs font-semibold py-2.5 px-3.5 rounded-lg flex items-center justify-center space-x-1.5 shadow-xs transition cursor-pointer"
+              className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-black py-2.5 px-3.5 rounded-xl flex items-center justify-center space-x-1.5 shadow-md transition cursor-pointer"
             >
-              <Landmark className="w-3.5 h-3.5 text-white" />
+              <Landmark className="w-3.5 h-3.5 text-amber-300" />
               <span>{L("Apply via Partner Bank ➔", "வங்கிக்கு விண்ணப்பிக்க ➔", "बैंक आवेदन (JWT) ➔")}</span>
             </button>
             <button
               onClick={() => onSelect && onSelect(scheme)}
-              className="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium transition cursor-pointer"
+              className="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer"
               title="Full Audit Details"
             >
               <Info className="w-4 h-4" />
@@ -305,14 +305,14 @@ export function LiveSchemeCard({
           <div className="w-full flex items-center justify-between gap-2">
             <button
               disabled
-              className="flex-1 bg-slate-100 text-slate-400 cursor-not-allowed text-xs font-medium py-2.5 px-3 rounded-lg flex items-center justify-center space-x-1.5 border border-slate-200"
+              className="flex-1 bg-slate-200 text-slate-400 cursor-not-allowed text-xs font-bold py-2.5 px-3 rounded-xl flex items-center justify-center space-x-1.5"
             >
               <Lock className="w-3.5 h-3.5 text-slate-400" />
-              <span>{L("Ineligible (<100% Match)", "தகுதியற்றது", "अपात्र")}</span>
+              <span>🔒 {L("Ineligible", "தகுதியற்றது", "अपात्र")} ({matchPercentage}%)</span>
             </button>
             <button
               onClick={() => onSelect && onSelect(scheme)}
-              className="p-2.5 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-lg text-xs font-medium transition cursor-pointer"
+              className="p-2.5 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-xs font-bold transition cursor-pointer"
               title="View Ineligibility Audit"
             >
               <Info className="w-4 h-4" />

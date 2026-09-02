@@ -139,38 +139,61 @@ export function RecommendationsGridPage({
       )}
 
       {/* Top Action Bar */}
-      <div className="flex items-center justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <button
           onClick={onEditProfile}
-          className="inline-flex items-center space-x-2 text-xs font-semibold text-slate-700 hover:text-[#1e3a8a] bg-white border border-slate-200 hover:border-slate-300 px-3.5 py-2 rounded-lg shadow-xs transition"
+          className="inline-flex items-center space-x-2 text-xs font-bold text-slate-700 hover:text-blue-600 bg-white border border-slate-200 px-4 py-2.5 rounded-2xl shadow-xs transition w-fit"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>{isTa ? "சுயவிவரத்தை மாற்றுக (Edit Intake)" : "← Edit Profile / Intake Parameters"}</span>
+          <span>{isTa ? "சுயவிவரத்தை மாற்றுக (Edit Intake)" : "Edit Profile / Intake Parameters"}</span>
         </button>
 
-        {onOpenLocator && (
-          <button
-            onClick={onOpenLocator}
-            className="inline-flex items-center space-x-1.5 text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-3.5 py-2 rounded-lg shadow-xs transition"
-          >
-            <MapPin className="w-3.5 h-3.5 text-slate-500" />
-            <span>{isTa ? "அருகிலுள்ள வங்கிகள்" : "Partner Bank Locator"}</span>
-          </button>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {onOpenTrioDemo && (
+            <button
+              onClick={onOpenTrioDemo}
+              className="inline-flex items-center space-x-1.5 text-xs font-black bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white px-4 py-2.5 rounded-2xl shadow-sm transition"
+            >
+              <Landmark className="w-3.5 h-3.5 text-amber-300" />
+              <span>{isTa ? "மூன்று முகப்பு நேரலை (Triple Demo)" : "Triple-Portal Ecosystem View"}</span>
+            </button>
+          )}
+
+          {onOpenSplitDemo && (
+            <button
+              onClick={onOpenSplitDemo}
+              className="inline-flex items-center space-x-1.5 text-xs font-black bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-2xl shadow-sm transition"
+            >
+              <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+              <span>{isTa ? "நடுவர் நேரடி திரை (Split Demo)" : "Judge Split-Screen Demo"}</span>
+            </button>
+          )}
+
+          {onOpenLocator && (
+            <button
+              onClick={onOpenLocator}
+              className="inline-flex items-center space-x-1.5 text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2.5 rounded-2xl shadow-xs transition"
+            >
+              <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+              <span>{isTa ? "அருகிலுள்ள வங்கிகள்" : "Find Channel Partners"}</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Citizen Summary Profile Banner */}
+      {/* Citizen Summary Profile Banner */}
       {!userProfile ? (
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xs mb-6 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl mb-8 border border-blue-900 flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
-            <div className="inline-flex items-center space-x-2 bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-semibold border border-slate-200 mb-2">
-              <UserCheck className="w-3.5 h-3.5 text-slate-600" />
+            <div className="inline-flex items-center space-x-2 bg-amber-400/20 text-amber-300 px-3 py-1 rounded-full text-xs font-bold border border-amber-400/30 mb-2">
+              <UserCheck className="w-3.5 h-3.5 text-amber-300" />
               <span>{L("Step 1: Complete Beneficiary Intake", "படி 1: புதிய விண்ணப்பப் பதிவு", "चरण 1: नया आवेदक पंजीकरण")}</span>
             </div>
-            <h2 className="text-lg sm:text-xl font-bold text-slate-900">
+            <h2 className="text-xl sm:text-2xl font-black text-white">
               {L("Please Fill the Applicant Input Form First", "முதலில் புதிய விண்ணப்பதாரர் படிவத்தை நிரப்பவும்", "कृपया पहले नया आवेदक इनपुट फ़ॉर्म भरें")}
             </h2>
-            <p className="text-xs text-slate-600 mt-1 max-w-xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
               {L(
                 "You haven't submitted your applicant details yet. Complete the 7-parameter intake form with Voice or OCR to calculate your exact 100% eligible welfare schemes.",
                 "நீங்கள் இன்னும் உங்கள் சுயவிவரத்தை பதிவு செய்யவில்லை. உங்களுக்கான துல்லியமான 100% தகுதியான திட்டங்களை கணக்கிட குரல் அல்லது OCR மூலம் பதிவு செய்யவும்.",
@@ -178,62 +201,66 @@ export function RecommendationsGridPage({
               )}
             </p>
           </div>
-          <button
-            onClick={onEditProfile}
-            className="px-5 py-2.5 bg-[#1e3a8a] hover:bg-[#172554] text-white rounded-lg font-semibold text-xs shadow-xs transition flex items-center justify-center space-x-2 shrink-0 cursor-pointer"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-white" />
-            <span>{L("Open Applicant Input Form ➔", "விண்ணப்ப படிவத்தை திறக்க ➔", "आवेदक इनपुट फ़ॉर्म खोलें ➔")}</span>
-          </button>
+          <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+            <button
+              onClick={onEditProfile}
+              className="px-6 py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-2xl font-black text-xs shadow-lg transition flex items-center justify-center space-x-2 cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4 text-amber-300" />
+              <span>{L("Open Applicant Input Form ➔", "விண்ணப்ப படிவத்தை திறக்க ➔", "आवेदक इनपुट फ़ॉर्म खोलें ➔")}</span>
+            </button>
+          </div>
         </div>
       ) : (
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xs mb-6">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl mb-8 relative overflow-hidden">
+          <div className="absolute right-0 top-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
             <div>
-              <div className="inline-flex items-center space-x-2 bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-semibold border border-slate-200 mb-2">
-                <UserCheck className="w-3.5 h-3.5 text-slate-600" />
+              <div className="inline-flex items-center space-x-2 bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-xs font-bold border border-blue-400/30 mb-3">
+                <UserCheck className="w-3.5 h-3.5" />
                 <span>{L("Verified Beneficiary Profile", "சரிபார்க்கப்பட்ட குடிமகன் சுயவிவரம்", "सत्यापित लाभार्थी प्रोफ़ाइल")}</span>
               </div>
 
-              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
                 {userProfile.name} ({userProfile.age} {L("Yrs", "வயது", "वर्ष")})
               </h1>
 
-              <div className="flex flex-wrap gap-2 mt-2.5 text-xs">
-                <span className="bg-slate-100 px-3 py-1 rounded-lg font-medium text-slate-700 border border-slate-200">
+              <div className="flex flex-wrap gap-2 mt-3 text-xs">
+                <span className="bg-white/10 px-3 py-1 rounded-xl font-semibold border border-white/10">
                   {userProfile.area} {L("Area", "பகுதி", "क्षेत्र")}
                 </span>
-                <span className="bg-slate-100 px-3 py-1 rounded-lg font-medium text-slate-700 border border-slate-200">
+                <span className="bg-blue-600/60 px-3 py-1 rounded-xl font-semibold border border-blue-400/40">
                   {userProfile.sector}
                 </span>
-                <span className="bg-slate-100 px-3 py-1 rounded-lg font-medium text-slate-700 border border-slate-200">
+                <span className="bg-white/10 px-3 py-1 rounded-xl font-semibold border border-white/10">
                   ₹{Number(userProfile.income).toLocaleString('en-IN')} / {L("Yr", "ஆண்டு வருமானம்", "वार्षिक")}
                 </span>
-                <span className="bg-slate-100 px-3 py-1 rounded-lg font-medium text-slate-700 border border-slate-200">
+                <span className="bg-white/10 px-3 py-1 rounded-xl font-semibold border border-white/10">
                   {userProfile.caste}
                 </span>
-                <span className="bg-slate-100 px-3 py-1 rounded-lg font-medium text-slate-700 border border-slate-200">
+                <span className="bg-white/10 px-3 py-1 rounded-xl font-semibold border border-white/10">
                   {L("SHG Status:", "சுயஉதவிக்குழு:", "SHG स्थिति:")} {userProfile.shg_membership === "Yes" ? L("Member", "உறுப்பினர்", "सदस्य") : L("Non-Member", "உறுப்பினர் இல்லை", "गैर-सदस्य")}
                 </span>
               </div>
             </div>
 
             {/* Matches & Live Score Box */}
-            <div className="flex items-center gap-3 shrink-0">
-              <div className="text-center px-4 py-2.5 rounded-lg bg-[#f0fdf4] border border-[#bbf7d0]">
-                <span className="text-2xl font-bold text-[#166534] block">
+            <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/10 shrink-0">
+              <div className="text-center px-4 border-r border-white/10">
+                <span className="text-3xl font-black text-emerald-400 block">
                   {eligibleSchemes.length}
                 </span>
-                <span className="text-[10px] text-[#166534] font-semibold uppercase tracking-wider">
+                <span className="text-[10px] text-slate-300 font-bold uppercase tracking-wider">
                   {L("100% Eligible", "100% தகுதியானவை", "100% पात्र")}
                 </span>
               </div>
-              <div className="text-center px-4 py-2.5 rounded-lg bg-[#fef2f2] border border-[#fecaca]">
-                <span className="text-2xl font-bold text-[#991b1b] block">
+              <div className="text-center px-4">
+                <span className="text-3xl font-black text-amber-400 block">
                   {ineligibleSchemes.length}
                 </span>
-                <span className="text-[10px] text-[#991b1b] font-semibold uppercase tracking-wider">
-                  {L("Locked / Ineligible", "நிறுத்தப்பட்டவை", "अपात्र / लॉक")}
+                <span className="text-[10px] text-slate-300 font-bold uppercase tracking-wider">
+                  {L("Locked / Frozen", "நிறுத்தப்பட்டவை", "अपात्र / लॉक")}
                 </span>
               </div>
             </div>
@@ -242,16 +269,16 @@ export function RecommendationsGridPage({
       )}
 
       {/* Filter Tabs & Search Bar */}
-      <div className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs mb-6 flex flex-col lg:flex-row items-center justify-between gap-4">
+      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mb-8 flex flex-col lg:flex-row items-center justify-between gap-4">
         <div className="flex flex-wrap gap-1.5 w-full lg:w-auto">
           {filterTabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveFilter(tab.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
                 activeFilter === tab.id
-                  ? 'bg-[#1e3a8a] text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
               {tab.label}
