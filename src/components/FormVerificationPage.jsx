@@ -2,11 +2,13 @@ import React, { useState, useRef } from 'react';
 import { 
   User, Briefcase, IndianRupee, MapPin, Sparkles, Mic, MicOff, 
   Camera, Upload, CheckCircle2, AlertCircle, ArrowRight, ShieldCheck, 
-  RefreshCw, FileText, Check, Loader2, Volume2, AlertTriangle, HelpCircle
+  RefreshCw, FileText, Check, Loader2, Volume2, AlertTriangle, HelpCircle,
+  Bot, Search
 } from 'lucide-react';
 import { createWorker } from 'tesseract.js';
 import { speakText } from '../utils/speech';
 import { extractAgeFromHindi, extractIncomeFromHindi } from '../utils/hindiParser';
+import { TrackApplicationModal } from './TrackApplicationModal';
 
 export function FormVerificationPage({ 
   initialProfile, 
@@ -53,6 +55,16 @@ export function FormVerificationPage({
   const [ocrErrorMsg, setOcrErrorMsg] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const [ocrConfidence, setOcrConfidence] = useState(null);
+
+  // Track Application Modal State
+  const [showTrackModal, setShowTrackModal] = useState(false);
+
+  const scrollToSectionIntake = () => {
+    const el = document.getElementById('section-intake');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   // -------------------------------------------------------------
   // 1. VOICE-TO-TEXT SPEECH RECOGNITION (Web Speech API)
@@ -567,24 +579,89 @@ export function FormVerificationPage({
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 animate-fadeIn">
       
-      {/* Header */}
-      <div className="text-center max-w-2xl mx-auto mb-8">
-        <div className="inline-flex items-center space-x-2 bg-blue-50 text-blue-900 px-3.5 py-1 rounded-full text-xs font-black border border-blue-200 mb-3">
-          <ShieldCheck className="w-4 h-4 text-blue-600" />
-          <span>{L("Statutory Welfare Scheme Intake & Verification", "சட்டப்பூர்வ நலத்திட்ட பதிவு & சரிபார்ப்பு", "सांविधिक कल्याणकारी योजना इनपुट एवं सत्यापन")}</span>
-        </div>
+      {/* Track Existing Application Modal */}
+      {showTrackModal && (
+        <TrackApplicationModal
+          lang={formLang}
+          onClose={() => setShowTrackModal(false)}
+        />
+      )}
 
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
-          {L("Beneficiary Eligibility Intake & Verification", "பயனாளி தகுதி விவரங்கள் பதிவு", "लाभार्थी पात्रता पंजीकरण एवं सत्यापन")}
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-600 mt-1">
-          {L(
-            "Zero pre-filled data. Use Voice-to-Text or OCR Document Scanner to capture real-time beneficiary criteria.",
-            "முன் நிரப்பப்பட்ட தரவு இல்லை. நேரலை குரல் பதிவு அல்லது OCR ஆவண ஸ்கேனர் மூலம் உண்மையான விவரங்களை உள்ளிடவும்.",
-            "कोई पूर्व-भरी जानकारी नहीं। वास्तविक समय में पात्रता दर्ज करने के लिए वॉयस-टू-टेक्स्ट या OCR दस्तावेज़ स्कैनर का उपयोग करें।"
-          )}
-        </p>
-      </div>
+      {/* ========================================================================= */}
+      {/* SECTION 1: OFFICIAL WELCOME HERO & NEW APPLICANT ACTION                   */}
+      {/* ========================================================================= */}
+      <section className="mb-10 bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs">
+        <div className="max-w-3xl">
+          
+          {/* Badge */}
+          <div className="inline-flex items-center space-x-2 bg-blue-50 text-blue-900 px-3.5 py-1 rounded-full text-xs font-bold border border-blue-200 mb-4">
+            <ShieldCheck className="w-4 h-4 text-blue-600" />
+            <span>{L("Official Digital Public Infrastructure (DPI) Portal", "அதிகாரப்பூர்வ டிஜிட்டல் பொது உள்கட்டமைப்பு (DPI) போர்டல்", "आधिकारिक डिजिटल पब्लिक इंफ्रास्ट्रक्चर (DPI) पोर्टल")}</span>
+          </div>
+
+          {/* Headline */}
+          <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-3">
+            {L("Welcome to SchemeConnect Gateway", "ஸ்கீம்கனெக்ட் இணைய வாயிலுக்கு வரவேற்கிறோம்", "स्कीमकनेक्ट गेटवे में आपका स्वागत है")}
+          </h1>
+
+          {/* Description */}
+          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6">
+            {L(
+              "National unified welfare scheme discovery and credit facilitation platform under the Ministry of Social Justice & Empowerment. Discover verified statutory welfare subsidies, concessional micro-credit (≤₹1.40L), and MSME term loans with instant biometric and OCR pre-screening.",
+              "மத்திய சமூக நீதி மற்றும் அதிகாரமளித்தல் அமைச்சகத்தின் கீழ் இயங்கும் ஒருங்கிணைந்த நலத்திட்ட கண்டுபிடிப்பு மற்றும் சலுகைக் கடன் வசதி தளம். தகுதியான மத்திய-மாநில மானியங்கள் மற்றும் குறைந்த வட்டி நுண்கடன்களை (≤₹1.40L) எளிய ஆவண சரிபார்ப்பு மூலம் பெறுங்கள்.",
+              "सामाजिक न्याय एवं अधिकारिता मंत्रालय के अंतर्गत राष्ट्रीय एकीकृत कल्याण योजना खोज एवं ऋण सुविधा मंच। तत्काल बायोमेट्रिक और ओसीआर पूर्व-जांच के साथ पात्र सरकारी सब्सिडी और रियायती सूक्ष्म ऋण (≤₹1.40L) खोजें।"
+            )}
+          </p>
+
+          {/* Primary Action Buttons */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            
+            <button
+              type="button"
+              onClick={scrollToSectionIntake}
+              className="px-6 py-3.5 bg-[#1e293b] hover:bg-[#0f172a] text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center space-x-2 cursor-pointer"
+            >
+              <span>{L("Click Here for New Applicant Registration ➔", "புதிய விண்ணப்பதாரர் பதிவுக்கு இங்கே கிளிக் செய்யவும் ➔", "नए आवेदक पंजीकरण के लिए यहाँ क्लिक करें ➔")}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowTrackModal(true)}
+              className="px-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl border border-slate-300 transition flex items-center justify-center space-x-2 cursor-pointer"
+            >
+              <Search className="w-4 h-4 text-slate-600" />
+              <span>{L("Track Existing Application", "விண்ணப்ப நிலையை அறிய", "मौजूदा आवेदन ट्रैक करें")}</span>
+            </button>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* SECTION 2: DYNAMIC BENEFICIARY INTAKE & PRE-SCREENING                     */}
+      {/* ========================================================================= */}
+      <section id="section-intake" className="scroll-mt-20">
+        
+        {/* AI Mitra Advisor Header & Status */}
+        <div className="flex items-center justify-between bg-purple-50 border border-purple-200 rounded-2xl p-4 mb-6">
+          <div className="flex items-center space-x-3">
+            <div className="w-9 h-9 rounded-xl bg-purple-600 text-white flex items-center justify-center">
+              <Bot className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-purple-950 block">
+                {L("AI Mitra Advisor Intake Assistant Active", "AI மித்ரா நலத்திட்ட வழிகாட்டி தயார் நிலையில் உள்ளது", "एआई मित्रा सलाहकार इनपुट सहायक सक्रिय")}
+              </span>
+              <span className="text-[11px] text-purple-700">
+                {L("Voice-to-Text & Tesseract OCR multi-modal parsing enabled", "குரல்வழி பதிவு மற்றும் OCR ஆவண ஸ்கேனர் வசதி இயக்கப்பட்டுள்ளது", "वॉयस-टू-टेक्स्ट एवं टेसरैक्ट ओसीआर मल्टी-मॉडल पार्सिंग सक्षम")}
+              </span>
+            </div>
+          </div>
+          <span className="hidden sm:inline-block text-[10px] font-bold bg-purple-100 text-purple-800 px-2.5 py-1 rounded-full border border-purple-300">
+            Multi-Modal Online 🟢
+          </span>
+        </div>
 
       {/* 2 Top Multi-Modal Input Cards (Voice + OCR) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -909,7 +986,7 @@ export function FormVerificationPage({
           <button
             type="button"
             onClick={onBack}
-            className="w-full sm:w-auto px-5 py-3 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-2xl transition cursor-pointer"
+            className="w-full sm:w-auto px-5 py-3 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition cursor-pointer"
           >
             {L("← Back to Home", "← முகப்புக்கு திரும்ப", "← होम पर वापस")}
           </button>
@@ -917,18 +994,19 @@ export function FormVerificationPage({
           <button
             type="submit"
             disabled={!isFormComplete}
-            className={`w-full sm:w-auto px-8 py-3.5 font-black text-xs rounded-2xl shadow-lg transition flex items-center justify-center space-x-2 cursor-pointer ${
+            className={`w-full sm:w-auto px-8 py-3.5 font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center space-x-2 cursor-pointer ${
               isFormComplete
-                ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                ? "bg-[#1e293b] hover:bg-[#0f172a] text-white"
                 : "bg-slate-200 text-slate-400 cursor-not-allowed"
             }`}
           >
-            <span>{L("Find Eligible Schemes ➔", "திட்ட பரிந்துரைகளைக் காண்க ➔", "पात्र योजनाएँ खोजें ➔")}</span>
+            <span>{L("Evaluate Scheme Matches & Eligibility ➔", "தகுதியான திட்டங்களை மதிப்பீடு செய்க ➔", "योजना मिलान एवं पात्रता का मूल्यांकन करें ➔")}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
 
       </form>
+      </section>
 
     </div>
   );

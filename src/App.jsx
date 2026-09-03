@@ -9,14 +9,13 @@ import { RecommendationsGridPage } from './components/RecommendationsGridPage';
 import { AlphaPortalConsole } from './components/AlphaPortalConsole';
 import { BetaPortalBank } from './components/BetaPortalBank';
 import { BetaTokenGateway } from './components/BetaTokenGateway';
-import { SplitDemoView } from './components/SplitDemoView';
-import { TripleDemoView } from './components/TripleDemoView';
 import { FinancialCalculator } from './components/FinancialCalculator';
 import { CenterLocator } from './components/CenterLocator';
 import { AdminCMS } from './components/AdminCMS';
 import { AiCounselorChat } from './components/AiCounselorChat';
 import { ConsentModal } from './components/ConsentModal';
 import { AllSchemesCatalog } from './components/AllSchemesCatalog';
+import { OfficialPublicFooter } from './components/OfficialPublicFooter';
 import { AlphaApp } from './AlphaApp';
 import { BetaApp } from './BetaApp';
 
@@ -139,31 +138,6 @@ export default function App() {
     return 'text-base';
   };
 
-  // ── Triple-Portal Pitch Views (no consent needed — demo only) ────────────
-  if (view === 'demo-trio') {
-    return (
-      <div className={`min-h-screen bg-slate-950 text-slate-100 flex flex-col ${getFontSizeClass()}`}>
-        <Navbar lang={lang} setLang={setLang} t={t} view={view} setView={navigateTo}
-          isOnline={true} fontSize={fontSize} setFontSize={setFontSize} onLogoClick={handleLogoClick} />
-        <TripleDemoView userProfile={currentProfile} lang={lang} t={t}
-          onEditProfile={() => navigateTo('find-schemes')} onOpenCalculator={() => navigateTo('calc')}
-          onOpenLocator={() => navigateTo('locator')} onOpenCounselor={() => navigateTo('counselor')}
-          onRouteToBank={handleRouteToBank} />
-      </div>
-    );
-  }
-
-  if (view === 'demo-split' || view === 'split-demo') {
-    return (
-      <div className={`min-h-screen bg-slate-950 text-slate-100 flex flex-col ${getFontSizeClass()}`}>
-        <Navbar lang={lang} setLang={setLang} t={t} view={view} setView={navigateTo}
-          isOnline={true} fontSize={fontSize} setFontSize={setFontSize} onLogoClick={handleLogoClick} />
-        <SplitDemoView userProfile={currentProfile} lang={lang} t={t}
-          onEditProfile={() => navigateTo('find-schemes')} onOpenCalculator={() => navigateTo('calc')}
-          onOpenLocator={() => navigateTo('locator')} onOpenCounselor={() => navigateTo('counselor')} />
-      </div>
-    );
-  }
 
   return (
     <div className={`min-h-screen bg-slate-50/70 text-slate-900 flex flex-col ${getFontSizeClass()}`}>
@@ -340,19 +314,8 @@ export default function App() {
         <AiCounselorChat lang={lang} t={t} currentProfile={currentProfile} />
       )}
 
-      {/* Footer */}
-      {view !== 'demo-split' && view !== 'demo-trio' && (
-        <footer className="bg-white border-t border-slate-200/80 py-6 text-center text-xs text-slate-500">
-          <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <span className="font-semibold text-slate-700">
-              SchemeConnect · Alpha Portal · Beta Portal — SIH 2026 Triple-Portal Ecosystem
-            </span>
-            <span>
-              Team <strong>TechTitans</strong> (SIH-9E972H) · Saranathan College of Engineering
-            </span>
-          </div>
-        </footer>
-      )}
+      {/* SECTION 3: Official Public Service Footer */}
+      <OfficialPublicFooter lang={lang} />
 
     </div>
   );

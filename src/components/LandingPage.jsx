@@ -76,15 +76,6 @@ export function LandingPage({
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition" />
             </button>
 
-            {/* Split Screen Demo View CTA */}
-            <button
-              onClick={() => onNavigate("demo-split")}
-              className="w-full sm:w-auto px-6 py-4 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs rounded-2xl shadow-lg transition flex items-center justify-center space-x-2.5 border border-slate-700"
-            >
-              <Laptop className="w-4 h-4 text-emerald-400" />
-              <span>{isTa ? "நடுவர் நேரடி செயல்விளக்கம் (Split Demo)" : "Judge Pitch Split-Screen View"}</span>
-            </button>
-
             {/* Alpha Portal Console CTA */}
             <button
               onClick={() => onNavigate("alpha-portal")}
