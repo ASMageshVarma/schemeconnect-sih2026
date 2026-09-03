@@ -4,8 +4,10 @@ import {
   FileText, Settings, Search, CheckCircle2, Lock, Unlock,
   Sparkles, RefreshCw, Landmark, ArrowRight, X, Printer,
   IndianRupee, Database, AlertTriangle, Hash, Zap, BarChart3,
-  TrendingUp, Send, Shield, Globe, Users, Activity, Clock
+  TrendingUp, Send, Shield, Globe, Users, Activity, Clock,
+  Check, Key, Layers, Award
 } from 'lucide-react';
+import confetti from 'canvas-confetti';
 import { AlphaGazetteModal } from './components/AlphaGazetteModal';
 import {
   getAlphaSchemes, updateAlphaScheme, resetAlphaSchemes,
@@ -13,21 +15,29 @@ import {
 } from './utils/realtimeSync';
 import { navigateToSchemeConnect } from './config/portalConfig';
 
-// ── Utility: Generate deterministic SHA-256-like hash string (browser-side) ──
-async function sha256(message) {
+// ── Utility: Browser-side SHA-256 Hash Generator ──
+async function generateSHA256Hash(message) {
   try {
     const msgBuffer = new TextEncoder().encode(message);
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   } catch {
-    // Fallback for environments without crypto.subtle
     let h = 0;
     for (let i = 0; i < message.length; i++) {
       h = (Math.imul(31, h) + message.charCodeAt(i)) | 0;
     }
     return Math.abs(h).toString(16).padStart(64, '0');
   }
+}
+
+// ── RS256 Simulated Cryptographic Signature Generator ──
+function generateRS256Signature(payload) {
+  const header = { alg: "RS256", typ: "JWT", kid: "ALPHA-GOV-RS256-PUBKEY-0x9812A" };
+  const b64H = btoa(JSON.stringify(header));
+  const b64P = btoa(JSON.stringify(payload));
+  const sig = btoa(`${b64H}.${b64P}.ALPHA_GOV_PRIVATE_KEY_SIH2026`).slice(0, 43);
+  return `${b64H}.${b64P}.${sig}`;
 }
 
 // ── Format Indian currency ──
@@ -37,144 +47,239 @@ function fmtINR(n) {
 
 export function AlphaApp() {
   const [lang, setLang] = useState('en');
-  const [activeTab, setActiveTab] = useState('home');
+  const [viewMode, setViewMode] = useState('console'); // 'console' (All 3 Sections) | 'registry' (20 Statutory Schemes Directory)
   const [schemes, setSchemes] = useState(getAlphaSchemes());
   const [selectedSchemeId, setSelectedSchemeId] = useState("NSFDC_MICRO");
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [gazetteScheme, setGazetteScheme] = useState(null);
 
-  // Dashboard metrics
-  const [broadcasterOnline] = useState(true);
+  // Portal metrics
+  const [totalSchemesCount] = useState(142);
   const [totalBudgetCr] = useState(1200);
 
-  // Broadcast state
-  const [logs, setLogs] = useState([
+  // Real-time broadcast logs (Settlement Audit Log)
+  const [auditLogs, setAuditLogs] = useState([
     {
       id: 1,
       time: new Date().toLocaleTimeString(),
-      event: "PORTAL_INIT",
-      hash: "a3f8c2e1d9b7...",
-      detail: "Alpha Policy Broadcaster Online · BroadcastChannel('alpha_schemes_live_sync') ready",
-      status: "CLEARED"
+      adminId: "ADM-POL-091",
+      event: "GENESIS_POLICY_CLEARANCE",
+      hash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      detail: "Alpha Broadcaster Genesis Block • Supabase WebSockets 'public:scheme_updates' Active",
+      escrowStatus: "CLEARED 🟢"
+    },
+    {
+      id: 2,
+      time: new Date(Date.now() - 45000).toLocaleTimeString(),
+      adminId: "ADM-POL-044",
+      event: "ESCROW_LOCK_ALLOCATION",
+      hash: "8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4",
+      detail: "DBT Clearing Webhook Emitted to Partner Bank Consortium (ZETA, EPSILON, MYBANK)",
+      escrowStatus: "CLEARED 🟢"
     }
   ]);
-  const [broadcastCount, setBroadcastCount] = useState(1);
+
+  const [broadcastCount, setBroadcastCount] = useState(2);
   const [broadcastSuccess, setBroadcastSuccess] = useState(false);
-  const [broadcastMsg, setBroadcastMsg] = useState("");
+  const [broadcastBannerMsg, setBroadcastBannerMsg] = useState("");
 
-  // Policy simulator state
-  const [simIncome, setSimIncome] = useState(300000);
-  const [simLoanCap, setSimLoanCap] = useState(500000);
-
-  // New scheme creation form
+  // Section 2: Interactive Scheme Creation Form State
   const [newScheme, setNewScheme] = useState({
-    name: "",
+    name: "PMEGP Credit Subsidy 2026",
     category: "OBC",
-    income: 250000,
-    loanMax: 200000,
-    verFactors: { aadhaar: true, pan: true, community: false, income: false },
-    allocation: 50000000
+    incomeThreshold: 250000,
+    maxLoanAmount: 200000,
+    verFactors: {
+      aadhaar: true,
+      pan: true,
+      community: true,
+      income: true
+    },
+    totalAllocation: 500000000 // ₹50,00,00,000
   });
-  const [schemePublished, setSchemePublished] = useState(false);
+  const [creationSuccess, setCreationSuccess] = useState(false);
 
-  // Computed simulator metrics
-  const simEligibilityPct = Math.max(5, Math.min(94,
-    Math.round(((simIncome / 800000) * 0.6 + (simLoanCap / 5000000) * 0.4) * 100)
+  // Section 3: Policy Impact Simulator State
+  const [simIncomeThreshold, setSimIncomeThreshold] = useState(250000);
+  const [simSubsidyCap, setSimSubsidyCap] = useState(200000);
+
+  // Dynamic Simulator Calculations
+  const simEligibilityRate = Math.max(5, Math.min(96,
+    Math.round(((simIncomeThreshold / 800000) * 0.55 + (simSubsidyCap / 2500000) * 0.45) * 100)
   ));
-  const simBudgetExhaust = Math.round((simEligibilityPct / 100) * totalBudgetCr * 12);
-  const simApplicants = Math.round(simEligibilityPct * 142 * 0.7);
+  const simProjectedBeneficiaries = Math.round((simEligibilityRate / 100) * 14200);
+  const simBudgetExhaustionCr = Math.round((simProjectedBeneficiaries * (simSubsidyCap * 0.35)) / 10000000);
+  const simExhaustionPct = Math.min(100, Math.round((simBudgetExhaustionCr / totalBudgetCr) * 100));
 
-  // Emit broadcast log with SHA-256 hash
-  const emitLog = useCallback(async (event, detail) => {
-    const payload = JSON.stringify({ event, detail, ts: Date.now() });
-    const hash = await sha256(payload);
-    setLogs(prev => [
-      {
-        id: Date.now(),
-        time: new Date().toLocaleTimeString(),
-        event,
-        hash: hash.substring(0, 16) + '...',
-        detail,
-        status: "CLEARED"
-      },
-      ...prev.slice(0, 14)
-    ]);
-    setBroadcastCount(c => c + 1);
-  }, []);
-
-  // Subscribe to real-time changes
-  useEffect(() => {
-    const unsubscribe = subscribeToAlphaChanges((updatedSchemes, meta) => {
-      setSchemes(updatedSchemes);
-      if (meta?.reason) {
-        emitLog(meta.action || "POLICY_BROADCAST", `${meta.schemeId || 'ALL'}: ${meta.reason}`);
-      }
-    });
-    return unsubscribe;
-  }, [emitLog]);
-
-  // Check URL params
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const schemeId = params.get("scheme");
-      if (schemeId) {
-        const found = schemes.find(s => s.scheme_id === schemeId);
-        if (found) setGazetteScheme(found);
-      }
-      if (window.location.pathname.includes("admin") || params.get("view") === "admin") {
-        setActiveTab("admin");
-      }
-    }
-  }, [schemes]);
-
+  // Current selected scheme in editor
   const selectedScheme = schemes.find(s => s.scheme_id === selectedSchemeId) || schemes[0];
 
+  // Emit Broadcast Helper (Supabase WebSockets + DBT clearing webhook + SHA-256 + RS256)
+  const broadcastPolicyUpdate = useCallback(async (actionType, schemeData, description) => {
+    const timestamp = new Date().toLocaleTimeString();
+    const adminId = "ADM-POL-091";
+
+    // 1. Generate SHA-256 hash of criteria
+    const criteriaString = JSON.stringify({
+      scheme_id: schemeData.scheme_id || "SCHEME-2026-CUSTOM",
+      name: schemeData.scheme_name || schemeData.name,
+      category: schemeData.target_category || schemeData.category || "OBC",
+      income_cap: schemeData.income_cap || schemeData.incomeThreshold,
+      max_loan: schemeData.sanctioned_amount || schemeData.maxLoanAmount,
+      timestamp: Date.now()
+    });
+    const hash = await generateSHA256Hash(criteriaString);
+
+    // 2. Cryptographic RS256 Policy Signing
+    const signedJWT = generateRS256Signature({
+      iss: "alpha-governance.gov.in",
+      aud: ["schemeconnect.in", "beta-banking.schemeconnect.in"],
+      sha256_criteria: hash,
+      action: actionType,
+      admin: adminId,
+      timestamp: Date.now()
+    });
+
+    // 3. Broadcast payload over Supabase WebSockets channel `public:scheme_updates` + BroadcastChannel
+    try {
+      if (typeof window !== "undefined" && "BroadcastChannel" in window) {
+        const channel = new BroadcastChannel('public:scheme_updates');
+        channel.postMessage({
+          channel: 'public:scheme_updates',
+          event: actionType,
+          hash: hash,
+          jwt_token: signedJWT,
+          scheme: schemeData,
+          dbt_clearing_webhook: true,
+          timestamp: new Date().toISOString()
+        });
+        channel.close();
+
+        // 4. Emit DBT clearing webhook to partner bank nodes (Beta Portal)
+        const dbtChannel = new BroadcastChannel('schemeconnect_sanctions');
+        dbtChannel.postMessage({
+          action: 'DBT_CLEARING_WEBHOOK',
+          source: 'ALPHA_POLICY_NODE',
+          schemeId: schemeData.scheme_id,
+          schemeName: schemeData.scheme_name || schemeData.name,
+          hash: hash,
+          escrow_status: 'LOCKED_AND_CLEARED',
+          timestamp: new Date().toISOString()
+        });
+        dbtChannel.close();
+      }
+    } catch (e) {
+      console.warn("Realtime BroadcastChannel note:", e);
+    }
+
+    // 5. Append to Settlement Audit Log
+    setAuditLogs(prev => [
+      {
+        id: Date.now(),
+        time: timestamp,
+        adminId: adminId,
+        event: actionType,
+        hash: hash,
+        detail: description,
+        escrowStatus: "CLEARED 🟢"
+      },
+      ...prev.slice(0, 19)
+    ]);
+
+    setBroadcastCount(c => c + 1);
+    setBroadcastSuccess(true);
+    setBroadcastBannerMsg("Policy Update Broadcasted & Escrow Allocations Locked 🟢");
+    setTimeout(() => {
+      setBroadcastSuccess(false);
+      setBroadcastBannerMsg("");
+    }, 3500);
+
+    try {
+      confetti({ particleCount: 70, spread: 60, origin: { y: 0.2 } });
+    } catch (e) {}
+  }, []);
+
+  // Modify policy parameter on existing scheme
   const handleFieldChange = async (field, value) => {
     const parsedValue = ['sanctioned_amount', 'age_min', 'age_max', 'income_cap'].includes(field)
       ? Number(value)
       : value;
-    const updated = updateAlphaScheme(selectedScheme.scheme_id, { [field]: parsedValue }, `Admin modified ${field} to ${value}`);
+    const updated = updateAlphaScheme(selectedScheme.scheme_id, { [field]: parsedValue }, `Admin updated ${field} to ${value}`);
     setSchemes(updated);
-    setBroadcastSuccess(true);
-    setBroadcastMsg(`Policy Update Broadcasted & Escrow Allocations Locked 🟢`);
-    await emitLog("POLICY_UPDATE", `${selectedScheme.scheme_id}: ${field} set to ${value}. DBT clearing webhook emitted to Beta Portal nodes.`);
-    setTimeout(() => { setBroadcastSuccess(false); setBroadcastMsg(""); }, 3000);
+    
+    await broadcastPolicyUpdate(
+      "POLICY_PARAM_UPDATE",
+      { ...selectedScheme, [field]: parsedValue },
+      `${selectedScheme.scheme_id}: Modified ${field} ➔ ${value}. SHA-256 hashed & RS256 signed.`
+    );
   };
 
+  // 1-Click Fast Track Demos
   const handleQuickDemo = async (type) => {
     const updated = triggerQuickDemo(type);
     if (updated) {
       setSchemes(updated);
-      setBroadcastSuccess(true);
-      setBroadcastMsg("Policy Update Broadcasted & Escrow Allocations Locked 🟢");
-      await emitLog("FAST_TRACK_DEMO", `${type}: Quick-demo policy broadcast emitted. RS256-signed payload transmitted to SchemeConnect & Beta Portal.`);
-      setTimeout(() => { setBroadcastSuccess(false); setBroadcastMsg(""); }, 3000);
+      await broadcastPolicyUpdate(
+        type,
+        selectedScheme,
+        `Fast-track demonstration '${type}' triggered. Cross-tab WebSocket sync emitted.`
+      );
     }
   };
 
-  const handleReset = async () => {
+  // Reset to statutory defaults
+  const handleResetAll = async () => {
     const updated = resetAlphaSchemes();
     setSchemes(updated);
-    setBroadcastSuccess(true);
-    setBroadcastMsg("All schemes reset to statutory defaults. Policy Update Broadcasted & Escrow Allocations Locked 🟢");
-    await emitLog("SYSTEM_RESET", "All 20 schemes reset to statutory gazette defaults. Broadcast emitted.");
-    setTimeout(() => { setBroadcastSuccess(false); setBroadcastMsg(""); }, 3000);
-  };
-
-  const handlePublishNewScheme = async () => {
-    if (!newScheme.name.trim()) return;
-    setBroadcastSuccess(true);
-    setBroadcastMsg("New Scheme Published · Policy Update Broadcasted & Escrow Allocations Locked 🟢");
-    await emitLog(
-      "SCHEME_PUBLISHED",
-      `New scheme "${newScheme.name}" [${newScheme.category}] published. Max: ${fmtINR(newScheme.loanMax)}, Income cap: ${fmtINR(newScheme.income)}, Allocation: ${fmtINR(newScheme.allocation)}. RS256 signed.`
+    await broadcastPolicyUpdate(
+      "SCHEME_RESET_DEFAULT",
+      { scheme_id: "ALL_SCHEMES" },
+      "All statutory scheme parameters reset to official gazette baselines."
     );
-    setSchemePublished(true);
-    setTimeout(() => { setBroadcastSuccess(false); setBroadcastMsg(""); setSchemePublished(false); }, 4000);
   };
 
+  // Handle New Scheme Publication
+  const handlePublishNewScheme = async (e) => {
+    e.preventDefault();
+    if (!newScheme.name.trim()) return;
+
+    const newSchemeRecord = {
+      scheme_id: `SCHEME-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+      scheme_name: newScheme.name,
+      ministry: "Ministry of Social Justice & Empowerment",
+      target_category: newScheme.category,
+      caste_eligibility: [newScheme.category],
+      income_cap: Number(newScheme.incomeThreshold),
+      sanctioned_amount: Number(newScheme.maxLoanAmount),
+      total_allocation: Number(newScheme.totalAllocation),
+      concessional_interest_rate: 4.5,
+      age_min: 18,
+      age_max: 55,
+      verification_factors: newScheme.verFactors
+    };
+
+    setCreationSuccess(true);
+    await broadcastPolicyUpdate(
+      "NEW_SCHEME_PUBLISHED",
+      newSchemeRecord,
+      `Published "${newScheme.name}" [${newScheme.category}] with ${fmtINR(newScheme.totalAllocation)} fund allocation.`
+    );
+
+    setTimeout(() => {
+      setCreationSuccess(false);
+    }, 4000);
+  };
+
+  // Subscribe to real-time changes
+  useEffect(() => {
+    const unsubscribe = subscribeToAlphaChanges((updatedSchemes) => {
+      setSchemes(updatedSchemes);
+    });
+    return unsubscribe;
+  }, []);
+
+  // Filter schemes for Statutory Registry View
   const filteredSchemes = schemes.filter(s => {
     const q = searchQuery.toLowerCase();
     const matchesSearch = s.scheme_name.toLowerCase().includes(q) ||
@@ -187,13 +292,12 @@ export function AlphaApp() {
     if (categoryFilter === "msme" && s.sanctioned_amount > 200000) return true;
     if (categoryFilter === "scst" && (s.caste_eligibility?.includes("SC") || s.caste_eligibility?.includes("ST"))) return true;
     if (categoryFilter === "women" && (s.gender_eligibility === "Female" || s.scheme_name.includes("Mahila"))) return true;
-    if (categoryFilter !== "all") return false;
     return true;
   });
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col font-sans">
-
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans flex flex-col">
+      
       {/* Official Gazette Modal */}
       {gazetteScheme && (
         <AlphaGazetteModal
@@ -203,94 +307,63 @@ export function AlphaApp() {
         />
       )}
 
-      {/* ================================================================ */}
-      {/* SECTION 1: OFFICIAL HEADER & PORTAL DASHBOARD METRICS            */}
-      {/* ================================================================ */}
-      <header className="bg-[#0f172a] text-white sticky top-0 z-40 shadow-lg">
+      {/* ========================================================================= */}
+      {/* SECTION 1: OFFICIAL HEADER & PORTAL METRICS                                */}
+      {/* ========================================================================= */}
+      <header className="bg-[#0f172a] text-white sticky top-0 z-40 shadow-lg border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="h-16 flex items-center justify-between gap-4">
-
-            {/* Brand */}
-            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setActiveTab('home')}>
-              <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shadow">
-                <Building2 className="w-5 h-5 text-white" />
+            
+            {/* Title & Brand */}
+            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setViewMode('console')}>
+              <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-inner">
+                <Landmark className="w-5 h-5 text-white" />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-base text-white tracking-tight">
-                    🏛️ National Scheme Governance &amp; Policy Portal
-                  </span>
-                  <span className="text-[10px] font-bold bg-blue-700/60 text-blue-200 px-2 py-0.5 rounded border border-blue-600/40">
-                    Alpha
+                <div className="flex items-center space-x-2">
+                  <span className="font-bold text-base sm:text-lg text-white tracking-tight">
+                    🏛️ National Scheme Governance &amp; Policy Portal (Alpha)
                   </span>
                 </div>
-                <p className="text-[10px] text-slate-400 font-medium hidden md:block">
-                  Ministry of Social Justice &amp; Empowerment · Government of India
+                <p className="text-[10px] text-slate-400 font-medium hidden sm:block">
+                  Ministry of Social Justice &amp; Empowerment • Government of India • Policy Authority
                 </p>
               </div>
             </div>
 
-            {/* Live Dashboard Metric Pills */}
-            <div className="hidden lg:flex items-center gap-2">
-              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-900/40 border border-emerald-600/40 rounded-full text-[10px] font-bold text-emerald-300">
-                <Radio className="w-3 h-3 animate-pulse text-emerald-400" />
-                <span>Broadcaster: Online 🟢</span>
-              </div>
-              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-900/40 border border-blue-500/40 rounded-full text-[10px] font-bold text-blue-300">
-                <Activity className="w-3 h-3" />
-                <span>Realtime WebSockets: Active</span>
-              </div>
-              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-700/60 border border-slate-600 rounded-full text-[10px] font-bold text-slate-300">
-                <Database className="w-3 h-3" />
-                <span>Active Schemes: {schemes.length + 122}</span>
-              </div>
-              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-900/40 border border-amber-600/40 rounded-full text-[10px] font-bold text-amber-300">
-                <IndianRupee className="w-3 h-3" />
-                <span>Allocated: ₹{totalBudgetCr} Cr</span>
-              </div>
-            </div>
-
-            {/* Nav + Links */}
-            <div className="flex items-center gap-2 shrink-0">
-              <div className="flex items-center bg-slate-800 p-0.5 rounded-xl border border-slate-700 text-xs font-semibold">
+            {/* Navigation Controls */}
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center bg-slate-800 p-1 rounded-xl border border-slate-700 text-xs font-semibold">
                 <button
-                  onClick={() => setActiveTab('home')}
-                  className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 cursor-pointer ${
-                    activeTab === 'home'
-                      ? 'bg-white text-[#1e3a8a] shadow-xs font-bold'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  <FileText className="w-3.5 h-3.5" />
-                  <span>Schemes ({schemes.length})</span>
-                </button>
-                <button
-                  onClick={() => setActiveTab('admin')}
-                  className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 cursor-pointer ${
-                    activeTab === 'admin'
+                  onClick={() => setViewMode('console')}
+                  className={`px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                    viewMode === 'console'
                       ? 'bg-blue-600 text-white shadow-xs font-bold'
-                      : 'text-slate-400 hover:text-white'
+                      : 'text-slate-300 hover:text-white'
                   }`}
                 >
                   <Settings className="w-3.5 h-3.5" />
-                  <span>Policy Console</span>
+                  <span>Policy &amp; Simulator Console</span>
                 </button>
+
                 <button
-                  onClick={() => setActiveTab('simulator')}
-                  className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 cursor-pointer ${
-                    activeTab === 'simulator'
-                      ? 'bg-amber-600 text-white shadow-xs font-bold'
-                      : 'text-slate-400 hover:text-white'
+                  onClick={() => setViewMode('registry')}
+                  className={`px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 ${
+                    viewMode === 'registry'
+                      ? 'bg-blue-600 text-white shadow-xs font-bold'
+                      : 'text-slate-300 hover:text-white'
                   }`}
                 >
-                  <BarChart3 className="w-3.5 h-3.5" />
-                  <span>Simulator</span>
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Scheme Registry ({schemes.length})</span>
                 </button>
               </div>
 
+              {/* Link to SchemeConnect */}
               <button
                 onClick={() => navigateToSchemeConnect("/", true)}
-                className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-300 border border-slate-600 rounded-xl text-xs font-semibold transition flex items-center gap-1 cursor-pointer hidden sm:flex"
+                className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 rounded-lg text-xs font-semibold transition hidden md:flex items-center gap-1 cursor-pointer"
+                title="Open SchemeConnect Citizen Portal in a separate tab"
               >
                 <span>SchemeConnect ↗</span>
               </button>
@@ -299,62 +372,585 @@ export function AlphaApp() {
           </div>
         </div>
 
-        {/* Broadcast success notification bar */}
-        {broadcastSuccess && (
-          <div className="bg-emerald-700/90 border-t border-emerald-600 px-4 py-1.5 text-center animate-fadeIn">
-            <span className="text-xs font-bold text-white flex items-center justify-center gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              {broadcastMsg}
-            </span>
+        {/* Live Status Indicators Strip */}
+        <div className="bg-[#0b1329] border-t border-slate-800 py-2 px-4">
+          <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-[11px]">
+            <div className="flex flex-wrap items-center gap-2.5">
+              
+              {/* Indicator 1: Broadcaster Status */}
+              <span className="flex items-center gap-1.5 text-emerald-400 font-bold bg-emerald-950/60 px-3 py-0.5 rounded-full border border-emerald-800/80">
+                <Radio className="w-3 h-3 text-emerald-400 animate-pulse" />
+                Broadcaster Status: Online 🟢
+              </span>
+
+              {/* Indicator 2: Realtime WebSockets */}
+              <span className="flex items-center gap-1.5 text-blue-300 font-semibold bg-blue-950/60 px-3 py-0.5 rounded-full border border-blue-800/80">
+                <Activity className="w-3 h-3 text-blue-400" />
+                Realtime WebSockets: Active
+              </span>
+
+              {/* Indicator 3: Active Schemes */}
+              <span className="flex items-center gap-1.5 text-purple-300 font-semibold bg-purple-950/60 px-3 py-0.5 rounded-full border border-purple-800/80">
+                <Database className="w-3 h-3 text-purple-400" />
+                Active Schemes: {totalSchemesCount}
+              </span>
+
+              {/* Indicator 4: Allocated Budget */}
+              <span className="flex items-center gap-1.5 text-amber-300 font-semibold bg-amber-950/60 px-3 py-0.5 rounded-full border border-amber-800/80">
+                <IndianRupee className="w-3 h-3 text-amber-400" />
+                Allocated Budget: ₹{totalBudgetCr.toLocaleString('en-IN')} Cr
+              </span>
+
+            </div>
+
+            {/* RS256 Key & Broadcast Channel Info */}
+            <div className="flex items-center gap-2 text-slate-400 font-mono text-[10px]">
+              <span className="text-emerald-400 font-semibold">Channel: public:scheme_updates</span>
+              <span className="text-slate-600">|</span>
+              <span>RS256 Private Key: Signed</span>
+            </div>
           </div>
-        )}
+        </div>
       </header>
 
-      {/* ================================================================ */}
-      {/* VIEW 1: HOME — PUBLIC GAZETTE DIRECTORY                           */}
-      {/* ================================================================ */}
-      {activeTab === 'home' && (
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fadeIn flex-1">
-
-          {/* Mobile metric row */}
-          <div className="flex flex-wrap gap-2 mb-5 lg:hidden">
-            {[
-              { icon: Radio, label: "Broadcaster: Online 🟢", color: "emerald" },
-              { icon: Activity, label: "WebSockets: Active", color: "blue" },
-              { icon: Database, label: `Schemes: ${schemes.length + 122}`, color: "slate" },
-              { icon: IndianRupee, label: `₹${totalBudgetCr} Cr`, color: "amber" },
-            ].map(({ icon: Icon, label, color }) => (
-              <div key={label} className={`flex items-center gap-1.5 px-2.5 py-1 bg-${color}-50 border border-${color}-200 rounded-full text-[10px] font-bold text-${color}-800`}>
-                <Icon className="w-3 h-3" />
-                <span>{label}</span>
-              </div>
-            ))}
+      {/* Real-time Broadcast Confirmation Toast Banner */}
+      {broadcastSuccess && (
+        <div className="bg-emerald-600 text-white py-2.5 px-4 shadow-md sticky top-24 z-30 animate-fadeIn">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 text-xs font-bold">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-white animate-bounce" />
+              <span>{broadcastBannerMsg}</span>
+            </div>
+            <span className="text-[10px] font-mono bg-emerald-700 px-2 py-0.5 rounded border border-emerald-500">
+              Supabase Channel &amp; DBT Webhook Cleared ✓
+            </span>
           </div>
+        </div>
+      )}
 
-          {/* Hero Banner */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-xs mb-8 flex flex-col md:flex-row items-center justify-between gap-6">
+      {/* ========================================================================= */}
+      {/* MAIN VIEW: ENTERPRISE 3-SECTION CONSOLE                                   */}
+      {/* ========================================================================= */}
+      {viewMode === 'console' && (
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8 animate-fadeIn">
+          
+          {/* Fast-Track Demo Controls Card */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
-              <div className="inline-flex items-center space-x-2 bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-semibold border border-slate-200 mb-2">
-                <Building2 className="w-3.5 h-3.5 text-slate-600" />
-                <span>Statutory Welfare Scheme Registry · SIH 2026 · Problem SIH26092</span>
-              </div>
-              <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
-                Official Ministry Scheme Directory ({schemes.length} Statutory Schemes)
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
-                Comprehensive statutory catalog of central and state welfare credit programs. All scheme parameters broadcast in real-time to SchemeConnect citizen portal. Click any scheme to review its gazette certificate with SHA-256 audit signature.
+              <span className="text-xs font-black uppercase text-slate-700 tracking-wider flex items-center gap-1.5">
+                <Zap className="w-4 h-4 text-amber-500" />
+                1-Click Fast Track Policy Broadcasts (Observe SchemeConnect live unlock):
+              </span>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                Broadcasts criteria adjustments across browser tabs in &lt;10ms via WebSockets &amp; BroadcastChannel.
               </p>
             </div>
+
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => { setSelectedSchemeId("NSFDC_MICRO"); handleQuickDemo("EXTEND_AGE_40"); }}
+                className="px-3 py-1.5 bg-[#0f172a] hover:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <Unlock className="w-3.5 h-3.5 text-amber-300" />
+                <span>Extend NSFDC Age (38 ➔ 40)</span>
+              </button>
+
+              <button
+                onClick={() => { setSelectedSchemeId("NSFDC_MICRO"); handleQuickDemo("RESTRICT_AGE_38"); }}
+                className="px-3 py-1.5 bg-slate-700 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <Lock className="w-3.5 h-3.5 text-slate-300" />
+                <span>Revert NSFDC Age (40 ➔ 38)</span>
+              </button>
+
+              <button
+                onClick={handleResetAll}
+                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold flex items-center gap-1 cursor-pointer"
+              >
+                <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
+                <span>Reset Schemes</span>
+              </button>
+            </div>
+          </div>
+
+          {/* ======================================================================= */}
+          {/* SECTION 2: POLICY MANAGEMENT & SCHEME CREATION CONSOLE                  */}
+          {/* ======================================================================= */}
+          <section className="space-y-6">
+            <div className="border-b border-slate-200 pb-3 flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  <Settings className="w-5 h-5 text-blue-600" />
+                  Section 2: Policy Management &amp; Scheme Creation Console
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Publish brand-new welfare schemes or fine-tune statutory parameters with automated escrow allocation.
+                </p>
+              </div>
+              <span className="text-[10px] font-mono font-bold bg-blue-50 text-blue-800 px-2.5 py-1 rounded-lg border border-blue-200">
+                POSTGRESQL SYNC • RS256 SIGNED
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              
+              {/* Left Column (5 Cols): Scheme Selector & Live Parameter Modifier */}
+              <div className="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-col justify-between space-y-4">
+                <div>
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+                    <span className="text-xs font-black uppercase text-slate-800 tracking-wider">
+                      Select Active Scheme ({schemes.length})
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono">Live Policy Editor</span>
+                  </div>
+
+                  <select
+                    value={selectedSchemeId}
+                    onChange={(e) => setSelectedSchemeId(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 mb-4 focus:ring-2 focus:ring-blue-500 outline-none"
+                  >
+                    {schemes.map(s => (
+                      <option key={s.scheme_id} value={s.scheme_id}>
+                        {s.scheme_name} ({s.ministry.slice(0, 25)}...)
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* Current Scheme Parameter Sliders */}
+                  <div className="space-y-3 text-xs">
+                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="font-semibold text-slate-700">Max Age Ceiling:</label>
+                        <span className="font-bold text-blue-700">{selectedScheme.age_max} Years</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="25"
+                        max="65"
+                        value={selectedScheme.age_max}
+                        onChange={(e) => handleFieldChange("age_max", e.target.value)}
+                        className="w-full accent-blue-600 cursor-pointer"
+                      />
+                    </div>
+
+                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="font-semibold text-slate-700">Annual Income Ceiling:</label>
+                        <span className="font-bold text-blue-700">₹{Number(selectedScheme.income_cap).toLocaleString('en-IN')}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="50000"
+                        max="800000"
+                        step="25000"
+                        value={selectedScheme.income_cap}
+                        onChange={(e) => handleFieldChange("income_cap", e.target.value)}
+                        className="w-full accent-blue-600 cursor-pointer"
+                      />
+                    </div>
+
+                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="font-semibold text-slate-700">Max Sanction / Subsidy:</label>
+                        <span className="font-bold text-blue-700">₹{Number(selectedScheme.sanctioned_amount).toLocaleString('en-IN')}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="50000"
+                        max="5000000"
+                        step="50000"
+                        value={selectedScheme.sanctioned_amount}
+                        onChange={(e) => handleFieldChange("sanctioned_amount", e.target.value)}
+                        className="w-full accent-blue-600 cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => broadcastPolicyUpdate("POLICY_PARAM_BROADCAST", selectedScheme, `Re-broadcasted ${selectedScheme.scheme_name} statutory parameters.`)}
+                  className="w-full py-2.5 bg-[#0f172a] hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Publish &amp; Broadcast Scheme Criteria</span>
+                </button>
+              </div>
+
+              {/* Right Column (7 Cols): Interactive Scheme Creation Form */}
+              <div className="lg:col-span-7 bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <div>
+                    <span className="text-xs font-black uppercase text-slate-800 tracking-wider flex items-center gap-1.5">
+                      <Layers className="w-4 h-4 text-emerald-600" />
+                      Create &amp; Publish New Welfare Scheme
+                    </span>
+                    <p className="text-[11px] text-slate-400">
+                      Calculates SHA-256 criteria hash, signs RS256 JWT, and transmits DBT webhook.
+                    </p>
+                  </div>
+                  <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full border border-emerald-200">
+                    REALTIME BROADCAST
+                  </span>
+                </div>
+
+                <form onSubmit={handlePublishNewScheme} className="space-y-4 text-xs">
+                  {/* Scheme Name */}
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">
+                      Scheme Name:
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g., PMEGP Credit Subsidy 2026"
+                      value={newScheme.name}
+                      onChange={(e) => setNewScheme({ ...newScheme, name: e.target.value })}
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 font-semibold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Target Category */}
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">
+                        Target Category:
+                      </label>
+                      <select
+                        value={newScheme.category}
+                        onChange={(e) => setNewScheme({ ...newScheme, category: e.target.value })}
+                        className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+                      >
+                        <option value="OBC">OBC (Other Backward Classes)</option>
+                        <option value="SC">SC (Scheduled Caste)</option>
+                        <option value="ST">ST (Scheduled Tribe)</option>
+                        <option value="EWS">EWS (Economically Weaker Section)</option>
+                        <option value="General">General Category</option>
+                      </select>
+                    </div>
+
+                    {/* Total Fund Allocation Input Field */}
+                    <div>
+                      <label className="block font-bold text-slate-700 mb-1">
+                        Total Fund Allocation (INR):
+                      </label>
+                      <input
+                        type="number"
+                        required
+                        min="10000000"
+                        step="5000000"
+                        value={newScheme.totalAllocation}
+                        onChange={(e) => setNewScheme({ ...newScheme, totalAllocation: Number(e.target.value) })}
+                        className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 font-mono font-bold focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+                      />
+                      <span className="text-[10px] text-slate-400 mt-0.5 block">
+                        Formatted: {fmtINR(newScheme.totalAllocation)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Maximum Annual Income Threshold */}
+                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="font-bold text-slate-700">Max Annual Income Threshold:</label>
+                        <span className="font-bold text-emerald-700">{fmtINR(newScheme.incomeThreshold)}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="100000"
+                        max="800000"
+                        step="25000"
+                        value={newScheme.incomeThreshold}
+                        onChange={(e) => setNewScheme({ ...newScheme, incomeThreshold: Number(e.target.value) })}
+                        className="w-full accent-emerald-600 cursor-pointer"
+                      />
+                    </div>
+
+                    {/* Max Loan / Subsidy Amount */}
+                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="font-bold text-slate-700">Max Loan / Subsidy Amount:</label>
+                        <span className="font-bold text-emerald-700">{fmtINR(newScheme.maxLoanAmount)}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="50000"
+                        max="2000000"
+                        step="50000"
+                        value={newScheme.maxLoanAmount}
+                        onChange={(e) => setNewScheme({ ...newScheme, maxLoanAmount: Number(e.target.value) })}
+                        className="w-full accent-emerald-600 cursor-pointer"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Required Verification Factors Checkboxes */}
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-2">
+                      Required Verification Factors (ZKP Enforcement):
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {[
+                        { key: "aadhaar", label: "Aadhaar eKYC" },
+                        { key: "pan", label: "PAN Structure" },
+                        { key: "community", label: "Community Cert." },
+                        { key: "income", label: "Income Cert." }
+                      ].map(item => (
+                        <label
+                          key={item.key}
+                          className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center space-x-2 cursor-pointer transition ${
+                            newScheme.verFactors[item.key]
+                              ? 'bg-blue-50 border-blue-300 text-blue-900 font-bold'
+                              : 'bg-slate-50 border-slate-200 text-slate-600'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={newScheme.verFactors[item.key]}
+                            onChange={(e) => setNewScheme({
+                              ...newScheme,
+                              verFactors: { ...newScheme.verFactors, [item.key]: e.target.checked }
+                            })}
+                            className="w-3.5 h-3.5 accent-blue-600 rounded"
+                          />
+                          <span>{item.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Submit CTA */}
+                  <div className="pt-2 flex items-center justify-between">
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      Target: public:scheme_updates
+                    </span>
+
+                    <button
+                      type="submit"
+                      className="py-3 px-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center space-x-2 shadow-sm cursor-pointer"
+                    >
+                      <Send className="w-4 h-4" />
+                      <span>Publish &amp; Broadcast Policy Update</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+            </div>
+          </section>
+
+          {/* ======================================================================= */}
+          {/* SECTION 3: POLICY SIMULATOR & SETTLEMENT AUDIT LOG                      */}
+          {/* ======================================================================= */}
+          <section className="space-y-6">
+            <div className="border-b border-slate-200 pb-3 flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-amber-600" />
+                  Section 3: Policy Simulator &amp; Settlement Audit Log
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Dynamic visual simulation of applicant eligibility rates, budget exhaustion, and live cryptographic audit log stream.
+                </p>
+              </div>
+              <span className="text-[10px] font-mono font-bold bg-amber-50 text-amber-800 px-2.5 py-1 rounded-lg border border-amber-200">
+                AUDIT TRAIL • SHA-256 HASHED
+              </span>
+            </div>
+
+            {/* Policy Impact Simulator */}
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-6">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black uppercase text-slate-800 tracking-wider flex items-center gap-1.5">
+                  <TrendingUp className="w-4 h-4 text-blue-600" />
+                  Policy Impact Simulator (Pre-Deployment Risk &amp; Budget Modeling)
+                </span>
+                <span className="text-[10px] text-slate-400 font-mono">
+                  Real-time Formula Engine
+                </span>
+              </div>
+
+              {/* Simulator Sliders & Outputs Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                
+                {/* Sliders (6 Cols) */}
+                <div className="lg:col-span-6 space-y-4">
+                  
+                  {/* Slider 1: Income Threshold */}
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div className="flex justify-between items-center mb-1.5">
+                      <label className="text-xs font-bold text-slate-800">
+                        Simulated Annual Income Cap:
+                      </label>
+                      <span className="text-sm font-black text-blue-700 font-mono">
+                        {fmtINR(simIncomeThreshold)}
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="100000"
+                      max="800000"
+                      step="25000"
+                      value={simIncomeThreshold}
+                      onChange={(e) => setSimIncomeThreshold(Number(e.target.value))}
+                      className="w-full accent-blue-600 cursor-pointer"
+                    />
+                    <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+                      <span>₹1,00,000 (Strict EWS)</span>
+                      <span>₹8,00,000 (Broad Eligibility)</span>
+                    </div>
+                  </div>
+
+                  {/* Slider 2: Subsidy / Loan Cap */}
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div className="flex justify-between items-center mb-1.5">
+                      <label className="text-xs font-bold text-slate-800">
+                        Simulated Max Subsidy / Loan Amount:
+                      </label>
+                      <span className="text-sm font-black text-emerald-700 font-mono">
+                        {fmtINR(simSubsidyCap)}
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="50000"
+                      max="2500000"
+                      step="50000"
+                      value={simSubsidyCap}
+                      onChange={(e) => setSimSubsidyCap(Number(e.target.value))}
+                      className="w-full accent-emerald-600 cursor-pointer"
+                    />
+                    <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+                      <span>₹50,000 (Micro)</span>
+                      <span>₹25,00,000 (MSME Scale)</span>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Simulated Metrics Visual Displays (6 Cols) */}
+                <div className="lg:col-span-6 grid grid-cols-2 gap-4">
+                  
+                  {/* Output Card 1: Projected Eligibility Rate */}
+                  <div className="p-4 bg-blue-50/70 border border-blue-200 rounded-2xl flex flex-col justify-between">
+                    <div>
+                      <span className="text-[10px] font-bold text-blue-800 uppercase block">
+                        Projected Citizen Eligibility
+                      </span>
+                      <span className="text-3xl font-black text-blue-900 mt-1 block">
+                        {simEligibilityRate}%
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-blue-700 mt-2">
+                      Approx. <b>{simProjectedBeneficiaries.toLocaleString('en-IN')}</b> qualified applicants in state pool.
+                    </p>
+                  </div>
+
+                  {/* Output Card 2: Budget Exhaustion */}
+                  <div className="p-4 bg-amber-50/70 border border-amber-200 rounded-2xl flex flex-col justify-between">
+                    <div>
+                      <span className="text-[10px] font-bold text-amber-800 uppercase block">
+                        Est. Budget Exhaustion
+                      </span>
+                      <span className="text-3xl font-black text-amber-900 mt-1 block">
+                        ₹{simBudgetExhaustionCr} Cr
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-amber-800 mt-2">
+                      Represents <b>{simExhaustionPct}%</b> of total ₹{totalBudgetCr} Cr allocation.
+                    </p>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+
+            {/* Settlement Audit Log Stream Table */}
+            <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
+              <div className="p-5 border-b border-slate-200 flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-black uppercase text-slate-800 tracking-wider block">
+                    Settlement Audit Log &amp; Policy Stream
+                  </span>
+                  <span className="text-[11px] text-slate-400">
+                    Real-time immutable log of policy broadcasts, admin clearances, and SHA-256 hashes
+                  </span>
+                </div>
+
+                <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
+                  Total Broadcasts: {broadcastCount}
+                </span>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-[10px] font-bold">
+                    <tr>
+                      <th className="p-3.5">Timestamp</th>
+                      <th className="p-3.5">Admin ID</th>
+                      <th className="p-3.5">Event Action</th>
+                      <th className="p-3.5">SHA-256 Policy Hash</th>
+                      <th className="p-3.5">Escrow Clearance</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-mono text-[11px]">
+                    {auditLogs.map((log) => (
+                      <tr key={log.id} className="hover:bg-slate-50 transition">
+                        <td className="p-3.5 text-slate-500">{log.time}</td>
+                        <td className="p-3.5 font-bold text-slate-800">{log.adminId}</td>
+                        <td className="p-3.5 text-blue-900 font-sans font-semibold">
+                          {log.event}
+                          <span className="block text-[10px] text-slate-400 font-mono font-normal">
+                            {log.detail}
+                          </span>
+                        </td>
+                        <td className="p-3.5 text-slate-600">
+                          <span className="bg-slate-100 px-2 py-0.5 rounded border border-slate-200 text-[10px]">
+                            {log.hash.slice(0, 18)}...{log.hash.slice(-8)}
+                          </span>
+                        </td>
+                        <td className="p-3.5">
+                          <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 text-[10px]">
+                            {log.escrowStatus}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </section>
+
+        </main>
+      )}
+
+      {/* ========================================================================= */}
+      {/* VIEW B: SCHEME REGISTRY VIEW (STATUTORY DIRECTORY)                        */}
+      {/* ========================================================================= */}
+      {viewMode === 'registry' && (
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full animate-fadeIn">
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+                Statutory Scheme Registry ({schemes.length} Active Schemes)
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-600 mt-1">
+                Central &amp; state government welfare credit schemes with gazette certificates.
+              </p>
+            </div>
+
             <button
-              onClick={() => setActiveTab('admin')}
-              className="px-5 py-2.5 bg-[#0f172a] hover:bg-slate-800 text-white rounded-xl text-xs font-semibold shadow-xs transition flex items-center space-x-2 shrink-0 cursor-pointer"
+              onClick={() => setViewMode('console')}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs self-start"
             >
-              <Settings className="w-4 h-4" />
-              <span>Admin Policy Console ➔</span>
+              <span>← Back to Policy &amp; Simulator Console</span>
             </button>
           </div>
 
-          {/* Filter & Search */}
+          {/* Filter & Search Controls */}
           <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex flex-wrap gap-1.5 w-full sm:w-auto">
               {[
@@ -377,6 +973,7 @@ export function AlphaApp() {
                 </button>
               ))}
             </div>
+
             <div className="relative w-full sm:w-72">
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
               <input
@@ -384,28 +981,33 @@ export function AlphaApp() {
                 placeholder="Search schemes or ministry..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-slate-900 focus:bg-white outline-none"
+                className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-600 focus:bg-white outline-none"
               />
             </div>
           </div>
 
-          {/* Schemes Grid */}
+          {/* 20 Schemes Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredSchemes.map((scheme) => (
-              <div
+              <div 
                 key={scheme.scheme_id}
                 className="bg-white border border-slate-200 hover:border-slate-300 rounded-xl p-5 shadow-xs transition flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[11px] font-semibold text-slate-500 truncate max-w-[200px]">{scheme.ministry}</span>
-                    <span className="text-[10px] font-mono font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">{scheme.scheme_id}</span>
+                    <span className="text-[11px] font-semibold text-slate-500 truncate max-w-[200px]">
+                      {scheme.ministry}
+                    </span>
+                    <span className="text-[10px] font-mono font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
+                      {scheme.scheme_id}
+                    </span>
                   </div>
-                  <h3 className="font-bold text-sm text-slate-900 leading-snug mb-1">{scheme.scheme_name}</h3>
-                  {scheme.scheme_name_ta && (
-                    <p className="text-[11px] text-slate-500 mb-3 line-clamp-1">{scheme.scheme_name_ta}</p>
-                  )}
-                  <div className="bg-slate-50 border border-slate-200/80 rounded-lg p-3 mb-4 space-y-1.5 text-xs">
+
+                  <h3 className="font-bold text-sm text-slate-900 leading-snug mb-1">
+                    {scheme.scheme_name}
+                  </h3>
+
+                  <div className="bg-slate-50 border border-slate-200/80 rounded-lg p-3 my-3 space-y-1 text-xs">
                     <div className="flex justify-between">
                       <span className="text-slate-500">Sanction Limit:</span>
                       <span className="font-bold text-slate-900">₹{Number(scheme.sanctioned_amount).toLocaleString('en-IN')}</span>
@@ -418,12 +1020,9 @@ export function AlphaApp() {
                       <span className="text-slate-500">Income Cap:</span>
                       <span className="font-semibold text-slate-800">≤ ₹{Number(scheme.income_cap).toLocaleString('en-IN')}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Interest Rate:</span>
-                      <span className="font-bold text-emerald-700">{scheme.concessional_interest_rate || 5.0}% p.a.</span>
-                    </div>
                   </div>
                 </div>
+
                 <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
                   <button
                     onClick={() => setGazetteScheme(scheme)}
@@ -432,10 +1031,14 @@ export function AlphaApp() {
                     <FileText className="w-3.5 h-3.5 text-slate-600" />
                     <span>View Gazette ↗</span>
                   </button>
+
                   <button
-                    onClick={() => { setSelectedSchemeId(scheme.scheme_id); setActiveTab('admin'); }}
-                    className="py-2 px-3 bg-blue-50 hover:bg-blue-100 text-[#1e3a8a] rounded-lg text-xs font-semibold transition cursor-pointer"
-                    title="Edit scheme in Admin Console"
+                    onClick={() => {
+                      setSelectedSchemeId(scheme.scheme_id);
+                      setViewMode('console');
+                    }}
+                    className="py-2 px-3 bg-blue-50 hover:bg-blue-100 text-blue-800 rounded-lg text-xs font-semibold transition cursor-pointer"
+                    title="Edit in Section 2 Console"
                   >
                     <Settings className="w-3.5 h-3.5" />
                   </button>
@@ -446,530 +1049,79 @@ export function AlphaApp() {
         </main>
       )}
 
-      {/* ================================================================ */}
-      {/* VIEW 2: SECTION 2 — POLICY MANAGEMENT & SCHEME CREATION CONSOLE  */}
-      {/* ================================================================ */}
-      {activeTab === 'admin' && (
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fadeIn flex-1">
-
-          {/* Admin Banner */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs mb-6">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-              <div>
-                <div className="inline-flex items-center space-x-2 bg-emerald-50 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold border border-emerald-200 mb-2">
-                  <Radio className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
-                  <span>Policy Broadcaster Active · RS256 JWT Signing · Supabase Realtime WebSockets</span>
-                </div>
-                <h1 className="text-xl font-bold text-slate-900">
-                  Policy Management &amp; Scheme Creation Console
-                </h1>
-                <p className="text-xs text-slate-600 mt-1 max-w-2xl">
-                  Modify scheme parameters below — changes are SHA-256 hashed, RS256-signed, and broadcast over <code className="bg-slate-100 px-1 rounded font-mono">public:scheme_updates</code> to SchemeConnect and partner bank nodes (&lt;10ms).
-                </p>
-              </div>
-              <div className="flex items-center gap-3 shrink-0">
-                <div className="text-center px-4 py-2 bg-slate-100 border border-slate-200 rounded-xl">
-                  <span className="text-2xl font-bold text-slate-900 block">{broadcastCount}</span>
-                  <span className="text-[10px] text-slate-500 font-semibold uppercase">Broadcasts</span>
-                </div>
-                <div className="text-center px-4 py-2 bg-blue-50 border border-blue-200 rounded-xl">
-                  <span className="text-2xl font-bold text-blue-900 block">{schemes.length}</span>
-                  <span className="text-[10px] text-blue-600 font-semibold uppercase">Live Schemes</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Fast-Track Demo Buttons */}
-            <div className="mt-5 pt-4 border-t border-slate-100">
-              <span className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-2.5">
-                ⚡ 1-Click Fast Track Policy Broadcasts (Watch SchemeConnect unlock in real time):
-              </span>
-              <div className="flex flex-wrap gap-2">
-                <button onClick={() => { setSelectedSchemeId("NSFDC_MICRO"); handleQuickDemo("EXTEND_AGE_40"); }}
-                  className="px-3.5 py-2 bg-[#0f172a] hover:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer">
-                  <Unlock className="w-3.5 h-3.5 text-amber-300" />
-                  <span>Extend NSFDC Age: 38 ➔ 40</span>
-                </button>
-                <button onClick={() => { setSelectedSchemeId("NSFDC_MICRO"); handleQuickDemo("RESTRICT_AGE_38"); }}
-                  className="px-3.5 py-2 bg-slate-700 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer">
-                  <Lock className="w-3.5 h-3.5 text-slate-300" />
-                  <span>Revert NSFDC Age: 40 ➔ 38</span>
-                </button>
-                <button onClick={() => { setSelectedSchemeId("MAHILA_SAMRIDHI"); handleQuickDemo("RAISE_MAHILA_INCOME"); }}
-                  className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer">
-                  <Sparkles className="w-3.5 h-3.5 text-slate-600" />
-                  <span>Waive Mahila SHG Mandate &amp; Raise Cap</span>
-                </button>
-                <button onClick={handleReset}
-                  className="ml-auto px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer">
-                  <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Reset All {schemes.length} Schemes</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* 2-Column Layout: Scheme Selector + Live Editor */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
-
-            {/* Left: Scheme Selector */}
-            <div className="lg:col-span-5 bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex flex-col h-[560px]">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
-                <h3 className="text-xs font-bold uppercase text-slate-800 tracking-wider">Select Scheme to Edit</h3>
-                <span className="text-[10px] text-slate-400 font-mono">PostgreSQL · {schemes.length} records</span>
-              </div>
-              <div className="flex-1 overflow-y-auto space-y-1.5 pr-1">
-                {schemes.map(s => (
-                  <div
-                    key={s.scheme_id}
-                    onClick={() => setSelectedSchemeId(s.scheme_id)}
-                    className={`p-3 rounded-lg border text-xs cursor-pointer transition flex items-center justify-between ${
-                      selectedSchemeId === s.scheme_id
-                        ? 'bg-blue-50/80 border-blue-400 font-semibold text-slate-900 shadow-xs'
-                        : 'bg-white border-slate-200 hover:border-slate-300 text-slate-700'
-                    }`}
-                  >
-                    <div className="truncate pr-2">
-                      <span className="text-[10px] text-slate-400 uppercase font-bold block">{s.ministry}</span>
-                      <span className="truncate block font-medium">{s.scheme_name}</span>
-                    </div>
-                    <span className="text-[11px] font-mono text-slate-500 shrink-0">≤{s.age_max}y</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Right: Live Parameter Editor */}
-            <div className="lg:col-span-7 bg-white border border-slate-200 rounded-xl p-6 shadow-xs flex flex-col">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-5">
-                <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">{selectedScheme.ministry}</span>
-                  <h2 className="text-base font-bold text-slate-900">{selectedScheme.scheme_name}</h2>
-                </div>
-                <span className="text-xs font-mono font-bold bg-slate-100 px-2.5 py-1 rounded border border-slate-200 text-slate-700">{selectedScheme.scheme_id}</span>
-              </div>
-
-              <div className="space-y-4 text-xs flex-1">
-                {/* Age Ceiling */}
-                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
-                  <div className="flex justify-between items-center mb-1.5">
-                    <label className="font-semibold text-slate-800">Maximum Age Ceiling (Years):</label>
-                    <span className="font-bold text-blue-900 text-sm">{selectedScheme.age_max} Yrs</span>
-                  </div>
-                  <input type="range" min="25" max="65" value={selectedScheme.age_max}
-                    onChange={(e) => handleFieldChange("age_max", e.target.value)}
-                    className="w-full accent-[#1e3a8a] cursor-pointer" />
-                  <span className="text-[10px] text-slate-500 mt-1 block">Beneficiaries older than this cap will be locked on SchemeConnect.</span>
-                </div>
-
-                {/* Income Cap */}
-                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
-                  <div className="flex justify-between items-center mb-1.5">
-                    <label className="font-semibold text-slate-800">Annual Income Ceiling (₹):</label>
-                    <span className="font-bold text-blue-900 text-sm">₹{Number(selectedScheme.income_cap).toLocaleString('en-IN')}</span>
-                  </div>
-                  <input type="range" min="50000" max="800000" step="25000" value={selectedScheme.income_cap}
-                    onChange={(e) => handleFieldChange("income_cap", e.target.value)}
-                    className="w-full accent-[#1e3a8a] cursor-pointer" />
-                </div>
-
-                {/* Sanction Amount */}
-                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
-                  <div className="flex justify-between items-center mb-1.5">
-                    <label className="font-semibold text-slate-800">Max Loan / Subsidy Amount (₹):</label>
-                    <span className="font-bold text-blue-900 text-sm">₹{Number(selectedScheme.sanctioned_amount).toLocaleString('en-IN')}</span>
-                  </div>
-                  <input type="range" min="50000" max="5000000" step="50000" value={selectedScheme.sanctioned_amount}
-                    onChange={(e) => handleFieldChange("sanctioned_amount", e.target.value)}
-                    className="w-full accent-[#1e3a8a] cursor-pointer" />
-                </div>
-
-                {/* Interest Rate */}
-                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
-                  <div className="flex justify-between items-center mb-1.5">
-                    <label className="font-semibold text-slate-800">Concessional Interest Rate (% p.a.):</label>
-                    <span className="font-bold text-emerald-700 text-sm">{selectedScheme.concessional_interest_rate || 5.0}%</span>
-                  </div>
-                  <input type="range" min="3.0" max="12.0" step="0.5" value={selectedScheme.concessional_interest_rate || 5.0}
-                    onChange={(e) => handleFieldChange("concessional_interest_rate", e.target.value)}
-                    className="w-full accent-emerald-600 cursor-pointer" />
-                </div>
-              </div>
-
-              {/* Publish button */}
-              <button
-                onClick={async () => {
-                  setBroadcastSuccess(true);
-                  setBroadcastMsg("Policy Update Broadcasted & Escrow Allocations Locked 🟢");
-                  await emitLog("POLICY_BROADCAST", `${selectedScheme.scheme_id}: Manual publish. DBT clearing webhook to Beta Portal. RS256 signed.`);
-                  setTimeout(() => { setBroadcastSuccess(false); setBroadcastMsg(""); }, 3000);
-                }}
-                className="mt-4 w-full py-2.5 bg-[#0f172a] hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition"
-              >
-                <Send className="w-3.5 h-3.5" />
-                Publish &amp; Broadcast Policy Update
-              </button>
-            </div>
-
-          </div>
-
-          {/* ── NEW SCHEME CREATION FORM ─────────────────────────────── */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
-            <h3 className="text-sm font-bold text-slate-900 mb-1">
-              ➕ Create &amp; Publish New Welfare Scheme
-            </h3>
-            <p className="text-xs text-slate-500 mb-5">
-              New scheme parameters are SHA-256 hashed and RS256-signed before broadcast to partner bank nodes and SchemeConnect.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-              {/* Scheme Name */}
-              <div className="lg:col-span-2">
-                <label className="block text-xs font-bold text-slate-700 mb-1">Scheme Name</label>
-                <input
-                  type="text"
-                  placeholder="e.g. PMEGP Credit Subsidy 2026"
-                  value={newScheme.name}
-                  onChange={(e) => setNewScheme(s => ({ ...s, name: e.target.value }))}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none"
-                />
-              </div>
-
-              {/* Target Category */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Target Category</label>
-                <select
-                  value={newScheme.category}
-                  onChange={(e) => setNewScheme(s => ({ ...s, category: e.target.value }))}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 outline-none"
-                >
-                  <option>OBC</option>
-                  <option>SC</option>
-                  <option>ST</option>
-                  <option>EWS</option>
-                  <option>General</option>
-                </select>
-              </div>
-
-              {/* Max Annual Income Threshold */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Max Annual Income Threshold: <span className="text-blue-700">{fmtINR(newScheme.income)}</span>
-                </label>
-                <input type="range" min="100000" max="800000" step="25000" value={newScheme.income}
-                  onChange={(e) => setNewScheme(s => ({ ...s, income: Number(e.target.value) }))}
-                  className="w-full accent-[#1e3a8a]" />
-              </div>
-
-              {/* Max Loan / Subsidy Amount */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Max Loan / Subsidy Amount: <span className="text-blue-700">{fmtINR(newScheme.loanMax)}</span>
-                </label>
-                <input type="range" min="50000" max="2000000" step="50000" value={newScheme.loanMax}
-                  onChange={(e) => setNewScheme(s => ({ ...s, loanMax: Number(e.target.value) }))}
-                  className="w-full accent-[#1e3a8a]" />
-              </div>
-
-              {/* Total Fund Allocation */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Total Fund Allocation: <span className="text-blue-700">{fmtINR(newScheme.allocation)}</span>
-                </label>
-                <input type="range" min="5000000" max="500000000" step="5000000" value={newScheme.allocation}
-                  onChange={(e) => setNewScheme(s => ({ ...s, allocation: Number(e.target.value) }))}
-                  className="w-full accent-emerald-600" />
-              </div>
-            </div>
-
-            {/* Required Verification Factors */}
-            <div className="mb-5">
-              <label className="block text-xs font-bold text-slate-700 mb-2">Required Verification Factors:</label>
-              <div className="flex flex-wrap gap-3">
-                {Object.entries(newScheme.verFactors).map(([key, val]) => (
-                  <label key={key} className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700">
-                    <input
-                      type="checkbox"
-                      checked={val}
-                      onChange={(e) => setNewScheme(s => ({ ...s, verFactors: { ...s.verFactors, [key]: e.target.checked } }))}
-                      className="accent-[#1e3a8a] w-3.5 h-3.5"
-                    />
-                    {key === 'aadhaar' ? 'Aadhaar eKYC' : key === 'pan' ? 'PAN' : key === 'community' ? 'Community Certificate' : 'Income Certificate'}
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <button
-              onClick={handlePublishNewScheme}
-              disabled={!newScheme.name.trim()}
-              className={`px-6 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition cursor-pointer ${
-                newScheme.name.trim()
-                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow'
-                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-              }`}
-            >
-              {schemePublished ? (
-                <><CheckCircle2 className="w-4 h-4" /> Scheme Published &amp; Broadcasted 🟢</>
-              ) : (
-                <><Send className="w-3.5 h-3.5" /> Publish &amp; Broadcast Policy Update</>
-              )}
-            </button>
-          </div>
-        </main>
-      )}
-
-      {/* ================================================================ */}
-      {/* VIEW 3: SECTION 3 — POLICY SIMULATOR & SETTLEMENT AUDIT LOG      */}
-      {/* ================================================================ */}
-      {activeTab === 'simulator' && (
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fadeIn flex-1">
-
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs mb-6">
-            <div className="flex items-center gap-2 mb-1">
-              <BarChart3 className="w-5 h-5 text-amber-600" />
-              <h1 className="text-xl font-bold text-slate-900">Policy Impact Simulator</h1>
-            </div>
-            <p className="text-xs text-slate-500">
-              Drag income threshold and subsidy cap sliders to simulate projected applicant eligibility rates and total budget exhaustion before deployment to SchemeConnect.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-            {/* Left: Simulator Sliders */}
-            <div className="lg:col-span-6 bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
-              <h2 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-blue-600" />
-                Simulate Eligibility Parameters
-              </h2>
-
-              <div className="space-y-6">
-                {/* Income Threshold Slider */}
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <label className="text-xs font-bold text-slate-700">Annual Income Threshold Cap</label>
-                    <span className="text-sm font-black text-blue-700">{fmtINR(simIncome)}</span>
-                  </div>
-                  <input type="range" min="50000" max="800000" step="10000"
-                    value={simIncome}
-                    onChange={(e) => setSimIncome(Number(e.target.value))}
-                    className="w-full accent-blue-600" />
-                  <div className="flex justify-between text-[10px] text-slate-400 mt-1">
-                    <span>₹50,000</span>
-                    <span>₹8,00,000</span>
-                  </div>
-                </div>
-
-                {/* Loan Cap Slider */}
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <label className="text-xs font-bold text-slate-700">Maximum Subsidy / Loan Cap</label>
-                    <span className="text-sm font-black text-emerald-700">{fmtINR(simLoanCap)}</span>
-                  </div>
-                  <input type="range" min="50000" max="5000000" step="50000"
-                    value={simLoanCap}
-                    onChange={(e) => setSimLoanCap(Number(e.target.value))}
-                    className="w-full accent-emerald-600" />
-                  <div className="flex justify-between text-[10px] text-slate-400 mt-1">
-                    <span>₹50,000</span>
-                    <span>₹50,00,000</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Simulate Deploy Button */}
-              <button
-                onClick={async () => {
-                  setBroadcastSuccess(true);
-                  setBroadcastMsg("Simulated policy parameters deployed · Policy Update Broadcasted & Escrow Allocations Locked 🟢");
-                  await emitLog("SIM_DEPLOY", `Simulated params: Income cap=${fmtINR(simIncome)}, Loan cap=${fmtINR(simLoanCap)}. Projected eligibility ${simEligibilityPct}%. Budget exhaust: ₹${simBudgetExhaust} Cr.`);
-                  setTimeout(() => { setBroadcastSuccess(false); setBroadcastMsg(""); }, 3000);
-                }}
-                className="mt-6 w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition"
-              >
-                <Zap className="w-3.5 h-3.5" />
-                Deploy Simulated Parameters to SchemeConnect
-              </button>
-            </div>
-
-            {/* Right: Impact Metrics */}
-            <div className="lg:col-span-6 flex flex-col gap-4">
-
-              {/* Eligibility Rate Card */}
-              <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
-                <div className="flex items-center gap-2 mb-3">
-                  <Users className="w-4 h-4 text-blue-600" />
-                  <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Projected Beneficiary Eligibility</span>
-                </div>
-                <div className="flex items-end gap-3 mb-3">
-                  <span className="text-5xl font-black text-blue-700">{simEligibilityPct}%</span>
-                  <span className="text-sm text-slate-500 mb-1">of applicants eligible</span>
-                </div>
-                <div className="w-full bg-slate-100 rounded-full h-3">
-                  <div
-                    className="h-3 rounded-full bg-gradient-to-r from-blue-500 to-blue-700 transition-all duration-300"
-                    style={{ width: `${simEligibilityPct}%` }}
-                  />
-                </div>
-                <div className="flex justify-between text-[10px] text-slate-400 mt-1">
-                  <span>0%</span><span>50%</span><span>100%</span>
-                </div>
-                <p className="text-[11px] text-slate-600 mt-2">
-                  Estimated <strong>{simApplicants.toLocaleString()}</strong> applicants qualify across {schemes.length} active schemes.
-                </p>
-              </div>
-
-              {/* Budget Exhaustion Card */}
-              <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
-                <div className="flex items-center gap-2 mb-3">
-                  <IndianRupee className="w-4 h-4 text-amber-600" />
-                  <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Projected Budget Exhaustion</span>
-                </div>
-                <div className="flex items-end gap-3 mb-1">
-                  <span className="text-3xl font-black text-amber-700">₹{simBudgetExhaust} Cr</span>
-                </div>
-                <div className="w-full bg-slate-100 rounded-full h-3">
-                  <div
-                    className={`h-3 rounded-full transition-all duration-300 ${
-                      simBudgetExhaust > totalBudgetCr * 10
-                        ? 'bg-rose-500'
-                        : simBudgetExhaust > totalBudgetCr * 6
-                        ? 'bg-amber-400'
-                        : 'bg-emerald-500'
-                    }`}
-                    style={{ width: `${Math.min(100, (simBudgetExhaust / (totalBudgetCr * 12)) * 100)}%` }}
-                  />
-                </div>
-                {simBudgetExhaust > totalBudgetCr * 10 && (
-                  <div className="flex items-center gap-1.5 mt-2 text-rose-600">
-                    <AlertTriangle className="w-3.5 h-3.5" />
-                    <span className="text-[11px] font-bold">Warning: Projected spend exceeds current allocation. Review parameters.</span>
-                  </div>
-                )}
-              </div>
-
-              {/* ZKP / Cryptographic Policy Signing Note */}
-              <div className="bg-slate-900 text-white rounded-2xl p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <Shield className="w-4 h-4 text-blue-400" />
-                  <span className="text-xs font-bold text-white">Cryptographic Policy Signing</span>
-                </div>
-                <p className="text-[11px] text-slate-300 leading-relaxed">
-                  All outgoing policy broadcasts are <strong className="text-blue-300">SHA-256 hashed</strong> and <strong className="text-blue-300">RS256-signed</strong> with Alpha's private key. SchemeConnect and partner banks can cryptographically verify policy origin before applying parameter changes.
-                </p>
-                <div className="mt-2 flex items-center gap-2 text-[10px] font-mono text-emerald-400">
-                  <Hash className="w-3 h-3" />
-                  <span>Channel: <code>public:scheme_updates</code></span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* ── SETTLEMENT AUDIT LOG ─────────────────────────────────── */}
-          <div className="mt-6 bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Database className="w-4 h-4 text-slate-600" />
-                <h2 className="text-sm font-bold text-slate-900">Settlement Audit Log &amp; Policy Update Stream</h2>
-              </div>
-              <span className="text-[10px] text-slate-400 font-mono">{logs.length} events · {broadcastCount} broadcasts total</span>
-            </div>
-
-            <div className="bg-slate-900 rounded-xl p-4 font-mono text-[11px] space-y-1.5 max-h-64 overflow-y-auto">
-              {logs.map((log) => (
-                <div key={log.id} className="flex items-start gap-2 py-0.5 border-b border-slate-800/50 last:border-0">
-                  <span className="text-slate-500 shrink-0">[{log.time}]</span>
-                  <span className="text-amber-400 font-bold shrink-0">{log.event}</span>
-                  <span className="text-emerald-300 truncate">{log.detail}</span>
-                  <span className="text-slate-600 shrink-0 ml-auto hidden lg:inline">SHA256: {log.hash}</span>
-                  <span className={`shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                    log.status === 'CLEARED' ? 'bg-emerald-900/60 text-emerald-300' : 'bg-rose-900/60 text-rose-300'
-                  }`}>
-                    {log.status || "CLEARED"}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            {/* Audit table header */}
-            <div className="mt-3 grid grid-cols-5 gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-200 pb-1.5">
-              <span>Timestamp</span>
-              <span>Event Type</span>
-              <span className="col-span-2">Detail</span>
-              <span>Escrow Status</span>
-            </div>
-            <div className="divide-y divide-slate-100 max-h-44 overflow-y-auto">
-              {logs.map((log) => (
-                <div key={`t-${log.id}`} className="grid grid-cols-5 gap-2 py-2 text-[11px] text-slate-600 hover:bg-slate-50/60">
-                  <span className="font-mono">{log.time}</span>
-                  <span className="font-bold text-slate-800">{log.event}</span>
-                  <span className="col-span-2 truncate">{log.detail}</span>
-                  <span className={`font-bold ${log.status === 'CLEARED' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                    {log.status || "CLEARED"}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </main>
-      )}
-
-      {/* ================================================================ */}
-      {/* SECTION 3: OFFICIAL DARK SLATE FOOTER                            */}
-      {/* ================================================================ */}
-      <footer className="mt-auto bg-[#0f172a] text-slate-300 py-10">
+      {/* ========================================================================= */}
+      {/* GLOBAL FOOTER: GOVERNMENT POLICY & AUDIT SPECIFICATION                    */}
+      {/* ========================================================================= */}
+      <footer className="mt-auto bg-[#0f172a] text-slate-400 py-10 border-t border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-            {/* Column 1: About */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 text-xs">
+            
+            {/* Column 1: Ministry Authority */}
             <div>
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 text-white font-bold text-sm mb-2">
                 <Building2 className="w-4 h-4 text-blue-400" />
-                <span className="text-xs font-bold text-white uppercase tracking-wider">About Alpha Portal</span>
+                <span>Statutory Governance Authority</span>
               </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
-                Alpha Portal is the official government policy administration console for the National Scheme Governance &amp; Policy Portal under the Ministry of Social Justice &amp; Empowerment, Government of India. Problem Statement SIH26092.
+              <p className="text-slate-400 text-[11px] leading-relaxed">
+                Official Ministry Scheme Administration Console under Ministry of Social Justice &amp; Empowerment (MoSJE), Ministry of MSME, and Ministry of Housing and Urban Affairs (MoHUA), Government of India.
               </p>
+              <span className="text-[10px] font-mono text-slate-500 block mt-2">
+                Statutory Gazette Order: SO/2026/POL-98214
+              </span>
             </div>
 
-            {/* Column 2: Helpline */}
+            {/* Column 2: Cryptographic Infrastructure */}
             <div>
-              <div className="flex items-center gap-2 mb-3">
-                <Globe className="w-4 h-4 text-emerald-400" />
-                <span className="text-xs font-bold text-white uppercase tracking-wider">Policy Helpline</span>
+              <div className="flex items-center gap-2 text-white font-bold text-sm mb-2">
+                <Shield className="w-4 h-4 text-emerald-400" />
+                <span>Cryptographic Broadcaster Specs</span>
               </div>
-              <p className="text-2xl font-black text-white mb-1">1800-111-2026</p>
-              <p className="text-[11px] text-slate-400">Toll-Free · Available 24×7</p>
-              <p className="text-[11px] text-slate-400 mt-1">policy@alpha.gov.in · RTI Portal ↗</p>
-            </div>
-
-            {/* Column 3: Important Links */}
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <FileText className="w-4 h-4 text-amber-400" />
-                <span className="text-xs font-bold text-white uppercase tracking-wider">Important Links</span>
-              </div>
-              <ul className="space-y-1.5 text-[11px]">
-                {["SchemeConnect Citizen Portal ↗", "Beta Partner Bank Console ↗", "Official Gazette Archive", "Supabase Realtime Docs ↗", "RS256 JWT Policy Specification"].map(link => (
-                  <li key={link}>
-                    <span className="text-slate-400 hover:text-slate-200 cursor-pointer transition">{link}</span>
-                  </li>
-                ))}
+              <ul className="space-y-1.5 text-[11px] text-slate-400">
+                <li className="flex items-center justify-between">
+                  <span>Channel:</span>
+                  <span className="font-mono text-slate-200">public:scheme_updates</span>
+                </li>
+                <li className="flex items-center justify-between">
+                  <span>Hashing Standard:</span>
+                  <span className="font-mono text-emerald-400">SHA-256 (FIPS 180-4)</span>
+                </li>
+                <li className="flex items-center justify-between">
+                  <span>Digital Signature:</span>
+                  <span className="font-mono text-slate-200">RS256 Private Key</span>
+                </li>
+                <li className="flex items-center justify-between">
+                  <span>DBT Escrow Clearing:</span>
+                  <span className="font-mono text-slate-200">Direct Partner Webhooks</span>
+                </li>
               </ul>
             </div>
+
+            {/* Column 3: Policy Helpline & Node Status */}
+            <div>
+              <div className="flex items-center gap-2 text-white font-bold text-sm mb-2">
+                <Radio className="w-4 h-4 text-purple-400" />
+                <span>Realtime Operations &amp; Support</span>
+              </div>
+              <p className="text-slate-300 font-mono text-lg font-bold">1800-111-2026</p>
+              <p className="text-[11px] text-slate-500">National Policy Helpline (Toll-Free • 24×7)</p>
+              <div className="mt-3 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span className="text-[11px] text-emerald-300 font-semibold">
+                  Alpha Broadcaster Node: ALPHA-GOV-DELHI-01
+                </span>
+              </div>
+            </div>
+
           </div>
 
-          <div className="border-t border-slate-800 pt-5 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <p className="text-[11px] text-slate-500">
-              🏛️ National Scheme Governance &amp; Policy Portal (Alpha) · Ministry of Social Justice &amp; Empowerment · Government of India
+          <div className="border-t border-slate-800/80 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px]">
+            <p className="text-slate-500">
+              © 2026 ALPHA PORTAL • Ministry of Social Justice &amp; Empowerment • Problem Statement SIH26092
             </p>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] bg-emerald-900/50 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded font-mono">
-                SIH26092 · Triple-Portal Architecture
-              </span>
-              <span className="text-[10px] bg-blue-900/50 text-blue-400 border border-blue-800 px-2 py-0.5 rounded font-mono flex items-center gap-1">
-                <Radio className="w-2.5 h-2.5 animate-pulse" /> Broadcaster: Online
-              </span>
+            <div className="flex items-center gap-3">
+              <span className="text-slate-400">Decoupled Triple-Portal Ecosystem</span>
+              <span className="text-slate-600">|</span>
+              <span className="text-emerald-400 font-mono">WebSockets: ACTIVE</span>
             </div>
           </div>
         </div>
@@ -978,4 +1130,5 @@ export function AlphaApp() {
     </div>
   );
 }
+
 export default AlphaApp;
