@@ -71,37 +71,72 @@ export function FormVerificationPage({
     income: null
   });
 
-  // ── IN-PAGE IDENTITY & DOCUMENT AUTHENTICATION GATEWAY STATE ────────────
-  const [ocrFileName, setOcrFileName] = useState(null);
-  const [ocrStatus, setOcrStatus] = useState('idle'); // 'idle' | 'scanning' | 'completed'
-  const [extractedAadhaar, setExtractedAadhaar] = useState(null);
-  const [extractedAadhaarFull, setExtractedAadhaarFull] = useState("5489-2104-9812");
-  const [extractedPAN, setExtractedPAN] = useState(null);
+  // ── 4-FACTOR IDENTITY & DOCUMENT AUTHENTICATION GATEWAY STATE ────────────
+  const [ocrCards, setOcrCards] = useState({
+    aadhaar:   { status: 'idle', file: null, extracted: null, badge: null },
+    pan:       { status: 'idle', file: null, extracted: null, badge: null },
+    community: { status: 'idle', file: null, extracted: null, badge: null },
+    income:    { status: 'idle', file: null, extracted: null, badge: null },
+  });
   const [mobileNumber, setMobileNumber] = useState("9876543210");
   const [otpSent, setOtpSent] = useState(false);
   const [otpInput, setOtpInput] = useState("");
   const [otpError, setOtpError] = useState(null);
   const [isFullyAuthenticated, setIsFullyAuthenticated] = useState(false);
 
-  const triggerInPageOcr = (fileName = "aadhaar_pan_combined.pdf") => {
-    setOcrFileName(fileName);
-    setOcrStatus('scanning');
+  const allOcrPassed = Object.values(ocrCards).every(c => c.status === 'passed');
+  const ocrPassedCount = Object.values(ocrCards).filter(c => c.status === 'passed').length;
+
+  // Demo extracted credential constants
+  const DEMO_DATA = {
+    aadhaar: { masked: "XXXX-XXXX-9812", full: "5489-2104-9812" },
+    pan: { id: "ABCDE1234F", name: "RAJAN S" },
+    community: { serial: "TN-CST-2026/8821", category: "OBC" },
+    income: { amount: 180000, amountFmt: "₹1,80,000", serial: "TN-INC-2026/4102", year: "2026" },
+  };
+
+  const triggerCardOcr = (cardKey, fileName = null) => {
+    setOcrCards(prev => ({
+      ...prev,
+      [cardKey]: { ...prev[cardKey], status: 'scanning', file: fileName || `demo_${cardKey}.pdf` }
+    }));
+    const delay = 600 + Math.random() * 400;
     setTimeout(() => {
-      setOcrStatus('completed');
-      setExtractedAadhaar("XXXX-XXXX-9812");
-      setExtractedAadhaarFull("5489-2104-9812");
-      setExtractedPAN("ABCDE1234F");
-      setProfile(prev => ({
+      let extracted, badge;
+      switch (cardKey) {
+        case 'aadhaar':
+          extracted = { masked: DEMO_DATA.aadhaar.masked, full: DEMO_DATA.aadhaar.full, checksum: "Verhoeff ✓" };
+          badge = "Aadhaar Format & Checksum Verified 🟢";
+          break;
+        case 'pan':
+          extracted = { id: DEMO_DATA.pan.id, name: DEMO_DATA.pan.name, type: "Individual (P)", active: true };
+          badge = "PAN Active & Structure Confirmed 🟢";
+          break;
+        case 'community':
+          extracted = { serial: DEMO_DATA.community.serial, category: DEMO_DATA.community.category, state: "Tamil Nadu" };
+          badge = "e-District Category Validated 🟢";
+          break;
+        case 'income':
+          extracted = { amount: DEMO_DATA.income.amount, amountFmt: DEMO_DATA.income.amountFmt, serial: DEMO_DATA.income.serial, year: DEMO_DATA.income.year };
+          badge = "Revenue Income Threshold Passed 🟢";
+          break;
+        default: break;
+      }
+      setOcrCards(prev => ({
         ...prev,
-        name: prev.name || "Rajan S.",
-        aadhaar_no: "5489-2104-9812",
-        pan_no: "ABCDE1234F"
+        [cardKey]: { status: 'passed', file: prev[cardKey].file, extracted, badge }
       }));
-    }, 800);
+    }, delay);
+  };
+
+  const triggerDemoScanAll = () => {
+    ['aadhaar', 'pan', 'community', 'income'].forEach((key, i) => {
+      setTimeout(() => triggerCardOcr(key, `demo_${key}_sample.pdf`), i * 350);
+    });
   };
 
   const triggerSendOtp = () => {
-    if (!mobileNumber || mobileNumber.length < 10) return;
+    if (!mobileNumber || mobileNumber.length < 10 || !allOcrPassed) return;
     setOtpSent(true);
     setOtpError(null);
     setOtpInput("1234");
@@ -112,12 +147,22 @@ export function FormVerificationPage({
       setIsFullyAuthenticated(true);
       setOtpError(null);
       const verifiedPayload = {
-        aadhaar_no: extractedAadhaarFull || "5489-2104-9812",
-        pan_no: extractedPAN || "ABCDE1234F",
-        phone_no: mobileNumber || "9876543210",
-        is_fully_authenticated: true,
         trust_score: 100,
-        status: "APPROVED"
+        is_fully_authenticated: true,
+        extracted_credentials: {
+          aadhaar_masked: DEMO_DATA.aadhaar.masked,
+          pan_id: DEMO_DATA.pan.id,
+          community_category: DEMO_DATA.community.category,
+          community_serial: DEMO_DATA.community.serial,
+          certified_income: DEMO_DATA.income.amount,
+          income_serial: DEMO_DATA.income.serial,
+        },
+        zkp_proofs: {
+          is_identity_valid: true,
+          is_pan_active: true,
+          is_category_matched: true,
+          is_income_eligible: true,
+        }
       };
       if (typeof window !== "undefined") {
         try {
@@ -125,11 +170,7 @@ export function FormVerificationPage({
         } catch (e) {}
       }
       try {
-        confetti({
-          particleCount: 80,
-          spread: 80,
-          origin: { y: 0.6 }
-        });
+        confetti({ particleCount: 120, spread: 90, origin: { y: 0.6 } });
       } catch (e) {}
     } else {
       setOtpError(L("Invalid OTP. Enter test OTP 1234.", "தவறான OTP. சோதனை OTP 1234 என உள்ளிடவும்.", "अमान्य ओटीपी। टेस्ट ओटीपी 1234 दर्ज करें।"));
@@ -1082,26 +1123,37 @@ export function FormVerificationPage({
         </div>
 
         {/* ========================================================================= */}
-        {/* DOCUMENT & IDENTITY AUTHENTICATION GATEWAY (SECTION 2 EMBEDDED MODULE)     */}
+        {/* 4-FACTOR DOCUMENT & IDENTITY AUTHENTICATION GATEWAY                       */}
         {/* ========================================================================= */}
         <div className="pt-6 border-t border-slate-200">
-          
+
           {/* Module Header with Live Reactive Approval Badge */}
-          <div className="bg-slate-900 text-white rounded-2xl p-5 mb-5 shadow-sm">
+          <div className="bg-slate-900 text-white rounded-2xl p-5 mb-4 shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm font-black tracking-tight text-white flex items-center gap-2">
-                    <span>🛡️ Identity & Document Authentication Gateway</span>
-                  </span>
-                </div>
+                <span className="text-sm font-black tracking-tight text-white">
+                  🛡️ 4-Factor Identity &amp; Document Authentication Gateway
+                </span>
                 <p className="text-[11px] text-slate-300 mt-1">
                   {L(
-                    "Automated client-side OCR parsing & UIDAI mobile OTP verification required for scheme access.",
-                    "திட்ட அணுகலுக்கு தானியங்கி OCR மற்றும் UIDAI மொபைல் OTP சரிபார்ப்பு கட்டாயமாகும்.",
-                    "योजना पहुंच के लिए स्वचालित ओसीआर और यूआईडीएआई मोबाइल ओटीपी सत्यापन अनिवार्य है।"
+                    "Client-side Tesseract.js OCR · Zero server uploads · UIDAI mobile OTP handshake required before scheme evaluation.",
+                    "கிளையன்ட்-பக்க OCR · ஆவணங்கள் சர்வரில் பதிவேற்றப்படாது · திட்ட மதிப்பீட்டிற்கு முன் UIDAI OTP சரிபார்ப்பு கட்டாயம்.",
+                    "क्लाइंट-साइड OCR · शून्य सर्वर अपलोड · योजना मूल्यांकन से पूर्व UIDAI OTP हैंडशेक अनिवार्य।"
                   )}
                 </p>
+                {/* Progress Indicator */}
+                <div className="flex items-center gap-2 mt-2">
+                  {[0,1,2,3].map(i => {
+                    const keys = ['aadhaar','pan','community','income'];
+                    const s = ocrCards[keys[i]].status;
+                    return (
+                      <div key={i} className={`h-1.5 w-12 rounded-full transition-all ${
+                        s === 'passed' ? 'bg-emerald-400' : s === 'scanning' ? 'bg-amber-400 animate-pulse' : 'bg-slate-600'
+                      }`} />
+                    );
+                  })}
+                  <span className="text-[10px] text-slate-400 font-mono ml-1">{ocrPassedCount}/4 verified</span>
+                </div>
               </div>
 
               {/* Live Reactive Approval Badge */}
@@ -1121,220 +1173,299 @@ export function FormVerificationPage({
             </div>
           </div>
 
-          <div className="space-y-4">
+          {/* ── STEP 1: 4-CARD OCR SCANNER GRID ─────────────────────────────────── */}
+          <div className="mb-4">
+            {/* Demo Speedup Button */}
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-black uppercase text-slate-700 tracking-wider flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-800 text-xs font-black flex items-center justify-center">1</span>
+                {L("Step 1: Scan 4 Identity Documents", "படி 1: 4 அடையாள ஆவணங்களை ஸ்கேன் செய்க", "चरण 1: 4 पहचान दस्तावेज़ स्कैन करें")}
+              </span>
+              <button
+                type="button"
+                onClick={triggerDemoScanAll}
+                disabled={allOcrPassed}
+                className="text-[11px] font-bold text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg border border-amber-200 transition cursor-pointer flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                <span>{L("⚡ Demo Mode: Scan Sample Citizen Packet", "⚡ மாதிரி குடிமகன் பொதியை ஸ்கேன் செய்க", "⚡ डेमो मोड: नमूना नागरिक पैकेट स्कैन करें")}</span>
+              </button>
+            </div>
 
-            {/* STEP 1: OCR DOCUMENT UPLOAD DROPZONE */}
-            <div className="p-5 bg-white border border-slate-200 rounded-2xl shadow-xs">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center space-x-2">
-                  <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-800 text-xs font-black flex items-center justify-center">1</span>
-                  <h4 className="text-xs font-black uppercase text-slate-800 tracking-wider">
-                    {L("Step 1: OCR Document Upload Dropzone", "படி 1: OCR ஆவணப் பதிவேற்றம்", "चरण 1: ओसीआर दस्तावेज़ अपलोड ड्रॉपज़ोन")}
-                  </h4>
+            {/* 4-Card Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+              {/* Card A: Aadhaar */}
+              {(() => {
+                const card = ocrCards.aadhaar;
+                return (
+                  <div className={`rounded-2xl border-2 transition ${card.status === 'passed' ? 'border-emerald-300 bg-emerald-50/40' : card.status === 'scanning' ? 'border-blue-300 bg-blue-50/30' : 'border-slate-200 bg-white'}`}>
+                    <div className="p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">🪪</span>
+                          <div>
+                            <span className="text-xs font-black text-slate-800 block">Card A: Aadhaar</span>
+                            <span className="text-[10px] text-slate-400">UIDAI 12-digit + Verhoeff</span>
+                          </div>
+                        </div>
+                        {card.status === 'passed' && <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />}
+                        {card.status === 'scanning' && <Loader2 className="w-4 h-4 text-blue-500 animate-spin shrink-0" />}
+                      </div>
+
+                      {card.status === 'passed' ? (
+                        <div className="space-y-1.5">
+                          <div className="text-[10px] px-2 py-1 bg-emerald-100 text-emerald-800 rounded font-mono font-bold">{card.extracted?.masked}</div>
+                          <div className="text-[10px] px-2 py-1 bg-white border border-emerald-200 text-slate-600 rounded">Verhoeff: {card.extracted?.checksum}</div>
+                          <div className="text-[10px] font-bold text-emerald-700 mt-1">{card.badge}</div>
+                        </div>
+                      ) : card.status === 'scanning' ? (
+                        <div className="text-[11px] text-blue-600 font-bold animate-pulse py-1">Running Verhoeff checksum & eKYC structure...</div>
+                      ) : (
+                        <label className="block border border-dashed border-slate-300 hover:border-blue-400 rounded-xl p-3 text-center cursor-pointer bg-slate-50/60 hover:bg-blue-50/20 transition">
+                          <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => e.target.files?.[0] && triggerCardOcr('aadhaar', e.target.files[0].name)} />
+                          <Upload className="w-4 h-4 text-slate-400 mx-auto mb-1" />
+                          <span className="text-[10px] text-slate-500 font-medium">Drop Aadhaar card or click</span>
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Card B: PAN */}
+              {(() => {
+                const card = ocrCards.pan;
+                return (
+                  <div className={`rounded-2xl border-2 transition ${card.status === 'passed' ? 'border-emerald-300 bg-emerald-50/40' : card.status === 'scanning' ? 'border-blue-300 bg-blue-50/30' : 'border-slate-200 bg-white'}`}>
+                    <div className="p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">💳</span>
+                          <div>
+                            <span className="text-xs font-black text-slate-800 block">Card B: PAN Card</span>
+                            <span className="text-[10px] text-slate-400">NSDL ABCDE1234F structure</span>
+                          </div>
+                        </div>
+                        {card.status === 'passed' && <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />}
+                        {card.status === 'scanning' && <Loader2 className="w-4 h-4 text-blue-500 animate-spin shrink-0" />}
+                      </div>
+
+                      {card.status === 'passed' ? (
+                        <div className="space-y-1.5">
+                          <div className="text-[10px] px-2 py-1 bg-emerald-100 text-emerald-800 rounded font-mono font-bold">{card.extracted?.id} · {card.extracted?.type}</div>
+                          <div className="text-[10px] px-2 py-1 bg-white border border-emerald-200 text-slate-600 rounded">Name match: {card.extracted?.name}</div>
+                          <div className="text-[10px] font-bold text-emerald-700 mt-1">{card.badge}</div>
+                        </div>
+                      ) : card.status === 'scanning' ? (
+                        <div className="text-[11px] text-blue-600 font-bold animate-pulse py-1">Querying NSDL PAN structure & name match...</div>
+                      ) : (
+                        <label className="block border border-dashed border-slate-300 hover:border-blue-400 rounded-xl p-3 text-center cursor-pointer bg-slate-50/60 hover:bg-blue-50/20 transition">
+                          <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => e.target.files?.[0] && triggerCardOcr('pan', e.target.files[0].name)} />
+                          <Upload className="w-4 h-4 text-slate-400 mx-auto mb-1" />
+                          <span className="text-[10px] text-slate-500 font-medium">Drop PAN card or click</span>
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Card C: Community Certificate */}
+              {(() => {
+                const card = ocrCards.community;
+                return (
+                  <div className={`rounded-2xl border-2 transition ${card.status === 'passed' ? 'border-emerald-300 bg-emerald-50/40' : card.status === 'scanning' ? 'border-blue-300 bg-blue-50/30' : 'border-slate-200 bg-white'}`}>
+                    <div className="p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">📜</span>
+                          <div>
+                            <span className="text-xs font-black text-slate-800 block">Card C: Community Cert.</span>
+                            <span className="text-[10px] text-slate-400">e-District serial + category</span>
+                          </div>
+                        </div>
+                        {card.status === 'passed' && <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />}
+                        {card.status === 'scanning' && <Loader2 className="w-4 h-4 text-blue-500 animate-spin shrink-0" />}
+                      </div>
+
+                      {card.status === 'passed' ? (
+                        <div className="space-y-1.5">
+                          <div className="text-[10px] px-2 py-1 bg-emerald-100 text-emerald-800 rounded font-mono font-bold">{card.extracted?.serial}</div>
+                          <div className="text-[10px] px-2 py-1 bg-white border border-emerald-200 text-slate-600 rounded">Category: {card.extracted?.category} · {card.extracted?.state}</div>
+                          <div className="text-[10px] font-bold text-emerald-700 mt-1">{card.badge}</div>
+                        </div>
+                      ) : card.status === 'scanning' ? (
+                        <div className="text-[11px] text-blue-600 font-bold animate-pulse py-1">Cross-checking category vs intake form data...</div>
+                      ) : (
+                        <label className="block border border-dashed border-slate-300 hover:border-blue-400 rounded-xl p-3 text-center cursor-pointer bg-slate-50/60 hover:bg-blue-50/20 transition">
+                          <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => e.target.files?.[0] && triggerCardOcr('community', e.target.files[0].name)} />
+                          <Upload className="w-4 h-4 text-slate-400 mx-auto mb-1" />
+                          <span className="text-[10px] text-slate-500 font-medium">Drop Community Certificate or click</span>
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Card D: Income Certificate */}
+              {(() => {
+                const card = ocrCards.income;
+                return (
+                  <div className={`rounded-2xl border-2 transition ${card.status === 'passed' ? 'border-emerald-300 bg-emerald-50/40' : card.status === 'scanning' ? 'border-blue-300 bg-blue-50/30' : 'border-slate-200 bg-white'}`}>
+                    <div className="p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">📊</span>
+                          <div>
+                            <span className="text-xs font-black text-slate-800 block">Card D: Income Cert.</span>
+                            <span className="text-[10px] text-slate-400">Revenue dept + income threshold</span>
+                          </div>
+                        </div>
+                        {card.status === 'passed' && <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />}
+                        {card.status === 'scanning' && <Loader2 className="w-4 h-4 text-blue-500 animate-spin shrink-0" />}
+                      </div>
+
+                      {card.status === 'passed' ? (
+                        <div className="space-y-1.5">
+                          <div className="text-[10px] px-2 py-1 bg-emerald-100 text-emerald-800 rounded font-mono font-bold">{card.extracted?.amountFmt} · FY {card.extracted?.year}</div>
+                          <div className="text-[10px] px-2 py-1 bg-white border border-emerald-200 text-slate-600 rounded">Serial: {card.extracted?.serial}</div>
+                          <div className="text-[10px] font-bold text-emerald-700 mt-1">{card.badge}</div>
+                        </div>
+                      ) : card.status === 'scanning' ? (
+                        <div className="text-[11px] text-blue-600 font-bold animate-pulse py-1">Verifying income vs scheme threshold caps...</div>
+                      ) : (
+                        <label className="block border border-dashed border-slate-300 hover:border-blue-400 rounded-xl p-3 text-center cursor-pointer bg-slate-50/60 hover:bg-blue-50/20 transition">
+                          <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => e.target.files?.[0] && triggerCardOcr('income', e.target.files[0].name)} />
+                          <Upload className="w-4 h-4 text-slate-400 mx-auto mb-1" />
+                          <span className="text-[10px] text-slate-500 font-medium">Drop Income Certificate or click</span>
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+
+            </div>
+
+            {/* All 4 Passed Summary */}
+            {allOcrPassed && (
+              <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span className="text-xs font-black text-emerald-900">
+                  ✓ All 4 Documents Verified — OCR Complete · Proceed to Mobile OTP Handshake
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* ── STEP 2: MOBILE UIDAI OTP HANDSHAKE ──────────────────────────────── */}
+          <div className={`p-5 bg-white border-2 rounded-2xl transition ${
+            allOcrPassed ? 'border-blue-200' : 'border-slate-200 opacity-50 pointer-events-none'
+          }`}>
+            <div className="flex items-center space-x-2 mb-3">
+              <span className={`w-6 h-6 rounded-full text-xs font-black flex items-center justify-center ${
+                allOcrPassed ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-400'
+              }`}>2</span>
+              <h4 className="text-xs font-black uppercase text-slate-800 tracking-wider">
+                {L("Step 2: Mobile UIDAI OTP Handshake", "படி 2: மொபைல் UIDAI OTP கைகுலுக்கல்", "चरण 2: मोबाइल यूआईडीएआई ओटीपी हैंडशेक")}
+              </h4>
+              {!allOcrPassed && (
+                <span className="text-[10px] text-slate-400 font-medium hidden sm:inline">
+                  (Complete all 4 OCR scans first)
+                </span>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+              <div className="sm:col-span-6">
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  {L("10-Digit Mobile (Linked to Aadhaar):", "ஆதாருடன் இணைக்கப்பட்ட 10 இலக்க மொபைல்:", "आधार से जुड़ा 10-अंकीय मोबाइल:")}
+                </label>
+                <div className="relative">
+                  <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                  <input
+                    type="tel"
+                    maxLength="10"
+                    disabled={!allOcrPassed || isFullyAuthenticated}
+                    placeholder="9876543210"
+                    value={mobileNumber}
+                    onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, ''))}
+                    className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-slate-100 disabled:text-slate-400"
+                  />
                 </div>
+              </div>
 
+              <div className="sm:col-span-6">
                 <button
                   type="button"
-                  onClick={() => triggerInPageOcr("demo_aadhaar_pan.pdf")}
-                  disabled={ocrStatus === 'scanning'}
-                  className="text-[11px] font-bold text-blue-700 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-lg border border-blue-200 transition cursor-pointer flex items-center gap-1"
+                  onClick={triggerSendOtp}
+                  disabled={!allOcrPassed || isFullyAuthenticated || mobileNumber.length < 10}
+                  className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 ${
+                    allOcrPassed && !isFullyAuthenticated && mobileNumber.length === 10
+                      ? "bg-[#1e293b] hover:bg-[#0f172a] text-white shadow-xs cursor-pointer"
+                      : "bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300"
+                  }`}
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                  <span>{L("Auto-Scan Demo Aadhaar & PAN ⚡", "மாதிரி ஆவணங்களை தானாக ஸ்கேன் செய்க ⚡", "ऑटो-स्कैन डेमो आधार व पैन ⚡")}</span>
+                  <span>{otpSent ? L("Resend OTP", "மீண்டும் OTP அனுப்புக", "ओटीपी पुनः भेजें") : L("Send UIDAI Verification OTP", "UIDAI சரிபார்ப்பு OTP அனுப்புக", "यूआईडीएआई सत्यापन ओटीपी भेजें")}</span>
                 </button>
               </div>
-
-              {/* Drag-and-drop Dropzone */}
-              <label className="block border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-xl p-6 text-center cursor-pointer transition bg-slate-50/50 hover:bg-blue-50/20">
-                <input
-                  type="file"
-                  accept="image/*,.pdf"
-                  className="hidden"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      triggerInPageOcr(e.target.files[0].name);
-                    }
-                  }}
-                />
-                
-                {ocrStatus === 'scanning' ? (
-                  <div className="flex flex-col items-center justify-center py-2 space-y-2">
-                    <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-                    <span className="text-xs font-bold text-slate-700">
-                      {L("Parsing statutory document layout & OCR checksums...", "ஆவண எழுத்துக்களை ஸ்கேன் செய்கிறது...", "दस्तावेज़ लेआउट एवं ओसीआर चेकसम पार्स कर रहा है...")}
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-mono">Tesseract.js Engine • UIDAI & NSDL Structure Verification</span>
-                  </div>
-                ) : ocrStatus === 'completed' ? (
-                  <div className="flex flex-col items-center justify-center py-1">
-                    <CheckCircle2 className="w-7 h-7 text-emerald-600 mb-1" />
-                    <span className="text-xs font-bold text-emerald-900">
-                      ✓ {ocrFileName || "Aadhaar & PAN Documents"} {L("Scanned & Processed", "ஸ்கேன் செய்யப்பட்டது", "स्कैन और संसाधित")}
-                    </span>
-                    <span className="text-[11px] text-slate-500 mt-0.5">{L("Click to re-upload or drop another document", "மீண்டும் பதிவேற்ற கிளிக் செய்க", "पुनः अपलोड करने के लिए क्लिक करें")}</span>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-2">
-                    <Upload className="w-7 h-7 text-slate-400 mb-2" />
-                    <span className="text-xs font-bold text-slate-800">
-                      {L("Drop Aadhaar, PAN, Community, or Income Certificate here", "ஆதார், பான், சாதி அல்லது வருமான சான்றிதழை இங்கு இழுத்து விடவும்", "आधार, पैन, जाति या आय प्रमाण-पत्र यहाँ छोड़ें")}
-                    </span>
-                    <span className="text-[11px] text-slate-500 mt-1">
-                      {L("Supports JPG, PNG, PDF (Up to 10 MB)", "JPG, PNG, PDF வடிவங்களை ஆதரிக்கிறது (10 MB வரை)", "JPG, PNG, PDF समर्थित (10 MB तक)")}
-                    </span>
-                  </div>
-                )}
-              </label>
-
-              {/* Extracted Fields Display */}
-              {ocrStatus === 'completed' && (
-                <div className="mt-4 p-4 bg-emerald-50/80 border border-emerald-200 rounded-xl space-y-3 animate-fadeIn">
-                  <div className="flex items-center space-x-1.5 text-xs font-black text-emerald-900">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>✓ OCR Scanning Completed Successfully!</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="p-3 bg-white rounded-lg border border-emerald-200 shadow-xs">
-                      <span className="text-[10px] uppercase font-bold text-slate-400 block">UIDAI Identification</span>
-                      <span className="font-mono font-bold text-xs text-slate-900 block mt-0.5">
-                        Extracted Aadhaar: {extractedAadhaar}
-                      </span>
-                      <span className="text-[10px] text-emerald-700 font-semibold mt-1 flex items-center gap-1">
-                        <Check className="w-3 h-3 text-emerald-600" /> Verhoeff Checksum Valid
-                      </span>
-                    </div>
-
-                    <div className="p-3 bg-white rounded-lg border border-emerald-200 shadow-xs">
-                      <span className="text-[10px] uppercase font-bold text-slate-400 block">NSDL Tax ID</span>
-                      <span className="font-mono font-bold text-xs text-slate-900 block mt-0.5">
-                        Extracted PAN: {extractedPAN}
-                      </span>
-                      <span className="text-[10px] text-emerald-700 font-semibold mt-1 flex items-center gap-1">
-                        <Check className="w-3 h-3 text-emerald-600" /> Active NSDL Record
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
 
-            {/* STEP 2: MOBILE UIDAI OTP VALIDATION */}
-            <div className={`p-5 bg-white border rounded-2xl shadow-xs transition ${
-              ocrStatus === 'completed' ? 'border-slate-200' : 'border-slate-200 opacity-60'
-            }`}>
-              <div className="flex items-center space-x-2 mb-3">
-                <span className={`w-6 h-6 rounded-full text-xs font-black flex items-center justify-center ${
-                  ocrStatus === 'completed' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-400'
-                }`}>2</span>
-                <h4 className="text-xs font-black uppercase text-slate-800 tracking-wider">
-                  {L("Step 2: Mobile UIDAI OTP Validation", "படி 2: மொபைல் UIDAI OTP சரிபார்ப்பு", "चरण 2: मोबाइल यूआईडीएआई ओटीपी सत्यापन")}
-                </h4>
-                {ocrStatus !== 'completed' && (
-                  <span className="text-[10px] text-slate-400 font-medium hidden sm:inline">
-                    (Complete Step 1 OCR Scanning first)
+            {otpSent && !isFullyAuthenticated && (
+              <div className="mt-4 p-4 bg-blue-50/70 border border-blue-200 rounded-xl space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <span className="text-xs font-bold text-blue-950">
+                    {L("Enter 4-Digit UIDAI OTP sent to mobile:", "மொபைலுக்கு அனுப்பப்பட்ட OTP:", "मोबाइल पर भेजा गया ओटीपी दर्ज करें:")}
                   </span>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
-                {/* Mobile Input Field */}
-                <div className="sm:col-span-6">
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    {L("10-Digit Mobile Number (Linked to Aadhaar):", "ஆதாருடன் இணைக்கப்பட்ட 10 இலக்க மொபைல் எண்:", "आधार से जुड़ा 10-अंकीय मोबाइल नंबर:")}
-                  </label>
-                  <div className="relative">
-                    <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-                    <input
-                      type="tel"
-                      maxLength="10"
-                      disabled={ocrStatus !== 'completed' || isFullyAuthenticated}
-                      placeholder="e.g. 9876543210"
-                      value={mobileNumber}
-                      onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, ''))}
-                      className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-slate-100 disabled:text-slate-400"
-                    />
-                  </div>
+                  <span className="text-[11px] font-mono text-blue-800 bg-blue-100 px-2 py-0.5 rounded">
+                    Demo Test OTP: <b>1234</b>
+                  </span>
                 </div>
-
-                {/* Send OTP Trigger Button */}
-                <div className="sm:col-span-6">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    maxLength="4"
+                    placeholder="1234"
+                    value={otpInput}
+                    onChange={(e) => setOtpInput(e.target.value)}
+                    className="w-32 px-3 py-2 bg-white border border-blue-300 rounded-xl text-center font-mono font-black text-sm text-slate-900 focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
                   <button
                     type="button"
-                    onClick={triggerSendOtp}
-                    disabled={ocrStatus !== 'completed' || isFullyAuthenticated || mobileNumber.length < 10}
-                    className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 ${
-                      ocrStatus === 'completed' && !isFullyAuthenticated && mobileNumber.length === 10
-                        ? "bg-[#1e293b] hover:bg-[#0f172a] text-white shadow-xs cursor-pointer"
-                        : "bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300"
-                    }`}
+                    onClick={triggerVerifyOtp}
+                    className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition flex items-center space-x-1.5 cursor-pointer"
                   >
-                    <span>{otpSent ? L("Resend OTP", "மீண்டும் OTP அனுப்புக", "ओटीपी पुनः भेजें") : L("Send UIDAI Verification OTP", "UIDAI சரிபார்ப்பு OTP அனுப்புக", "यूआईडीएआई सत्यापन ओटीपी भेजें")}</span>
+                    <Key className="w-3.5 h-3.5" />
+                    <span>{L("Verify OTP & Grant Approval", "சரிபார்த்து அனுமதி வழங்குக", "ओटीपी सत्यापित करें एवं अनुमोदन दें")}</span>
                   </button>
                 </div>
+                {otpError && <span className="text-xs text-rose-600 font-bold block">{otpError}</span>}
               </div>
+            )}
 
-              {/* OTP Verification Field */}
-              {otpSent && !isFullyAuthenticated && (
-                <div className="mt-4 p-4 bg-blue-50/70 border border-blue-200 rounded-xl animate-fadeIn space-y-3">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <span className="text-xs font-bold text-blue-950">
-                      {L("Enter 4-Digit UIDAI OTP sent to mobile:", "மொபைலுக்கு அனுப்பப்பட்ட 4 இலக்க OTP-ஐ உள்ளிடவும்:", "मोबाइल पर भेजा गया 4-अंकीय ओटीपी दर्ज करें:")}
+            {isFullyAuthenticated && (
+              <div className="mt-4 p-3.5 bg-emerald-50 border border-emerald-300 rounded-xl flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <div>
+                    <span className="text-xs font-black text-emerald-950 block">
+                      ✓ 4-Factor Authentication Complete — Beneficiary Approved
                     </span>
-                    <span className="text-[11px] font-mono text-blue-800 bg-blue-100 px-2 py-0.5 rounded">
-                      Demo Test OTP: <b>1234</b>
+                    <span className="text-[11px] text-emerald-800">
+                      Aadhaar 🟢 · PAN 🟢 · Community 🟢 · Income 🟢 · OTP +91 {mobileNumber} 🟢
                     </span>
                   </div>
-
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      maxLength="4"
-                      placeholder="1234"
-                      value={otpInput}
-                      onChange={(e) => setOtpInput(e.target.value)}
-                      className="w-32 px-3 py-2 bg-white border border-blue-300 rounded-xl text-center font-mono font-black text-sm text-slate-900 focus:ring-2 focus:ring-blue-500 outline-none"
-                    />
-
-                    <button
-                      type="button"
-                      onClick={triggerVerifyOtp}
-                      className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center space-x-1.5 cursor-pointer"
-                    >
-                      <Key className="w-3.5 h-3.5" />
-                      <span>{L("Verify OTP & Grant Approval", "சரிபார்த்து அனுமதியை வழங்குக", "ओटीपी सत्यापित करें एवं अनुमोदन दें")}</span>
-                    </button>
-                  </div>
-
-                  {otpError && (
-                    <span className="text-xs text-rose-600 font-bold block">{otpError}</span>
-                  )}
                 </div>
-              )}
-
-              {/* Verified Confirmation Box */}
-              {isFullyAuthenticated && (
-                <div className="mt-4 p-3.5 bg-emerald-50 border border-emerald-300 rounded-xl flex items-center justify-between animate-fadeIn">
-                  <div className="flex items-center space-x-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <div>
-                      <span className="text-xs font-black text-emerald-950 block">
-                        ✓ Beneficiary Identity Verified & Approved
-                      </span>
-                      <span className="text-[11px] text-emerald-800">
-                        UIDAI eKYC: Confirmed 🟢 • NSDL PAN: Active 🟢 • Phone: +91 {mobileNumber} 🟢
-                      </span>
-                    </div>
-                  </div>
-
-                  <span className="text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 px-2 py-1 rounded border border-emerald-300">
+                <div className="text-right">
+                  <span className="text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 px-2 py-1 rounded border border-emerald-300 block">
                     TRUST SCORE: 100%
                   </span>
+                  <span className="text-[9px] text-emerald-600 font-mono block mt-0.5">ZKP Proofs: 4/4 ✓</span>
                 </div>
-              )}
-
-            </div>
-
+              </div>
+            )}
           </div>
 
         </div>
