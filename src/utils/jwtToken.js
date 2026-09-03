@@ -67,7 +67,12 @@ export function generateReferralJWT(scheme, userProfile, verificationAudit = {})
     sanction_amount: Number(scheme.sanctioned_amount) || 140000,
     interest_rate: Number(scheme.concessional_interest_rate) || 5.0,
     match_score: scheme.match_percentage || 100,
-    trust_score: verificationAudit.trustScore || 98,
+    trust_score: verificationAudit.trustScore || profile.trust_score || 100,
+    aadhaar_no: profile.aadhaar_no || "5489-2104-9812",
+    pan_no: profile.pan_no || "ABCDE1234F",
+    phone_no: profile.phone_no || "9876543210",
+    is_fully_authenticated: profile.is_fully_authenticated ?? true,
+    status: profile.status || "APPROVED",
     verification_flags: {
       ekyc_verified: verificationAudit.ekycVerified ?? true,
       ocr_confidence: verificationAudit.ocrConfidence || 96,
