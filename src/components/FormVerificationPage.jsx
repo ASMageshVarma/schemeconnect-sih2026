@@ -3,13 +3,14 @@ import {
   User, Briefcase, IndianRupee, MapPin, Sparkles, Mic, MicOff, 
   Camera, Upload, CheckCircle2, AlertCircle, ArrowRight, ShieldCheck, 
   RefreshCw, FileText, Check, Loader2, Volume2, AlertTriangle, HelpCircle,
-  Bot, Search, Lock, Phone, Key
+  Bot, Search, Lock, Phone, Key, Landmark
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { createWorker } from 'tesseract.js';
 import { speakText } from '../utils/speech';
 import { TrackApplicationModal } from './TrackApplicationModal';
 import { AuthenticationProgressModal } from './AuthenticationProgressModal';
+import { navigateToAlpha } from '../config/portalConfig';
 
 export function FormVerificationPage({ 
   initialProfile, 
@@ -686,8 +687,47 @@ export function FormVerificationPage({
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!isFormComplete || !isFullyAuthenticated) return;
-    // Intercept submit and launch automated credential authentication modal
-    setShowAuthModal(true);
+
+    // Construct verified 4-factor DPI payload
+    const verifiedPayload = {
+      ...profile,
+      age: Number(profile.age),
+      income: Number(profile.income),
+      ocr_confidence: 98,
+      aadhaar_no: DEMO_DATA.aadhaar.full || "5489-2104-9812",
+      pan_no: DEMO_DATA.pan.id || "ABCDE1234F",
+      phone_no: mobileNumber || "9876543210",
+      is_fully_authenticated: true,
+      trust_score: 100,
+      status: "APPROVED",
+      extracted_credentials: {
+        aadhaar_masked: DEMO_DATA.aadhaar.masked,
+        pan_id: DEMO_DATA.pan.id,
+        community_category: profile.caste || "OBC",
+        community_serial: "TN-CST-2026/8821",
+        certified_income: Number(profile.income) || 180000,
+        income_serial: "TN-INC-2026/4102"
+      },
+      zkp_proofs: {
+        is_identity_valid: true,
+        is_pan_active: true,
+        is_category_matched: true,
+        is_income_eligible: true
+      }
+    };
+
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("schemeconnect_verified_credentials", JSON.stringify(verifiedPayload));
+      } catch (err) {}
+    }
+
+    try {
+      confetti({ particleCount: 90, spread: 80, origin: { y: 0.6 } });
+    } catch (err) {}
+
+    // Navigate to recommendations immediately
+    onSubmit(verifiedPayload);
   };
 
   const handleAuthComplete = (verifiedPayload) => {
@@ -696,9 +736,9 @@ export function FormVerificationPage({
       ...profile,
       age: Number(profile.age),
       income: Number(profile.income),
-      ocr_confidence: 96,
-      aadhaar_no: extractedAadhaarFull || "5489-2104-9812",
-      pan_no: extractedPAN || "ABCDE1234F",
+      ocr_confidence: 98,
+      aadhaar_no: DEMO_DATA.aadhaar.full || "5489-2104-9812",
+      pan_no: DEMO_DATA.pan.id || "ABCDE1234F",
       phone_no: mobileNumber || "9876543210",
       is_fully_authenticated: true,
       trust_score: 100,
@@ -1313,7 +1353,11 @@ export function FormVerificationPage({
               {(() => {
                 const card = ocrCards.income;
                 return (
-                  <div className={`rounded-2xl border-2 transition ${card.status === 'passed' ? 'border-emerald-300 bg-emerald-50/40' : card.status === 'scanning' ? 'border-blue-300 bg-blue-50/30' : 'border-slate-200 bg-white'}`}>
+                  <div className={`rounded-2xl border-2 transition ${
+                    card.status === 'passed' ? 'border-emerald-300 bg-emerald-50/40' :
+                    card.status === 'scanning' ? 'border-blue-300 bg-blue-50/30' :
+                    'border-slate-200 bg-white'
+                  }`}>
                     <div className="p-4">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
@@ -1329,8 +1373,12 @@ export function FormVerificationPage({
 
                       {card.status === 'passed' ? (
                         <div className="space-y-1.5">
-                          <div className="text-[10px] px-2 py-1 bg-emerald-100 text-emerald-800 rounded font-mono font-bold">{card.extracted?.amountFmt} · FY {card.extracted?.year}</div>
-                          <div className="text-[10px] px-2 py-1 bg-white border border-emerald-200 text-slate-600 rounded">Serial: {card.extracted?.serial}</div>
+                          <div className="text-[10px] px-2 py-1 bg-emerald-100 text-emerald-800 rounded font-mono font-bold">
+                            {card.extracted?.amountFmt} · FY {card.extracted?.year}
+                          </div>
+                          <div className="text-[10px] px-2 py-1 bg-white border border-emerald-200 text-slate-600 rounded">
+                            Serial: {card.extracted?.serial}
+                          </div>
                           <div className="text-[10px] font-bold text-emerald-700 mt-1">{card.badge}</div>
                         </div>
                       ) : card.status === 'scanning' ? (
@@ -1446,9 +1494,9 @@ export function FormVerificationPage({
             )}
 
             {isFullyAuthenticated && (
-              <div className="mt-4 p-3.5 bg-emerald-50 border border-emerald-300 rounded-xl flex items-center justify-between">
+              <div className="mt-4 p-3.5 bg-emerald-50 border border-emerald-300 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-fadeIn">
                 <div className="flex items-center space-x-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <div>
                     <span className="text-xs font-black text-emerald-950 block">
                       ✓ 4-Factor Authentication Complete — Beneficiary Approved
@@ -1458,11 +1506,19 @@ export function FormVerificationPage({
                     </span>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="flex items-center gap-2 self-end sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => navigateToAlpha("", true)}
+                    className="px-3 py-1 bg-white hover:bg-slate-50 text-blue-900 border border-emerald-300 rounded-lg text-[11px] font-bold transition flex items-center gap-1 shadow-xs cursor-pointer"
+                    title="Open Alpha Portal in new tab"
+                  >
+                    <Landmark className="w-3.5 h-3.5 text-blue-700" />
+                    <span>{L("Alpha Portal ↗", "ஆல்ஃபா போர்டல் ↗", "अल्फा पोर्टल ↗")}</span>
+                  </button>
                   <span className="text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 px-2 py-1 rounded border border-emerald-300 block">
-                    TRUST SCORE: 100%
+                    TRUST: 100%
                   </span>
-                  <span className="text-[9px] text-emerald-600 font-mono block mt-0.5">ZKP Proofs: 4/4 ✓</span>
                 </div>
               </div>
             )}
@@ -1480,28 +1536,41 @@ export function FormVerificationPage({
             {L("← Back to Home", "← முகப்புக்கு திரும்ப", "← होम पर वापस")}
           </button>
 
-          {/* Strict Navigation Gate Button */}
-          <button
-            type="submit"
-            disabled={!isFormComplete || !isFullyAuthenticated}
-            className={`w-full sm:w-auto px-8 py-3.5 font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center space-x-2 ${
-              isFormComplete && isFullyAuthenticated
-                ? "bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-emerald-500/20"
-                : "bg-slate-200 text-slate-500 cursor-not-allowed border border-slate-300"
-            }`}
-          >
-            {isFormComplete && isFullyAuthenticated ? (
-              <>
-                <span>{L("Evaluate Scheme Matches & Eligibility ➔", "தகுதியான திட்டங்களை மதிப்பீடு செய்க ➔", "योजना मिलान एवं पात्रता का मूल्यांकन करें ➔")}</span>
-                <ArrowRight className="w-4 h-4" />
-              </>
-            ) : (
-              <>
-                <Lock className="w-4 h-4 text-slate-400" />
-                <span>{L("🔒 Complete Document Authentication Above to Proceed", "🔒 மேலே உள்ள ஆவண சரிபார்ப்பை முடித்து தொடரவும்", "🔒 आगे बढ़ने के लिए ऊपर दस्तावेज़ सत्यापन पूरा करें")}</span>
-              </>
+          <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto">
+            {isFullyAuthenticated && (
+              <button
+                type="button"
+                onClick={() => navigateToAlpha("", true)}
+                className="w-full sm:w-auto px-5 py-3.5 font-bold text-xs rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-900 transition flex items-center justify-center space-x-1.5 cursor-pointer shadow-xs"
+              >
+                <Landmark className="w-4 h-4 text-blue-700" />
+                <span>{L("Open Alpha Portal ↗", "ஆல்ஃபா போர்ட்டலைத் திறக்க ↗", "अल्फा पोर्टल खोलें ↗")}</span>
+              </button>
             )}
-          </button>
+
+            {/* Strict Navigation Gate Button */}
+            <button
+              type="submit"
+              disabled={!isFormComplete || !isFullyAuthenticated}
+              className={`w-full sm:w-auto px-8 py-3.5 font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center space-x-2 ${
+                isFormComplete && isFullyAuthenticated
+                  ? "bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-emerald-500/20"
+                  : "bg-slate-200 text-slate-500 cursor-not-allowed border border-slate-300"
+              }`}
+            >
+              {isFormComplete && isFullyAuthenticated ? (
+                <>
+                  <span>{L("Evaluate Scheme Matches & Eligibility ➔", "தகுதியான திட்டங்களை மதிப்பீடு செய்க ➔", "योजना मिलान एवं पात्रता का मूल्यांकन करें ➔")}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              ) : (
+                <>
+                  <Lock className="w-4 h-4 text-slate-400" />
+                  <span>{L("🔒 Complete Document Authentication Above to Proceed", "🔒 மேலே உள்ள ஆவண சரிபார்ப்பை முடித்து தொடரவும்", "🔒 आगे बढ़ने के लिए ऊपर दस्तावेज़ सत्यापन पूरा करें")}</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
       </form>

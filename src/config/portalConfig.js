@@ -16,10 +16,10 @@ const IS_PROD = typeof window !== "undefined" && (
 const CURRENT_ORIGIN = typeof window !== "undefined" ? window.location.origin : "http://localhost:5173";
 
 export const PORTAL_URLS = {
-  // Production standalone domains or multi-page HTML / hash fallbacks
-  SCHEMECONNECT: IS_PROD ? "https://schemeconnect.vercel.app" : `${CURRENT_ORIGIN}`,
-  ALPHA:         IS_PROD ? "https://alphagov.vercel.app" : `${CURRENT_ORIGIN}/alpha.html`,
-  BETA:          IS_PROD ? "https://mybank.vercel.app" : `${CURRENT_ORIGIN}/beta.html`,
+  // Multi-page HTML architecture deployed under same origin
+  SCHEMECONNECT: `${CURRENT_ORIGIN}`,
+  ALPHA:         `${CURRENT_ORIGIN}/alpha.html`,
+  BETA:          `${CURRENT_ORIGIN}/beta.html`,
 };
 
 /**
@@ -56,12 +56,8 @@ export function detectActivePortal() {
  */
 export function navigateToAlpha(schemeId = "", openNewTab = true) {
   const base = PORTAL_URLS.ALPHA;
-  // If multi-page alpha.html or hash fallback
-  const separator = base.includes(".html") ? "?" : "/#/";
-  const query = schemeId ? `scheme=${schemeId}` : "";
-  const url = base.includes(".html") 
-    ? `${base}${query ? `?${query}` : ""}` 
-    : `${base}${separator}alpha-portal${query ? `?${query}` : ""}`;
+  const query = schemeId ? `scheme=${encodeURIComponent(schemeId)}` : "";
+  const url = query ? `${base}?${query}` : base;
 
   console.log(`[PortalRouter] Launching Alpha Portal (Gov): ${url} [newTab: ${openNewTab}]`);
   if (openNewTab && typeof window !== "undefined") {
@@ -82,10 +78,7 @@ export function navigateToBeta(jwtToken = "", referralId = "", openNewTab = true
   const tokenParam = jwtToken ? `token=${encodeURIComponent(jwtToken)}` : "";
   const refParam = referralId ? `ref=${encodeURIComponent(referralId)}` : "";
   const params = [tokenParam, refParam].filter(Boolean).join("&");
-
-  const url = base.includes(".html")
-    ? `${base}${params ? `?${params}` : ""}`
-    : `${base}/#/beta-portal${params ? `?${params}` : ""}`;
+  const url = params ? `${base}?${params}` : base;
 
   console.log(`[PortalRouter] Launching Beta Portal (Bank) with JWT: ${url} [newTab: ${openNewTab}]`);
   if (openNewTab && typeof window !== "undefined") {

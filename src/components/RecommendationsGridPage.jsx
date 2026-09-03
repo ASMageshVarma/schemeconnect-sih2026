@@ -138,6 +138,37 @@ export function RecommendationsGridPage({
         </div>
       )}
 
+      {/* Realtime Alpha Portal Policy Synchronization Banner */}
+      <div className="bg-[#0f172a] text-white p-4 sm:p-5 rounded-3xl shadow-sm mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-800">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center shrink-0">
+            <Landmark className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-black uppercase tracking-wider text-white">
+                Alpha Portal Realtime Policy Synchronization
+              </span>
+              <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-400/40 flex items-center gap-1">
+                <Radio className="w-2.5 h-2.5 text-emerald-400 animate-pulse" /> Live WebSockets
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-0.5">
+              All welfare schemes below are synchronized in real-time with statutory criteria from the Alpha Governance Portal.
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => navigateToAlpha("", true)}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 cursor-pointer shadow-xs"
+        >
+          <span>Open Alpha Policy Portal ↗</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
       {/* Top Action Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <button

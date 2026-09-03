@@ -246,21 +246,12 @@ export default function App() {
 
         {/* ALPHA PORTAL */}
         {view === 'alpha-portal' && (
-          <AlphaPortalConsole lang={lang} onOpenSplitDemo={() => setView('demo-split')} />
+          <AlphaApp />
         )}
 
         {/* BETA PORTAL */}
         {view === 'beta-portal' && (
-          <BetaPortalBank
-            referredScheme={referredSchemeForBank}
-            betaJWTPayload={betaJWTPayload}
-            userProfile={currentProfile}
-            lang={lang}
-            t={t}
-            onBackToSchemeConnect={() => setView('recommendations')}
-            onOpenSplitDemo={() => setView('demo-split')}
-            onOpenTrioDemo={() => setView('demo-trio')}
-          />
+          <BetaApp />
         )}
 
         {/* FINANCIAL CALCULATOR */}
