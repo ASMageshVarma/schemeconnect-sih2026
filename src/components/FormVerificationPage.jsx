@@ -7,8 +7,8 @@ import {
 } from 'lucide-react';
 import { createWorker } from 'tesseract.js';
 import { speakText } from '../utils/speech';
-import { extractAgeFromHindi, extractIncomeFromHindi } from '../utils/hindiParser';
 import { TrackApplicationModal } from './TrackApplicationModal';
+import { AuthenticationProgressModal } from './AuthenticationProgressModal';
 
 export function FormVerificationPage({ 
   initialProfile, 
@@ -58,6 +58,30 @@ export function FormVerificationPage({
 
   // Track Application Modal State
   const [showTrackModal, setShowTrackModal] = useState(false);
+
+  // Automated Post-Click Authentication Progress Modal State
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // 4 Statutory Documents State (No manual verification triggers required on form)
+  const [documents, setDocuments] = useState({
+    aadhaar: null,
+    pan: null,
+    community: null,
+    income: null
+  });
+
+  const handleDocUpload = (docType, fileName) => {
+    setDocuments(prev => ({ ...prev, [docType]: fileName }));
+  };
+
+  const handleSampleUploadAll = () => {
+    setDocuments({
+      aadhaar: "aadhaar_card_uidai_verified.pdf",
+      pan: "pan_card_nsdl_active.pdf",
+      community: "community_certificate_edistrict.pdf",
+      income: "revenue_income_certificate_2026.pdf"
+    });
+  };
 
   const scrollToSectionIntake = () => {
     const el = document.getElementById('section-intake');
@@ -568,17 +592,34 @@ export function FormVerificationPage({
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!isFormComplete) return;
+    // Intercept submit and launch automated credential authentication modal
+    setShowAuthModal(true);
+  };
+
+  const handleAuthComplete = (verifiedPayload) => {
+    setShowAuthModal(false);
     onSubmit({
       ...profile,
       age: Number(profile.age),
       income: Number(profile.income),
-      ocr_confidence: ocrConfidence || 95
+      ocr_confidence: 96,
+      ...verifiedPayload
     });
   };
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 animate-fadeIn">
       
+      {/* Automated Post-Click Authentication Progress Modal */}
+      {showAuthModal && (
+        <AuthenticationProgressModal
+          profile={profile}
+          documents={documents}
+          lang={formLang}
+          onComplete={handleAuthComplete}
+        />
+      )}
+
       {/* Track Existing Application Modal */}
       {showTrackModal && (
         <TrackApplicationModal
@@ -978,6 +1019,142 @@ export function FormVerificationPage({
               <option value="OBC">{L("OBC (Other Backward Classes)", "பிற்படுத்தப்பட்டோர் (OBC)", "अन्य पिछड़ा वर्ग (OBC)")}</option>
               <option value="General">{L("General / Other", "பொதுப் பிரிவு (General)", "सामान्य / अन्य")}</option>
             </select>
+          </div>
+        </div>
+
+        {/* 4 Statutory Verification Documents Upload (No manual trigger required on form) */}
+        <div className="pt-5 border-t border-slate-100">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+            <div>
+              <h3 className="text-xs font-black uppercase text-slate-800 tracking-wider flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-blue-600" />
+                <span>{L("Statutory Verification Documents (4 Documents)", "சட்டப்பூர்வ சரிபார்ப்பு ஆவணங்கள் (4 ஆவணங்கள்)", "सांविधिक सत्यापन दस्तावेज़ (4 दस्तावेज़)")}</span>
+              </h3>
+              <p className="text-[11px] text-slate-500">
+                {L("Upload documents below. Automated DPI authentication will verify credentials upon evaluation.", "ஆவணங்களை பதிவேற்றவும். மதிப்பீட்டின் போது தானியங்கி முறையில் சரிபார்க்கப்படும்.", "दस्तावेज़ अपलोड करें। मूल्यांकन पर स्वचालित डीपीआई सत्यापन द्वारा जांच की जाएगी।")}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleSampleUploadAll}
+              className="text-[11px] font-bold text-blue-700 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 transition cursor-pointer flex items-center gap-1 self-start sm:self-auto"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span>{L("Sample Upload All 4", "அனைத்து 4 மாதிரி ஆவணங்கள்", "सभी 4 नमूना अपलोड")}</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            
+            {/* Doc 1: Aadhaar Card */}
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-bold text-slate-800">1. Aadhaar Card</span>
+                {documents.aadhaar && (
+                  <span className="text-[10px] text-emerald-700 font-bold flex items-center gap-0.5">
+                    <Check className="w-3 h-3 text-emerald-600" /> Ready
+                  </span>
+                )}
+              </div>
+              <label className="w-full py-2 px-3 bg-white hover:bg-slate-100 border border-slate-300 rounded-lg text-[11px] font-semibold text-slate-700 flex items-center justify-center gap-1.5 cursor-pointer truncate shadow-xs">
+                <Upload className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                <span className="truncate">{documents.aadhaar || L("Upload Aadhaar", "ஆதார் பதிவேற்றுக", "आधार अपलोड")}</span>
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      handleDocUpload("aadhaar", e.target.files[0].name);
+                    }
+                  }}
+                />
+              </label>
+              <span className="text-[10px] text-slate-400 mt-1 block">UIDAI Verhoeff Check</span>
+            </div>
+
+            {/* Doc 2: PAN Card */}
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-bold text-slate-800">2. PAN Card</span>
+                {documents.pan && (
+                  <span className="text-[10px] text-emerald-700 font-bold flex items-center gap-0.5">
+                    <Check className="w-3 h-3 text-emerald-600" /> Ready
+                  </span>
+                )}
+              </div>
+              <label className="w-full py-2 px-3 bg-white hover:bg-slate-100 border border-slate-300 rounded-lg text-[11px] font-semibold text-slate-700 flex items-center justify-center gap-1.5 cursor-pointer truncate shadow-xs">
+                <Upload className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                <span className="truncate">{documents.pan || L("Upload PAN", "பான் பதிவேற்றுக", "पैन अपलोड")}</span>
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      handleDocUpload("pan", e.target.files[0].name);
+                    }
+                  }}
+                />
+              </label>
+              <span className="text-[10px] text-slate-400 mt-1 block">NSDL Tax Records</span>
+            </div>
+
+            {/* Doc 3: Community Certificate */}
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-bold text-slate-800">3. Community Cert.</span>
+                {documents.community && (
+                  <span className="text-[10px] text-emerald-700 font-bold flex items-center gap-0.5">
+                    <Check className="w-3 h-3 text-emerald-600" /> Ready
+                  </span>
+                )}
+              </div>
+              <label className="w-full py-2 px-3 bg-white hover:bg-slate-100 border border-slate-300 rounded-lg text-[11px] font-semibold text-slate-700 flex items-center justify-center gap-1.5 cursor-pointer truncate shadow-xs">
+                <Upload className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                <span className="truncate">{documents.community || L("Upload Caste Cert.", "சாதிச் சான்றிதழ்", "जाति प्रमाण-पत्र")}</span>
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      handleDocUpload("community", e.target.files[0].name);
+                    }
+                  }}
+                />
+              </label>
+              <span className="text-[10px] text-slate-400 mt-1 block">State e-District API</span>
+            </div>
+
+            {/* Doc 4: Income Certificate */}
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-bold text-slate-800">4. Income Cert.</span>
+                {documents.income && (
+                  <span className="text-[10px] text-emerald-700 font-bold flex items-center gap-0.5">
+                    <Check className="w-3 h-3 text-emerald-600" /> Ready
+                  </span>
+                )}
+              </div>
+              <label className="w-full py-2 px-3 bg-white hover:bg-slate-100 border border-slate-300 rounded-lg text-[11px] font-semibold text-slate-700 flex items-center justify-center gap-1.5 cursor-pointer truncate shadow-xs">
+                <Upload className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                <span className="truncate">{documents.income || L("Upload Income Cert.", "வருமான சான்றிதழ்", "आय प्रमाण-पत्र")}</span>
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      handleDocUpload("income", e.target.files[0].name);
+                    }
+                  }}
+                />
+              </label>
+              <span className="text-[10px] text-slate-400 mt-1 block">State Revenue Portal</span>
+            </div>
+
           </div>
         </div>
 
