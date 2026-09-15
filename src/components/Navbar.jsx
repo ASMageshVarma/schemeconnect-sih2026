@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Building2, Bot, Calculator } from 'lucide-react';
 
 export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontSize, setFontSize, onLogoClick }) {
@@ -9,10 +9,22 @@ export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontS
 
   return (
     <header className="sticky top-0 z-50 bg-[#0f172a] border-b border-slate-800 shadow-md">
+
+      {/* CSC VLE Agent Mode Banner */}
+      {view === 'csc-agent' && (
+        <div className="bg-amber-500 text-slate-950 px-4 py-1.5 text-center text-xs font-black tracking-wide flex items-center justify-center gap-2 flex-wrap">
+          <span>🏘️</span>
+          <span>{L("GRAM SEVA / CSC VLE AGENT MODE — Village Batch Intake Active", "கிராம சேவை முகவர் முறை — கிராம கூட்ட நுழைவு செயலில் உள்ளது", "ग्राम सेवा VLE एजेंट मोड — ग्राम बैच इनटेक सक्रिय")}</span>
+          <button onClick={() => setView('find-schemes')} className="ml-2 underline text-slate-800 hover:text-slate-950 cursor-pointer font-bold">
+            {L("Exit ✕", "வெளியேறு ✕", "बाहर ✕")}
+          </button>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="h-16 flex items-center justify-between">
 
-          {/* Brand Logo & Title — clicks to reset session */}
+          {/* Brand Logo & Title */}
           <div
             className="flex items-center space-x-3 cursor-pointer group shrink-0"
             onClick={onLogoClick || (() => setView('find-schemes'))}
@@ -40,9 +52,24 @@ export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontS
             </div>
           </div>
 
-          {/* Right Controls: Calculator, AI Mitra, and Single Language Dropdown */}
+          {/* Right Controls */}
           <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
-            
+
+            {/* CSC / Gram Seva VLE Agent Mode Button */}
+            <button
+              type="button"
+              onClick={() => setView('csc-agent')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
+                view === 'csc-agent'
+                  ? 'bg-amber-500 text-slate-950 font-black shadow-lg shadow-amber-500/40'
+                  : 'bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700'
+              }`}
+              title="CSC Gram Seva VLE Agent Mode — Village Batch Intake"
+            >
+              <span className="text-sm leading-none">🏘️</span>
+              <span className="hidden sm:inline">{L("Gram Seva", "கிராம சேவை", "ग्राम सेवा")}</span>
+            </button>
+
             {/* Financial Calculator Button */}
             <button
               type="button"
@@ -72,7 +99,7 @@ export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontS
               <Bot className="w-4 h-4 text-purple-300" />
             </button>
 
-            {/* Single Language Dropdown (i18n Switcher) */}
+            {/* Language Dropdown */}
             <select
               value={lang}
               onChange={(e) => setLang(e.target.value)}

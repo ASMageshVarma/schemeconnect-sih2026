@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import { LiveSchemeCard } from './LiveSchemeCard';
 import { AlphaGazetteModal } from './AlphaGazetteModal';
+import { SmartWelfareBundles } from './SmartWelfareBundles';
+import { DbtLifecycleTrackerModal } from './DbtLifecycleTrackerModal';
 import { rankAlphaSchemes } from '../utils/alphaMatcher';
 import { getAlphaSchemes, subscribeToAlphaChanges } from '../utils/realtimeSync';
 import { speakText } from '../utils/speech';
@@ -36,6 +38,29 @@ export function RecommendationsGridPage({
   const [lastLiveStreamEvent, setLastLiveStreamEvent] = useState(null);
   const [selectedSchemeDetail, setSelectedSchemeDetail] = useState(null);
   const [gazetteScheme, setGazetteScheme] = useState(null); // Alpha Gazette modal
+  const [showDbtTracker, setShowDbtTracker] = useState(false); // APB-DBT lifecycle tracker modal
+
+  // Handle multi-scheme stacked bundle application
+  const handleApplyStackedBundle = (bundleSchemes, totals) => {
+    const primaryScheme = bundleSchemes[0];
+    const { token, payload, referralId } = generateReferralJWT(primaryScheme, userProfile, {
+      trustScore: 100,
+      ekycVerified: true,
+      ocrConfidence: 98,
+      isBundle: true,
+      bundleSchemeCount: bundleSchemes.length,
+      bundleNames: bundleSchemes.map(s => s.scheme_name).join(" + "),
+      totalStackedBenefit: totals?.totalBenefit,
+      totalCapitalSubsidy: totals?.totalGrant
+    });
+    
+    // Launch Beta Portal with the stacked bundle token
+    navigateToBeta(token, referralId, true);
+
+    if (onRouteToBank) {
+      onRouteToBank({ ...primaryScheme, _jwtToken: token, _referralId: referralId, _jwtPayload: payload, _isBundle: true });
+    }
+  };
 
   // Realtime WebSocket Subscription
   useEffect(() => {
@@ -289,6 +314,15 @@ export function RecommendationsGridPage({
         </div>
       )}
 
+      {/* Smart Welfare Stacking & Bundling Component */}
+      <SmartWelfareBundles
+        eligibleSchemes={eligibleSchemes}
+        userProfile={userProfile}
+        lang={lang}
+        onApplyBundle={handleApplyStackedBundle}
+        onTrackDbt={() => setShowDbtTracker(true)}
+      />
+
       {/* Filter Tabs & Search Bar */}
       <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm mb-8 flex flex-col lg:flex-row items-center justify-between gap-4">
         <div className="flex flex-wrap gap-1.5 w-full lg:w-auto">
@@ -473,6 +507,17 @@ export function RecommendationsGridPage({
           scheme={gazetteScheme}
           lang={lang}
           onClose={() => setGazetteScheme(null)}
+        />
+      )}
+
+      {/* APB-DBT Direct Benefit Transfer Real-Time Lifecycle Tracker Modal */}
+      {showDbtTracker && (
+        <DbtLifecycleTrackerModal
+          isOpen={showDbtTracker}
+          onClose={() => setShowDbtTracker(false)}
+          userProfile={userProfile}
+          scheme={eligibleSchemes[0] || schemes[0]}
+          lang={lang}
         />
       )}
 
