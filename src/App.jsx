@@ -18,7 +18,6 @@ import { AllSchemesCatalog } from './components/AllSchemesCatalog';
 import { OfficialPublicFooter } from './components/OfficialPublicFooter';
 import { AlphaApp } from './AlphaApp';
 import { BetaApp } from './BetaApp';
-import { GramSevaAgentMode } from './components/GramSevaAgentMode';
 
 import { TRANSLATIONS } from './data/translations';
 import { hasConsented, grantConsent, revokeConsent, detectActivePortal } from './config/portalConfig';
@@ -253,15 +252,6 @@ export default function App() {
         {/* BETA PORTAL */}
         {view === 'beta-portal' && (
           <BetaApp />
-        )}
-
-        {/* CSC / GRAM SEVA VLE AGENT MODE */}
-        {view === 'csc-agent' && (
-          <GramSevaAgentMode
-            lang={lang}
-            onStartIntake={() => setView('find-schemes')}
-            onBack={() => setView('find-schemes')}
-          />
         )}
 
         {/* FINANCIAL CALCULATOR */}
