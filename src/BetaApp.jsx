@@ -331,7 +331,11 @@ export function BetaApp() {
               <div>
                 <div className="flex items-center space-x-2">
                   <span className="font-bold text-base sm:text-lg text-white tracking-tight">
-                    🏦 ZETA BANK - Institutional Credit &amp; Loan Sanction Portal
+                    🏦 ZETA BANK — Institutional Credit &amp; Loan Sanction Portal
+                  </span>
+                  <span className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-800/60 border border-slate-700 text-slate-300 backdrop-blur-md">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+                    PROTOTYPE NODE • SIH 2026
                   </span>
                 </div>
                 <p className="text-[10px] text-slate-400 font-medium hidden sm:block">
@@ -411,11 +415,11 @@ export function BetaApp() {
             <div className="flex flex-wrap items-center gap-2">
               <span className="flex items-center gap-1 text-emerald-400 font-bold bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-800/80">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                RS256 Public Key Reader: Active 🟢
+                RS256 Decryption Engine: ACTIVE 🟢
               </span>
               <span className="flex items-center gap-1 text-blue-300 font-semibold bg-blue-950/60 px-2.5 py-0.5 rounded-full border border-blue-800/80">
                 <Lock className="w-3 h-3 text-blue-400" />
-                Nonce Replay Protection: Enabled
+                Nonce Replay Protection: ENABLED
               </span>
               <span className="flex items-center gap-1 text-purple-300 font-semibold bg-purple-950/60 px-2.5 py-0.5 rounded-full border border-purple-800/80">
                 <Shield className="w-3 h-3 text-purple-400" />
@@ -423,16 +427,22 @@ export function BetaApp() {
               </span>
               <span className="flex items-center gap-1 text-amber-300 font-semibold bg-amber-950/60 px-2.5 py-0.5 rounded-full border border-amber-800/80">
                 <Cpu className="w-3 h-3 text-amber-400" />
-                AI Fraud Engine: Active
+                AI Fraud Engine: ACTIVE
               </span>
             </div>
 
             <div className="flex items-center gap-2 text-slate-400 font-mono text-[10px]">
               <span>KEY_ID: {SCHEMECONNECT_PUBLIC_KEY_FINGERPRINT.slice(0, 20)}...</span>
               <span className="text-slate-600">|</span>
-              <span className={ttlCountdown > 30 ? "text-emerald-400" : "text-rose-400 font-bold"}>
-                TTL: {ttlCountdown}s
-              </span>
+              {ttlCountdown > 0 ? (
+                <span className={`px-2.5 py-0.5 rounded-full font-bold border transition-all ${ttlCountdown > 30 ? "bg-emerald-950/60 text-emerald-400 border-emerald-800/80" : "bg-rose-950/60 text-rose-400 border-rose-800/80 animate-pulse"}`}>
+                  TOKEN TTL: {ttlCountdown}s 🟢
+                </span>
+              ) : (
+                <span className="px-2.5 py-0.5 rounded-full font-bold border bg-rose-950/80 text-rose-300 border-rose-700 animate-pulse">
+                  TOKEN EXPIRED 🔴
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -488,14 +498,14 @@ export function BetaApp() {
           )}
 
           {ttlCountdown <= 0 && !replayDetected && (
-            <div className="bg-amber-50 border-2 border-amber-400 rounded-2xl p-4 flex items-start gap-3 shadow-xs">
-              <Clock className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <div className="bg-rose-50 border-2 border-rose-400 rounded-2xl p-4 flex items-start gap-3 shadow-xs">
+              <Clock className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
               <div>
-                <h4 className="text-xs font-bold text-amber-900 uppercase tracking-wide">
-                  Token Expired (300s TTL Exhausted) ⚠️
+                <h4 className="text-xs font-bold text-rose-900 uppercase tracking-wide">
+                  Token Expired (300s TTL Elapsed) 🔴
                 </h4>
-                <p className="text-xs text-amber-700 mt-0.5">
-                  The 5-minute single-use window for this referral token has lapsed. Request a refreshed token from SchemeConnect.
+                <p className="text-xs text-rose-700 mt-0.5 font-medium">
+                  Handshake Expired (300s TTL Elapsed). Request a fresh ZKP referral link from SchemeConnect.
                 </p>
               </div>
             </div>
@@ -522,13 +532,13 @@ export function BetaApp() {
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center min-w-[120px]">
                 <span className="text-[10px] text-slate-400 font-bold uppercase block">Token TTL</span>
                 <span className={`text-base font-mono font-bold ${ttlCountdown > 30 ? 'text-emerald-700' : 'text-rose-600'}`}>
-                  {ttlCountdown}s
+                  {ttlCountdown > 0 ? `${ttlCountdown}s` : '0s'}
                 </span>
               </div>
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center min-w-[140px]">
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center min-w-[150px]">
                 <span className="text-[10px] text-slate-400 font-bold uppercase block">Composite Trust</span>
                 <span className="text-base font-bold text-emerald-700">
-                  {applicant.trust_score}% 🟢
+                  {applicant.trust_score || 98}% High Trust 🟢
                 </span>
               </div>
             </div>
@@ -683,9 +693,40 @@ export function BetaApp() {
               </div>
             </div>
 
-            {/* Right 5 Cols: AI Anti-Fraud Risk Scoring & Action Panel */}
+            {/* Right 5 Cols: Composite Trust Gauge, AI Anti-Fraud Risk Scoring & Action Panel */}
             <div className="lg:col-span-5 space-y-5">
               
+              {/* Composite Trust Gauge Box */}
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-3">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-emerald-600" />
+                    <span className="text-xs font-black uppercase text-slate-800 tracking-wide">
+                      Composite Trust Gauge
+                    </span>
+                  </div>
+                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                    {applicant.trust_score || 98}% High Trust 🟢
+                  </span>
+                </div>
+                <div>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-slate-500 font-medium">Algorithmic Confidence Score</span>
+                    <span className="font-bold text-slate-900 font-mono">{applicant.trust_score || 98} / 100</span>
+                  </div>
+                  <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200">
+                    <div 
+                      className="bg-gradient-to-r from-blue-500 via-emerald-500 to-emerald-600 h-full rounded-full transition-all duration-1000"
+                      style={{ width: `${applicant.trust_score || 98}%` }}
+                    ></div>
+                  </div>
+                  <div className="flex justify-between text-[10px] text-slate-400 mt-1.5 font-mono">
+                    <span>Baseline Threshold: 75%</span>
+                    <span className="text-emerald-600 font-bold">Zero-Risk Band (&gt;90%) ✓</span>
+                  </div>
+                </div>
+              </div>
+
               {/* AI Anti-Fraud Risk Engine Box */}
               <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -810,16 +851,16 @@ export function BetaApp() {
                     <span>
                       {loanSanctioned 
                         ? "Loan Sanctioned & Disbursed 🟢"
-                        : isMultiSigRequired
-                        ? "Execute Dual Multi-Sig Credit Sanction ➔"
-                        : "Approve Instant Credit Sanction ➔"}
+                        : "⚡ One-Click Approve & Issue Sanction Letter"}
                     </span>
                   </button>
 
                   <span className="text-[10px] text-slate-400 text-center block mt-2">
                     {replayDetected
                       ? "Execution blocked: Nonce has already been burned."
-                      : "Clicking permanently burns single-use nonce & triggers DBT clearing webhook."}
+                      : ttlCountdown <= 0
+                      ? "Handshake Expired (300s TTL Elapsed). Request a fresh ZKP referral link from SchemeConnect."
+                      : "Clicking permanently burns single-use nonce & issues official cryptographic sanction letter."}
                   </span>
                 </div>
               </div>

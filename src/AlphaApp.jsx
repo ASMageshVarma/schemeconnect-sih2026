@@ -327,6 +327,10 @@ export function AlphaApp() {
                   <span className="font-bold text-base sm:text-lg text-white tracking-tight">
                     🏛️ National Scheme Governance &amp; Policy Portal (Alpha)
                   </span>
+                  <span className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-800/60 border border-slate-700 text-slate-300 backdrop-blur-md">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+                    PROTOTYPE NODE • SIH 2026
+                  </span>
                 </div>
                 <p className="text-[10px] text-slate-400 font-medium hidden sm:block">
                   Project Expo Concept Prototype • Social Justice &amp; Welfare Policy Simulation Node
