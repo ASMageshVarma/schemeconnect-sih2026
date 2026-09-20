@@ -3,7 +3,8 @@ import {
   User, Briefcase, IndianRupee, MapPin, Sparkles, Mic, MicOff, 
   Upload, CheckCircle2, AlertCircle, ArrowRight, ShieldCheck, 
   RefreshCw, FileText, Check, Loader2, AlertTriangle,
-  Bot, Lock, Phone, Landmark, Key, ChevronRight, FileCheck, X
+  Bot, Lock, Phone, Landmark, Key, ChevronRight, FileCheck, X,
+  Building2, Trees, ShoppingBag, Scissors, Factory, Wrench, Sprout
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { speakText } from '../utils/speech';
@@ -398,8 +399,8 @@ export function FormVerificationPage({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
-                  { v: 'Urban', emoji: '🏙️', label: L('Urban Area', 'நகர்ப்புறம்', 'शहरी क्षेत्र'), sub: L('Corporation / Municipality (25% Subsidy)', 'மாநகராட்சி / நகராட்சி (25% மானியம்)', 'नगर निगम / पालिका (25% सब्सिडी)') },
-                  { v: 'Rural', emoji: '🌾', label: L('Rural Area', 'கிராமப்புறம்', 'ग्रामीण क्षेत्र'), sub: L('Village / Panchayat (Up to 35% Subsidy)', 'கிராமம் / ஊராட்சி (35% வரை மானியம்)', 'ग्राम पंचायत (35% तक सब्सिडी)') },
+                  { v: 'Urban', Icon: Building2, iconColor: 'text-blue-600', bgColor: 'bg-blue-50', label: L('Urban Area', 'நகர்ப்புறம்', 'शहरी क्षेत्र'), sub: L('Corporation / Municipality (25% Subsidy)', 'மாநகராட்சி / நகராட்சி (25% மானியம்)', 'नगर निगम / पालिका (25% सब्सिडी)') },
+                  { v: 'Rural', Icon: Trees, iconColor: 'text-emerald-600', bgColor: 'bg-emerald-50', label: L('Rural Area', 'கிராமப்புறம்', 'ग्रामीण क्षेत्र'), sub: L('Village / Panchayat (Up to 35% Subsidy)', 'கிராமம் / ஊராட்சி (35% வரை மானியம்)', 'ग्राम पंचायत (35% तक सब्सिडी)') },
                 ].map(opt => (
                   <button
                     key={opt.v}
@@ -411,7 +412,9 @@ export function FormVerificationPage({
                         : 'border-slate-200 bg-slate-50 hover:border-blue-300'
                     }`}
                   >
-                    <span className="text-4xl mb-2">{opt.emoji}</span>
+                    <div className={`w-14 h-14 rounded-2xl ${opt.bgColor} flex items-center justify-center mb-3`}>
+                      <opt.Icon className={`w-7 h-7 ${opt.iconColor}`} />
+                    </div>
                     <span className={`text-base font-black ${profile.area === opt.v ? 'text-blue-900' : 'text-slate-800'}`}>
                       {opt.label}
                     </span>
@@ -439,11 +442,11 @@ export function FormVerificationPage({
 
               <div className="space-y-3">
                 {[
-                  { v: 'Street Vendor',       emoji: '🛒', label: L('Street Vendor / Retail Trader', 'தெருவோர வியாபாரி', 'सड़क विक्रेता / खुदरा व्यापारी'), desc: 'PM SVANidhi Micro Credit (₹10k–₹50k)' },
-                  { v: 'Handicraft/Artisan',   emoji: '🪡', label: L('Handicraft / Artisan / Vishwakarma', 'கைவினைஞர் / விஸ்வகர்மா', 'कारीगर / हस्तशिल्प / विश्वकर्मा'), desc: 'PM Vishwakarma Toolkit Voucher (₹15k) + 5% Loan' },
-                  { v: 'Manufacturing',         emoji: '🏭', label: L('Manufacturing / Production Unit', 'உற்பத்தி தொழில்', 'विनिर्माण / उत्पादन इकाई'), desc: 'PMEGP Up to ₹50 Lakh with 35% Capital Subsidy' },
-                  { v: 'Services',              emoji: '🔧', label: L('Services / Repair / Logistics', 'சேவை பிரிவு / பழுதுபார்ப்பு', 'सेवाएँ / मरम्मत / लॉजिस्टिक्स'), desc: 'MUDRA & PMEGP Service Loans Up to ₹20 Lakh' },
-                  { v: 'Agriculture/Farming',   emoji: '🌱', label: L('Agriculture / Allied Livestock', 'விவசாயம் / கால்நடை', 'कृषि / संबद्ध पशुपालन'), desc: 'Kisan Credit & Concessional Animal Husbandry' },
+                  { v: 'Street Vendor',       Icon: ShoppingBag,  iconColor: 'text-blue-600',    bgColor: 'bg-blue-50',    label: L('Street Vendor / Retail Trader', 'தெருவோர வியாபாரி', 'सड़क विक्रेता / खुदरा व्यापारी'), desc: 'PM SVANidhi Micro Credit (up to Rs.50k)' },
+                  { v: 'Handicraft/Artisan',   Icon: Scissors,     iconColor: 'text-purple-600',  bgColor: 'bg-purple-50',  label: L('Handicraft / Artisan / Vishwakarma', 'கைவினைஞர் / விஸ்வகர்மா', 'कारीगर / हस्तशिल्प / विश्वकर्मा'), desc: 'PM Vishwakarma Toolkit Voucher (Rs.15k) + 5% Loan' },
+                  { v: 'Manufacturing',         Icon: Factory,      iconColor: 'text-slate-600',   bgColor: 'bg-slate-100',  label: L('Manufacturing / Production Unit', 'உற்பத்தி தொழில்', 'विनिर्माण / उत्पादन इकाई'), desc: 'PMEGP Up to Rs.50 Lakh with 35% Capital Subsidy' },
+                  { v: 'Services',              Icon: Wrench,       iconColor: 'text-orange-600',  bgColor: 'bg-orange-50',  label: L('Services / Repair / Logistics', 'சேவை பிரிவு / பழுதுபார்ப்பு', 'सेवाएँ / मरम्मत / लॉजिस्टिक्स'), desc: 'MUDRA & PMEGP Service Loans Up to Rs.20 Lakh' },
+                  { v: 'Agriculture/Farming',   Icon: Sprout,       iconColor: 'text-emerald-600', bgColor: 'bg-emerald-50', label: L('Agriculture / Allied Livestock', 'விவசாயம் / கால்நடை', 'कृषि / संबद्ध पशुपालन'), desc: 'Kisan Credit & Concessional Animal Husbandry' },
                 ].map(opt => (
                   <button
                     key={opt.v}
@@ -455,14 +458,16 @@ export function FormVerificationPage({
                         : 'border-slate-200 bg-slate-50 hover:border-blue-300'
                     }`}
                   >
-                    <span className="text-3xl">{opt.emoji}</span>
+                    <div className={`w-11 h-11 rounded-xl ${opt.bgColor} flex items-center justify-center shrink-0`}>
+                      <opt.Icon className={`w-5 h-5 ${opt.iconColor}`} />
+                    </div>
                     <div className="flex-1">
                       <div className={`text-sm font-black ${profile.sector === opt.v ? 'text-blue-900' : 'text-slate-900'}`}>
                         {opt.label}
                       </div>
                       <div className="text-xs text-slate-500 mt-0.5">{opt.desc}</div>
                     </div>
-                    {profile.sector === opt.v && <span className="text-blue-600 font-black text-xl">✓</span>}
+                    {profile.sector === opt.v && <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0" />}
                   </button>
                 ))}
               </div>
@@ -911,12 +916,13 @@ export function FormVerificationPage({
                 {allOcrPassed && otpVerified ? (
                   <>
                     <Sparkles className="w-5 h-5 text-amber-300" />
-                    <span>Evaluate My Scheme Matches →</span>
+                    <span>Evaluate My Scheme Matches</span>
+                    <ArrowRight className="w-4 h-4" />
                   </>
                 ) : (
                   <>
                     <Lock className="w-4 h-4 text-slate-400" />
-                    <span>🔒 Complete 4-Factor Upload Above</span>
+                    <span>Complete 4-Factor Upload Above</span>
                   </>
                 )}
               </button>
@@ -934,7 +940,8 @@ export function FormVerificationPage({
             disabled={currentStepIndex === 1}
             className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-100 transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
-            ← Back
+            <ArrowRight className="w-4 h-4 rotate-180" />
+            Back
           </button>
 
           <span className="text-xs font-black text-slate-500 font-mono">
@@ -948,7 +955,8 @@ export function FormVerificationPage({
               disabled={!isStepValid(currentStepIndex)}
               className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed rounded-xl text-sm font-bold text-white transition cursor-pointer shadow-xs"
             >
-              Next →
+              Next
+              <ArrowRight className="w-4 h-4" />
             </button>
           ) : (
             <div className="w-20" />

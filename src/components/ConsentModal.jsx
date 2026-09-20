@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import {
   ShieldCheck, CheckCircle2, AlertTriangle, Building2,
-  FileText, Lock, Globe, ChevronRight, Users, X
+  FileText, Lock, Globe, ChevronRight, Users, X, ArrowRight
 } from 'lucide-react';
 import { grantConsent } from '../config/portalConfig';
 
 // ─── Trilingual Consent Content ────────────────────────────────────────────
 const CONSENT_CONTENT = {
   en: {
-    badge: "Project Expo Concept Prototype • Simulated Consent Gateway",
+    badge: "Project Expo Concept Prototype - Simulated Consent Gateway",
     title: "Terms, Privacy & Data Consent",
     subtitle: "JanSetu AI — Autonomous Welfare Scheme Matching Prototype",
     intro: "Before accessing the Scheme Discovery Engine, please read and provide your explicit consent to the following terms as mandated by the IT Act 2000, Digital Personal Data Protection Act 2023, and prototype ethical guidelines.",
@@ -21,14 +21,14 @@ const CONSENT_CONTENT = {
     cb1: "I consent to simulated eKYC identity pre-verification for scheme eligibility checking.",
     cb2: "I consent to session-only processing of my demographic data for welfare scheme discovery.",
     cb3: "I authorize issuance of a signed JWT referral token to a partner bank upon my explicit request.",
-    accept: "Accept All & Begin Intake →",
+    accept: "Accept All & Begin Intake",
     decline: "I do not consent (Exit)",
-    privacy_ref: "Data Privacy Reference: DPDPA 2023 • IT Act Section 43A",
+    privacy_ref: "Data Privacy Reference: DPDPA 2023 - IT Act Section 43A",
     grievance: "Support & Grievance: support@schemeconnect.dev",
     processing: "Please check all 3 consent boxes to continue.",
   },
   ta: {
-    badge: "ப்ராஜெக்ட் எக்ஸ்போ மாதிரி முன்மாதிரி • மாதிரி சம்மத நுழைவு",
+    badge: "Project Expo - Simulated Consent Gateway",
     title: "விதிமுறைகள், தனியுரிமை மற்றும் தரவு சம்மதம்",
     subtitle: "ஜன்சேது AI — மாதிரி நலத்திட்ட கண்டுபிடிப்பு மற்றும் கடன் தளம்",
     intro: "திட்டத்தைத் தேடுவதற்கு முன், IT சட்டம் 2000, டிஜிட்டல் தனிப்பட்ட தரவு பாதுகாப்பு சட்டம் 2023 வழிகாட்டுதல்களின்படி கீழ்க்கண்ட விதிமுறைகளை படிக்கவும் மற்றும் உங்கள் வெளிப்படையான சம்மதத்தை வழங்கவும்.",
@@ -41,29 +41,29 @@ const CONSENT_CONTENT = {
     cb1: "திட்டத் தகுதி சரிபார்ப்புக்காக eKYC அடையாள முன் சரிபார்ப்புக்கு சம்மதிக்கிறேன்.",
     cb2: "நலத்திட்ட கண்டுபிடிப்புக்காக என் ஜனவிழி தரவை அமர்வுக்கு மட்டும் செயலாக்க சம்மதிக்கிறேன்.",
     cb3: "என் வெளிப்படையான கோரிக்கையின் பேரில் கூட்டாளி வங்கிக்கு கையொப்பமிடப்பட்ட JWT பரிந்துரை டோக்கனை வழங்க அங்கீகரிக்கிறேன்.",
-    accept: "அனைத்தையும் ஏற்றுக்கொண்டு தொடரவும் →",
+    accept: "அனைத்தையும் ஏற்றுக்கொண்டு தொடரவும்",
     decline: "சம்மதிக்கவில்லை (வெளியேறு)",
-    privacy_ref: "தனியுரிமை குறிப்பு: DPDPA 2023 • IT சட்டம் பிரிவு 43A",
+    privacy_ref: "தனியுரிமை குறிப்பு: DPDPA 2023 - IT சட்டம் பிரிவு 43A",
     grievance: "ஆதரவு & புகார்: support@schemeconnect.dev",
     processing: "தொடர அனைத்து 3 சம்மத பெட்டிகளையும் சரிபார்க்கவும்.",
   },
   hi: {
-    badge: "प्रोजेक्ट एक्सपो प्रोटोटाइप • सिम्युलेटेड सहमति गेटवे",
+    badge: "Project Expo - Simulated Consent Gateway",
     title: "नियम, गोपनीयता और डेटा सहमति",
     subtitle: "जनसेतु AI — कल्याण योजना खोज एवं ऋण प्रोटोटाइप",
     intro: "योजना खोज इंजन तक पहुँचने से पहले, कृपया IT अधिनियम 2000, डिजिटल व्यक्तिगत डेटा संरक्षण अधिनियम 2023 के अनुसार निम्नलिखित शर्तों को पढ़ें और स्पष्ट सहमति दें।",
     section1: "धारा 1: पहचान सत्यापन (eKYC)",
     s1_body: "मैं DigiLocker से जुड़े eKYC के माध्यम से अपने आधार/PAN विवरण का उपयोग केवल पूर्व-स्क्रीनिंग उद्देश्यों के लिए करने की अनुमति देता/देती हूँ। कोई बायोमेट्रिक डेटा एकत्र या संग्रहीत नहीं किया जाता।",
     section2: "धारा 2: डेटा गोपनीयता और उपयोग",
-    s2_body: "मैं केंद्र और राज्य सरकार की कल्याण योजनाओं से मिलान करने के लिए अपने जनसांख्यिकीय और आय डेटा (आयु, क्षेत्र, क्षेत्र, आय, SHG स्थिति, लिंग, जाति) को सत्र-केवल आधार पर संसाधित करने की सहमति देता/देती हूँ।",
+    s2_body: "मैं केंद्र और राज्य सरकार की कल्याण योजनाओं से मिलान करने के लिए अपने जनसांख्यिकीय और आय डेटा को सत्र-केवल आधार पर संसाधित करने की सहमति देता/देती हूँ।",
     section3: "धारा 3: बैंक रेफरल टोकन प्राधिकरण",
     s3_body: "मैं JanSetu AI को मेरी पूर्व-सत्यापित पात्रता विवरण वाला एक हस्ताक्षरित, 15 मिनट की अवधि का JWT रेफरल टोकन, मेरे अनुरोध पर मेरे चुने हुए भागीदार बैंक को जारी करने का अधिकार देता/देती हूँ।",
     cb1: "मैं योजना पात्रता जाँच के लिए eKYC पहचान पूर्व-सत्यापन की सहमति देता/देती हूँ।",
     cb2: "मैं कल्याण योजना खोज के लिए अपने जनसांख्यिकीय डेटा को सत्र-केवल प्रसंस्करण की सहमति देता/देती हूँ।",
     cb3: "मैं अपने स्पष्ट अनुरोध पर भागीदार बैंक को हस्ताक्षरित JWT रेफरल टोकन जारी करने का अधिकार देता/देती हूँ।",
-    accept: "सभी स्वीकार करें और आगे बढ़ें →",
+    accept: "सभी स्वीकार करें और आगे बढ़ें",
     decline: "मैं सहमत नहीं हूँ (बाहर जाएँ)",
-    privacy_ref: "डेटा गोपनीयता संदर्भ: DPDPA 2023 • IT अधिनियम धारा 43A",
+    privacy_ref: "डेटा गोपनीयता संदर्भ: DPDPA 2023 - IT अधिनियम धारा 43A",
     grievance: "सहायता एवं शिकायत: support@schemeconnect.dev",
     processing: "जारी रखने के लिए सभी 3 सहमति बॉक्स चेक करें।",
   }
@@ -183,6 +183,7 @@ export function ConsentModal({ onAccept, onDecline, initialLang = "en" }) {
             >
               <ShieldCheck className="w-5 h-5" />
               <span>{c.accept}</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
             <button
               onClick={onDecline}

@@ -104,7 +104,8 @@ export function AllSchemesCatalog({
               className="w-full py-3 px-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-black shadow-lg transition flex items-center justify-center space-x-2 cursor-pointer"
             >
               <Sparkles className="w-4 h-4 text-amber-300" />
-              <span>{L("Start Applicant Input Form ➔", "விண்ணப்ப படிவத்தை தொடங்குக ➔", "आवेदक इनपुट फ़ॉर्म शुरू करें ➔")}</span>
+              <span>{L("Start Applicant Input Form", "விண்ணப்ப படிவத்தை தொடங்குக", "आवेदक इनपुट फ़ॉर्म शुरू करें")}</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -255,7 +256,8 @@ export function AllSchemesCatalog({
                   onClick={onStartIntake}
                   className="w-full py-2.5 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-black shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer"
                 >
-                  <span>{L("Check My Eligibility ➔", "என் தகுதியை சோதிக்க ➔", "मेरी पात्रता जांचें ➔")}</span>
+                  <span>{L("Check My Eligibility", "என் தகுதியை சோதிக்க", "मेरी पात्रता जांचें")}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
 

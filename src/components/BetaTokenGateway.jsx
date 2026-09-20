@@ -196,7 +196,8 @@ export function BetaTokenGateway({ referredScheme, userProfile, onTokenAccepted,
                 className="w-full py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-2xl text-sm font-black transition shadow-xl flex items-center justify-center gap-2"
               >
                 <Landmark className="w-5 h-5 text-amber-300" />
-                <span>{isTa ? "முன் நிரப்பப்பட்ட விண்ணப்பத்தை ஏற்றுக்கொள்க & தொடர்க ➔" : "Accept Pre-Verified Application & Proceed to Officer Queue ➔"}</span>
+                <span>{isTa ? "முன் நிரப்பப்பட்ட விண்ணப்பத்தை ஏற்றுக்கொள்க & தொடர்க" : "Accept Pre-Verified Application & Proceed to Officer Queue"}</span>
+                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           )}

@@ -127,7 +127,7 @@ export function FinancialCalculator({ initialProjectCost = 140000, initialScheme
           className="mb-4 inline-flex items-center space-x-2 text-xs font-bold text-slate-700 hover:text-blue-600 bg-white border border-slate-200 px-4 py-2 rounded-xl shadow-xs transition cursor-pointer"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>{lang === 'ta' ? "← பின்செல்க" : "← Back"}</span>
+          <span>{lang === 'ta' ? "பின்செல்க" : "Back"}</span>
         </button>
       )}
 

@@ -136,9 +136,10 @@ export function BetaPortalBank({
             {onBackToSchemeConnect && (
               <button
                 onClick={onBackToSchemeConnect}
-                className="px-4 py-3 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-2xl font-bold text-xs transition"
+                className="px-4 py-3 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-2xl font-bold text-xs transition flex items-center gap-2"
               >
-                ← Return to SchemeConnect
+                <ArrowRight className="w-3.5 h-3.5 rotate-180" />
+                Return to SchemeConnect
               </button>
             )}
           </div>
@@ -463,7 +464,7 @@ export function BetaPortalBank({
                 type="submit"
                 className="w-full py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs rounded-2xl shadow-xl transition flex items-center justify-center space-x-2"
               >
-                <span>Submit Direct Application to {selectedBank.name} ➔</span>
+                <span>Submit Direct Application to {selectedBank.name}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>

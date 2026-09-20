@@ -953,7 +953,8 @@ export function AlphaApp() {
               onClick={() => setViewMode('console')}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs self-start"
             >
-              <span>← Back to Policy &amp; Simulator Console</span>
+              <ArrowRight className="w-3.5 h-3.5 rotate-180" />
+              <span>Back to Policy &amp; Simulator Console</span>
             </button>
           </div>
 
