@@ -16,7 +16,7 @@ export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontS
           <div
             className="flex items-center space-x-3 cursor-pointer group shrink-0"
             onClick={onLogoClick || (() => setView('find-schemes'))}
-            title="SchemeConnect Home • Reset Session"
+            title="JanSetu AI Home • Reset Session"
           >
             <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md">
               <Building2 className="w-5 h-5 text-white" />
@@ -24,10 +24,10 @@ export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontS
             <div>
               <div className="flex items-center space-x-2">
                 <span className="font-black text-lg text-white tracking-tight group-hover:text-blue-400 transition">
-                  SchemeConnect
+                  JanSetu AI
                 </span>
                 <span className="text-[10px] font-bold bg-blue-900/60 text-blue-300 px-2 py-0.5 rounded-full border border-blue-700/60">
-                  SIH26092
+                  AI CORE v2.6
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 font-medium hidden sm:block">

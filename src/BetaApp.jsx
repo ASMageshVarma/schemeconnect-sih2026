@@ -1238,7 +1238,7 @@ export function BetaApp() {
 
           <div className="border-t border-slate-800/80 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px]">
             <p className="text-slate-500">
-              © 2026 ZETA BANK • Partner Banking Consortium • Problem Statement SIH26092
+              © 2026 ZETA BANK • Partner Banking Consortium • JanSetu Sovereign Credit Protocol
             </p>
             <div className="flex items-center gap-3">
               <span className="text-slate-400">Audit Grade: Z+ High Assurance</span>

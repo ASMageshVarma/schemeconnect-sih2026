@@ -31,8 +31,8 @@ export function LandingPage({
             <ShieldCheck className="w-4 h-4 text-blue-600" />
             <span>
               {isTa 
-                ? "சமூக நீதி & அதிகாரமளித்தல் அமைச்சகம் • Problem Statement SIH26092" 
-                : "Ministry of Social Justice & Empowerment • Problem Statement SIH26092"}
+                ? "சமூக நீதி & அதிகாரமளித்தல் அமைச்சகம் • JanSetu இறையாண்மை நிதித் தளம்" 
+                : "Ministry of Social Justice & Empowerment • JanSetu Sovereign FinTech Rail"}
             </span>
           </motion.div>
 
@@ -162,7 +162,7 @@ export function LandingPage({
                 <p className="text-xs text-slate-500 leading-relaxed mb-4">
                   {isTa 
                     ? "அரசு கொள்கை மாற்றங்கள் நிகழ்நேரத்தில் ஸ்ட்ரீம் செய்யப்பட்டு தகுதி நிலையை உடனடியாக மாற்றுகிறது."
-                    : "When ministries adjust age or income caps in Alpha Portal, SchemeConnect unlocks frozen cards live without refresh."}
+                    : "When ministries adjust age or income caps in Alpha Portal, JanSetu AI unlocks frozen cards live without refresh."}
                 </p>
               </div>
               <button

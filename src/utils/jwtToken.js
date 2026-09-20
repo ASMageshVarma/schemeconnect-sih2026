@@ -3,8 +3,8 @@
  * Implements RS256 / SHA-256 tokens with 300s TTL, single-use nonce replay defense, and ZKP proof auditing.
  */
 
-const JWT_SECRET = "schemeconnect_sih2026_production_secret_key";
-export const SCHEMECONNECT_PUBLIC_KEY_FINGERPRINT = "SCHEMECONNECT-RS256-PUBKEY-0x98A12E4C";
+const JWT_SECRET = "jansetu_ai_sovereign_production_secret_key_2026";
+export const SCHEMECONNECT_PUBLIC_KEY_FINGERPRINT = "JANSETU-RS256-PUBKEY-0x98A12E4C";
 
 function base64UrlEncode(str) {
   return btoa(unescape(encodeURIComponent(str)))
@@ -63,7 +63,7 @@ export function generateReferralJWT(scheme, userProfile, verificationAudit = {})
     kid: SCHEMECONNECT_PUBLIC_KEY_FINGERPRINT
   };
 
-  const referralId = `REF-SC-${Math.floor(100000 + Math.random() * 900000)}`;
+  const referralId = `REF-JS-${Math.floor(100000 + Math.random() * 900000)}`;
   const now = Date.now();
   const ttlSeconds = 300; // 300s TTL (5 minutes)
   const expiresAt = now + ttlSeconds * 1000;
@@ -84,8 +84,8 @@ export function generateReferralJWT(scheme, userProfile, verificationAudit = {})
   };
 
   const payload = {
-    iss: "schemeconnect.in",
-    aud: "beta-banking.schemeconnect.in",
+    iss: "jansetu.gov.in",
+    aud: "beta-banking.jansetu.gov.in",
     sub: profile.name || "Rajan S.",
     referral_id: referralId,
     nonce: nonce,

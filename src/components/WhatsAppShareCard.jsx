@@ -65,7 +65,7 @@ export function WhatsAppShareCard({ scheme, profile, onClose }) {
 
           <div className="flex items-center justify-between text-[10px] text-slate-400 pt-2 border-t border-white/10">
             <span>Beneficiary: {profile?.name || "Citizen"} ({profile?.caste})</span>
-            <span>SIH 2026 • TechTitans</span>
+            <span>TECH TITANS • JanSetu AI</span>
           </div>
         </div>
 

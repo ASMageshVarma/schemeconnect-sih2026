@@ -1,9 +1,9 @@
 export const TRANSLATIONS = {
   en: {
-    app_title: "SchemeConnect",
+    app_title: "JanSetu AI",
     tagline: "Connecting SC Beneficiaries to Concessional Credit & 100+ Channel Partners",
-    ministry_badge: "Ministry of Social Justice & Empowerment • Problem Statement SIH26092",
-    team_badge: "Team TechTitans (SIH-9E972H) • Saranathan College of Engineering",
+    ministry_badge: "Ministry of Social Justice & Empowerment • Sovereign FinTech Rail",
+    team_badge: "Team TECH TITANS • Saranathan College of Engineering",
     
     // Navbar
     nav_home: "Home",
@@ -112,10 +112,10 @@ export const TRANSLATIONS = {
     send: "Send"
   },
   ta: {
-    app_title: "ஸ்கீம்கனெக்ட் (SchemeConnect)",
+    app_title: "ஜன்சேது AI (JanSetu AI)",
     tagline: "பட்டியலின பயனாளிகளை குறைந்த வட்டி கடன் மற்றும் 100+ நிதி முகமைகளுடன் இணைக்கும் தளம்",
-    ministry_badge: "சமூக நீதி & அதிகாரமளித்தல் அமைச்சகம் • பிரச்சனை குறியீடு SIH26092",
-    team_badge: "குழு: டெக் டைட்டன்ஸ் (SIH-9E972H) • சாரநாதன் பொறியியல் கல்லூரி",
+    ministry_badge: "சமூக நீதி & அதிகாரமளித்தல் அமைச்சகம் • இறையாண்மை நிதி அமைப்பு",
+    team_badge: "குழு: TECH TITANS • சாரநாதன் பொறியியல் கல்லூரி",
     
     // Navbar
     nav_home: "முகப்பு",
@@ -224,10 +224,10 @@ export const TRANSLATIONS = {
     send: "அனுப்பு"
   },
   hi: {
-    app_title: "स्कीमकनेक्ट (SchemeConnect)",
+    app_title: "जनसेतु AI (JanSetu AI)",
     tagline: "अनुसूचित जाति के लाभार्थियों को रियायती ऋण व 100+ चैनल पार्टनर्स से जोड़ने वाला मंच",
-    ministry_badge: "सामाजिक न्याय एवं अधिकारिता मंत्रालय • समस्या कोड SIH26092",
-    team_badge: "टीम टेक टाइटन्स (SIH-9E972H) • सरनाथन कॉलेज ऑफ इंजीनियरिंग",
+    ministry_badge: "सामाजिक न्याय एवं अधिकारिता मंत्रालय • संप्रभु फिनटेक रेल",
+    team_badge: "टीम TECH TITANS • सरनाथन कॉलेज ऑफ इंजीनियरिंग",
     
     // Navbar
     nav_home: "होम",

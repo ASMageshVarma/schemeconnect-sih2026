@@ -36,7 +36,7 @@ function generateRS256Signature(payload) {
   const header = { alg: "RS256", typ: "JWT", kid: "ALPHA-GOV-RS256-PUBKEY-0x9812A" };
   const b64H = btoa(JSON.stringify(header));
   const b64P = btoa(JSON.stringify(payload));
-  const sig = btoa(`${b64H}.${b64P}.ALPHA_GOV_PRIVATE_KEY_SIH2026`).slice(0, 43);
+  const sig = btoa(`${b64H}.${b64P}.ALPHA_GOV_SOVEREIGN_PRIVATE_KEY_2026`).slice(0, 43);
   return `${b64H}.${b64P}.${sig}`;
 }
 
@@ -1116,7 +1116,7 @@ export function AlphaApp() {
 
           <div className="border-t border-slate-800/80 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px]">
             <p className="text-slate-500">
-              © 2026 ALPHA PORTAL • Ministry of Social Justice &amp; Empowerment • Problem Statement SIH26092
+              © 2026 ALPHA PORTAL • Ministry of Social Justice &amp; Empowerment • JanSetu Sovereign Policy Rail
             </p>
             <div className="flex items-center gap-3">
               <span className="text-slate-400">Decoupled Triple-Portal Ecosystem</span>

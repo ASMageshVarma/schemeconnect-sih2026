@@ -114,7 +114,7 @@ export function SchemeConnectFeed({
         <div>
           <div className="inline-flex items-center space-x-2 bg-blue-50 text-blue-900 px-3 py-1 rounded-full text-xs font-black border border-blue-200 mb-2">
             <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-            <span>Problem Statement SIH26092 • SchemeConnect Live Engine</span>
+            <span>JanSetu AI • Autonomous Welfare Matching Engine</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Micro-Entrepreneur Concessional Scheme Recommender

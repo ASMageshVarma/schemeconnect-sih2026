@@ -94,7 +94,7 @@ export function OfficialPublicFooter({ lang = "en" }) {
             </ul>
 
             <div className="pt-2 text-[11px] text-slate-500">
-              Problem Statement SIH26092 • Team TechTitans (SIH-9E972H)
+              Team TECH TITANS • Saranathan College of Engineering • JanSetu AI
             </div>
           </div>
 
@@ -102,7 +102,7 @@ export function OfficialPublicFooter({ lang = "en" }) {
 
         {/* Bottom Copyright & Disclaimer */}
         <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-500 text-center sm:text-left">
-          <p>© 2026 SchemeConnect DPI Ecosystem. All rights reserved.</p>
+          <p>© 2026 JanSetu AI Autonomous DPI Ecosystem. All rights reserved.</p>
           <p className="flex items-center justify-center space-x-2">
             <span>Ministry of Social Justice & Empowerment</span>
             <span>•</span>
