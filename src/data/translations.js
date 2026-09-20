@@ -2,7 +2,7 @@ export const TRANSLATIONS = {
   en: {
     app_title: "JanSetu AI",
     tagline: "Connecting SC Beneficiaries to Concessional Credit & 100+ Channel Partners",
-    ministry_badge: "Ministry of Social Justice & Empowerment • Sovereign FinTech Rail",
+    ministry_badge: "Project Expo Concept Prototype • Civic FinTech Platform",
     team_badge: "Team TECH TITANS • Saranathan College of Engineering",
     
     // Navbar
@@ -114,7 +114,7 @@ export const TRANSLATIONS = {
   ta: {
     app_title: "ஜன்சேது AI (JanSetu AI)",
     tagline: "பட்டியலின பயனாளிகளை குறைந்த வட்டி கடன் மற்றும் 100+ நிதி முகமைகளுடன் இணைக்கும் தளம்",
-    ministry_badge: "சமூக நீதி & அதிகாரமளித்தல் அமைச்சகம் • இறையாண்மை நிதி அமைப்பு",
+    ministry_badge: "ப்ராஜெக்ட் எக்ஸ்போ மாதிரி முன்மாதிரி • குடிமக்கள் நிதி தளம்",
     team_badge: "குழு: TECH TITANS • சாரநாதன் பொறியியல் கல்லூரி",
     
     // Navbar
@@ -226,7 +226,7 @@ export const TRANSLATIONS = {
   hi: {
     app_title: "जनसेतु AI (JanSetu AI)",
     tagline: "अनुसूचित जाति के लाभार्थियों को रियायती ऋण व 100+ चैनल पार्टनर्स से जोड़ने वाला मंच",
-    ministry_badge: "सामाजिक न्याय एवं अधिकारिता मंत्रालय • संप्रभु फिनटेक रेल",
+    ministry_badge: "प्रोजेक्ट एक्सपो प्रोटोटाइप • नागरिक फिनटेक प्लेटफॉर्म",
     team_badge: "टीम TECH TITANS • सरनाथन कॉलेज ऑफ इंजीनियरिंग",
     
     // Navbar

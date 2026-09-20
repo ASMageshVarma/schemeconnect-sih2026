@@ -3,6 +3,7 @@ import { Bot, Landmark, CheckCircle2, X } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 import { Navbar } from './components/Navbar';
+import { AppShell } from './components/AppShell';
 import { LandingPage } from './components/LandingPage';
 import { FormVerificationPage } from './components/FormVerificationPage';
 import { RecommendationsGridPage } from './components/RecommendationsGridPage';
@@ -18,6 +19,9 @@ import { AllSchemesCatalog } from './components/AllSchemesCatalog';
 import { OfficialPublicFooter } from './components/OfficialPublicFooter';
 import { AlphaApp } from './AlphaApp';
 import { BetaApp } from './BetaApp';
+import { PrototypeDisclaimerBanner } from './components/PrototypeDisclaimerBanner';
+import { HelpPage } from './components/HelpPage';
+import { ApplyTrackPage } from './components/ApplyTrackPage';
 
 import { TRANSLATIONS } from './data/translations';
 import { hasConsented, grantConsent, revokeConsent, detectActivePortal } from './config/portalConfig';
@@ -35,8 +39,14 @@ export default function App() {
   // ── Language: 'en' | 'ta' | 'hi' ─────────────────────────────────────────
   const [lang, setLang] = useState('en');
 
-  // ── View Router: New Applicant Input Page comes first! ─────────────────────
-  const [view, setView] = useState('find-schemes');
+  // ── View Router ─────────────────────────────────────────────────────────────
+  // Primary views:
+  //   'home' → LandingPage with prominent AI Mitra Voice/Text search & 7-Step wizard CTA
+  //   'find-schemes' → 7-Step Guided Wizard (FormVerificationPage)
+  //   'recommendations' → scheme matches (My Matches tab)
+  //   'apply-track' → calculator/locator hub (Apply & Track tab)
+  //   'help' → FAQ + tech stack (Help tab)
+  const [view, setView] = useState('home');
 
   // ── Zero Hardcoded: profile starts null until user fills the form ──────────
   const [currentProfile, setCurrentProfile] = useState(null);
@@ -66,6 +76,41 @@ export default function App() {
       }
     };
     return () => channel.close();
+  }, []);
+
+  // ── Support direct URL hash routing (#wizard, #matches, #apply-track, #help) ──
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handleHash = () => {
+      const hash = window.location.hash.replace('#', '').toLowerCase();
+      if (hash === 'wizard' || hash === 'find-schemes' || hash === 'form') {
+        setView('find-schemes');
+      } else if (hash === 'matches' || hash === 'recommendations') {
+        setCurrentProfile({
+          name: "Rajan S.",
+          age: 38,
+          area: "Urban",
+          sector: "Street Vendor",
+          income: 180000,
+          shg_membership: "No",
+          gender: "Male",
+          caste: "SC/ST",
+          district: "Tiruchirappalli",
+          state: "Tamil Nadu"
+        });
+        setConsentGranted(true);
+        setView('recommendations');
+      } else if (hash === 'apply-track') {
+        setView('apply-track');
+      } else if (hash === 'help') {
+        setView('help');
+      } else if (hash === 'home' || hash === '') {
+        setView('home');
+      }
+    };
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
   }, []);
 
   const [fontSize, setFontSize] = useState('base');
@@ -114,6 +159,55 @@ export default function App() {
     setView('recommendations');
   };
 
+  // ── Prominent AI Mitra Search from Home ──────────────────────────────────
+  const handleAiSearch = (query) => {
+    if (!query || !query.trim()) {
+      setView('find-schemes');
+      return;
+    }
+    const lower = query.toLowerCase();
+    let inferredSector = "Street Vendor";
+    let inferredCaste = "SC/ST";
+    let inferredIncome = 180000;
+
+    if (lower.includes("vendor") || lower.includes("thela") || lower.includes("street") || lower.includes("svanidhi")) {
+      inferredSector = "Street Vendor";
+    } else if (lower.includes("artisan") || lower.includes("handicraft") || lower.includes("vishwakarma") || lower.includes("craft")) {
+      inferredSector = "Handicraft/Artisan";
+      inferredCaste = "OBC";
+    } else if (lower.includes("manufactur") || lower.includes("pmegp") || lower.includes("factory")) {
+      inferredSector = "Manufacturing";
+      inferredCaste = "General";
+    } else if (lower.includes("service") || lower.includes("repair") || lower.includes("mudra")) {
+      inferredSector = "Services";
+      inferredCaste = "OBC";
+    }
+
+    if (lower.includes("sc") || lower.includes("st") || lower.includes("nsfdc") || lower.includes("tahdco")) {
+      inferredCaste = "SC/ST";
+    }
+
+    const aiProfile = {
+      name: "Applicant (AI Match)",
+      age: 38,
+      area: "Urban",
+      sector: inferredSector,
+      income: inferredIncome,
+      shg_membership: "No",
+      gender: "Male",
+      caste: inferredCaste,
+      district: "Tiruchirappalli",
+      state: "Tamil Nadu",
+      _fromAiSearchQuery: query
+    };
+
+    setCurrentProfile(aiProfile);
+    grantConsent();
+    setConsentGranted(true);
+    try { confetti({ particleCount: 70, spread: 70, origin: { y: 0.6 } }); } catch {}
+    setView('recommendations');
+  };
+
   // ── Route to Bank (with JWT gateway) ─────────────────────────────────────
   const handleRouteToBank = (scheme) => {
     setReferredSchemeForBank(scheme);
@@ -138,9 +232,10 @@ export default function App() {
     return 'text-base';
   };
 
-
   return (
     <div className={`min-h-screen bg-slate-50/70 text-slate-900 flex flex-col ${getFontSizeClass()}`}>
+      {/* Persistent Prototype Disclaimer Banner */}
+      <PrototypeDisclaimerBanner />
 
       {/* Consent Modal Overlay */}
       {showConsentModal && (
@@ -173,7 +268,7 @@ export default function App() {
               <span className="text-[10px] font-black uppercase text-emerald-400 tracking-wider">
                 Cross-Tab Callback (Beta Bank Portal)
               </span>
-              <button 
+              <button
                 onClick={() => setSanctionNotification(null)}
                 className="text-slate-400 hover:text-white text-xs cursor-pointer ml-2"
               >
@@ -194,18 +289,34 @@ export default function App() {
       )}
 
       {/* Top Navigation */}
-      <Navbar lang={lang} setLang={setLang} t={t} view={view} setView={navigateTo}
-        isOnline={true} fontSize={fontSize} setFontSize={setFontSize} onLogoClick={handleLogoClick} />
+      <Navbar
+        lang={lang} setLang={setLang} t={t} view={view} setView={navigateTo}
+        isOnline={true} fontSize={fontSize} setFontSize={setFontSize}
+        onLogoClick={handleLogoClick}
+      />
+
+      {/* 4-Tab Persistent Shell (desktop secondary bar + mobile bottom bar) */}
+      <AppShell
+        view={view}
+        onNavigate={navigateTo}
+        lang={lang}
+        hasProfile={!!currentProfile}
+      />
 
       <main className="flex-1">
 
         {/* LANDING PAGE */}
         {(view === 'landing' || view === 'home') && (
-          <LandingPage lang={lang} setLang={setLang} t={t}
-            onNavigate={navigateTo} />
+          <LandingPage
+            lang={lang}
+            setLang={setLang}
+            t={t}
+            onNavigate={navigateTo}
+            onAiSearch={handleAiSearch}
+          />
         )}
 
-        {/* FORM — Applicant Input Page (Comes First!) */}
+        {/* FORM — Applicant Intake Wizard */}
         {(view === 'find-schemes' || view === 'form') && (
           <FormVerificationPage
             initialProfile={null}
@@ -216,7 +327,7 @@ export default function App() {
           />
         )}
 
-        {/* ALL SCHEMES CATALOG (Dedicated Separate Section) */}
+        {/* ALL SCHEMES CATALOG */}
         {(view === 'all-schemes' || view === 'catalog') && (
           <AllSchemesCatalog
             lang={lang}
@@ -254,19 +365,31 @@ export default function App() {
           <BetaApp />
         )}
 
-        {/* FINANCIAL CALCULATOR */}
+        {/* APPLY & TRACK HUB — new tab landing */}
+        {view === 'apply-track' && (
+          <ApplyTrackPage
+            lang={lang}
+            t={t}
+            hasProfile={!!currentProfile}
+            onOpenCalculator={() => setView('calc')}
+            onOpenLocator={() => setView('locator')}
+            onViewSchemes={() => setView('all-schemes')}
+          />
+        )}
+
+        {/* FINANCIAL CALCULATOR (contextual, reached via Apply & Track) */}
         {view === 'calc' && (
           <div className="py-4">
             <FinancialCalculator
               initialProjectCost={currentProfile?.estimated_cost || null}
               lang={lang}
               t={t}
-              onBack={() => setView(currentProfile ? 'recommendations' : 'find-schemes')}
+              onBack={() => setView(currentProfile ? 'apply-track' : 'find-schemes')}
             />
           </div>
         )}
 
-        {/* GEO-SPATIAL LOCATOR */}
+        {/* GEO-SPATIAL LOCATOR (contextual, reached via Apply & Track) */}
         {view === 'locator' && (
           <div className="py-4">
             <CenterLocator
@@ -277,7 +400,7 @@ export default function App() {
           </div>
         )}
 
-        {/* AI MITRA COUNSELOR */}
+        {/* AI MITRA COUNSELOR (reached via Help tab > Chat Now) */}
         {view === 'counselor' && (
           <div className="max-w-3xl mx-auto px-4 py-8">
             <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
@@ -293,6 +416,15 @@ export default function App() {
           </div>
         )}
 
+        {/* HELP PAGE (Help tab) */}
+        {view === 'help' && (
+          <HelpPage
+            lang={lang}
+            t={t}
+            onOpenCounselor={() => setView('counselor')}
+          />
+        )}
+
         {/* ADMIN CMS */}
         {view === 'admin' && (
           <AdminCMS lang={lang} t={t} />
@@ -300,12 +432,12 @@ export default function App() {
 
       </main>
 
-      {/* Floating AI Mitra (global) */}
+      {/* Floating AI Mitra (global, except where a full-page counselor is shown) */}
       {view !== 'counselor' && view !== 'demo-split' && view !== 'demo-trio' && (
         <AiCounselorChat lang={lang} t={t} currentProfile={currentProfile} />
       )}
 
-      {/* SECTION 3: Official Public Service Footer */}
+      {/* Official Public Service Footer */}
       <OfficialPublicFooter lang={lang} />
 
     </div>

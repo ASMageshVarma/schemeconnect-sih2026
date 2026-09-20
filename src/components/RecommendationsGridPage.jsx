@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  CheckCircle2, Lock, Unlock, Sparkles, Filter, ArrowLeft, 
-  FileText, UserCheck, Shield, ChevronRight, Search, 
-  MapPin, Radio, Calculator, Bot, AlertTriangle, IndianRupee, 
-  Volume2, Check, ArrowRight, Landmark 
+  CheckCircle2, Lock, Sparkles, ArrowLeft, 
+  UserCheck, ChevronRight, Search, AlertTriangle, 
+  Landmark, RefreshCw
 } from 'lucide-react';
 import { LiveSchemeCard } from './LiveSchemeCard';
 import { AlphaGazetteModal } from './AlphaGazetteModal';
 import { rankAlphaSchemes } from '../utils/alphaMatcher';
 import { getAlphaSchemes, subscribeToAlphaChanges } from '../utils/realtimeSync';
-import { speakText } from '../utils/speech';
 import { generateReferralJWT } from '../utils/jwtToken';
-import { navigateToBeta, navigateToAlpha } from '../config/portalConfig';
+import { navigateToBeta } from '../config/portalConfig';
 
 export function RecommendationsGridPage({ 
   userProfile, 
@@ -33,22 +31,21 @@ export function RecommendationsGridPage({
   const [schemes, setSchemes] = useState(getAlphaSchemes());
   const [activeFilter, setActiveFilter] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
-  const [lastLiveStreamEvent, setLastLiveStreamEvent] = useState(null);
+  const [lastPolicyUpdate, setLastPolicyUpdate] = useState(null);
   const [selectedSchemeDetail, setSelectedSchemeDetail] = useState(null);
-  const [gazetteScheme, setGazetteScheme] = useState(null); // Alpha Gazette modal
+  const [gazetteScheme, setGazetteScheme] = useState(null);
 
-  // Realtime WebSocket Subscription
+  // Policy changes listener
   useEffect(() => {
     const unsubscribe = subscribeToAlphaChanges((updatedSchemes, meta) => {
       setSchemes(updatedSchemes);
       if (meta?.reason) {
-        setLastLiveStreamEvent({
+        setLastPolicyUpdate({
           time: new Date().toLocaleTimeString(),
           message: meta.reason,
-          schemeId: meta.schemeId
         });
 
-        const timer = setTimeout(() => setLastLiveStreamEvent(null), 6000);
+        const timer = setTimeout(() => setLastPolicyUpdate(null), 6000);
         return () => clearTimeout(timer);
       }
     });
@@ -87,7 +84,6 @@ export function RecommendationsGridPage({
   });
 
   const handleBankApplicationRoute = (scheme) => {
-    // Generate signed JWT referral token (15-min expiry)
     const { token, payload, referralId } = generateReferralJWT(scheme, userProfile, {
       trustScore: 98,
       ekycVerified: true,
@@ -96,11 +92,9 @@ export function RecommendationsGridPage({
       aaCashflowVerified: true
     });
     
-    // Launch Beta Portal in a SEPARATE BROWSER TAB
     navigateToBeta(token, referralId, true);
 
     if (onRouteToBank) {
-      // Attach JWT token to scheme for Beta Portal Gateway if rendered in-page
       onRouteToBank({ ...scheme, _jwtToken: token, _referralId: referralId, _jwtPayload: payload });
     }
   };
@@ -114,95 +108,40 @@ export function RecommendationsGridPage({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fadeIn">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-32 animate-fadeIn">
       
-      {/* Live Stream Broadcast Toast */}
-      {lastLiveStreamEvent && (
-        <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 text-white p-4 rounded-2xl shadow-xl mb-6 flex items-center justify-between gap-3 animate-bounce border border-emerald-400">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-white/20 rounded-xl">
-              <Radio className="w-5 h-5 text-amber-300 animate-pulse" />
-            </div>
-            <div>
-              <div className="text-[10px] font-black uppercase tracking-wider text-emerald-100">
-                ⚡ Live Ministry WebSocket Stream Received [{lastLiveStreamEvent.time}]
-              </div>
-              <div className="text-xs sm:text-sm font-black text-white">
-                {lastLiveStreamEvent.message} ➔ Real-time eligibility recalculated!
-              </div>
-            </div>
+      {/* Citizen-Friendly Live Update Notice (No infrastructure/WebSocket jargon) */}
+      {lastPolicyUpdate && (
+        <div className="bg-emerald-600 text-white p-3.5 rounded-2xl shadow-lg mb-6 flex items-center justify-between gap-3 text-xs font-bold border border-emerald-400 animate-fadeIn">
+          <div className="flex items-center space-x-2">
+            <RefreshCw className="w-4 h-4 animate-spin shrink-0" />
+            <span>
+              {isTa 
+                ? `கொள்கை புதுப்பிக்கப்பட்டது: ${lastPolicyUpdate.message} — தகுதிகள் நிகழ்நேரத்தில் கணக்கிடப்பட்டன.` 
+                : `Policy criteria updated: ${lastPolicyUpdate.message} — Scheme rankings recalculated.`}
+            </span>
           </div>
-          <span className="text-[10px] font-mono bg-white/20 px-2.5 py-1 rounded-full font-bold">
-            SYNC &lt; 10MS
+          <span className="text-[10px] font-mono bg-white/20 px-2 py-0.5 rounded-full font-bold shrink-0">
+            {lastPolicyUpdate.time}
           </span>
         </div>
       )}
 
-      {/* Realtime Alpha Portal Policy Synchronization Banner */}
-      <div className="bg-[#0f172a] text-white p-4 sm:p-5 rounded-3xl shadow-sm mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-800">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center shrink-0">
-            <Landmark className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-black uppercase tracking-wider text-white">
-                Alpha Portal Realtime Policy Synchronization
-              </span>
-              <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-400/40 flex items-center gap-1">
-                <Radio className="w-2.5 h-2.5 text-emerald-400 animate-pulse" /> Live WebSockets
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-400 mt-0.5">
-              All welfare schemes below are synchronized in real-time with statutory criteria from the Alpha Governance Portal.
-            </p>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => navigateToAlpha("", true)}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 cursor-pointer shadow-xs"
-        >
-          <span>Open Alpha Policy Portal ↗</span>
-          <ArrowRight className="w-3.5 h-3.5" />
-        </button>
-      </div>
-
-      {/* Top Action Bar */}
+      {/* Top Navigation / Action Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <button
           onClick={onEditProfile}
-          className="inline-flex items-center space-x-2 text-xs font-bold text-slate-700 hover:text-blue-600 bg-white border border-slate-200 px-4 py-2.5 rounded-2xl shadow-xs transition w-fit"
+          className="inline-flex items-center space-x-2 text-xs font-bold text-slate-700 hover:text-blue-600 bg-white border border-slate-200 px-4 py-2.5 rounded-2xl shadow-xs transition w-fit cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>{isTa ? "சுயவிவரத்தை மாற்றுக (Edit Intake)" : "Edit Profile / Intake Parameters"}</span>
         </button>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {onOpenCalculator && (
-            <button
-              onClick={onOpenCalculator}
-              className="inline-flex items-center space-x-1.5 text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2.5 rounded-2xl shadow-xs transition cursor-pointer"
-            >
-              <Calculator className="w-3.5 h-3.5 text-emerald-600" />
-              <span>{isTa ? "நிதி கால்குலேட்டர்" : "Financial Calculator"}</span>
-            </button>
-          )}
-
-          {onOpenLocator && (
-            <button
-              onClick={onOpenLocator}
-              className="inline-flex items-center space-x-1.5 text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2.5 rounded-2xl shadow-xs transition cursor-pointer"
-            >
-              <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-              <span>{isTa ? "அருகிலுள்ள வங்கிகள்" : "Find Channel Partners"}</span>
-            </button>
-          )}
+        <div className="text-xs text-slate-500 font-semibold">
+          {L("Showing results based on your 7 verified parameters", "உங்கள் 7 சரிபார்க்கப்பட்ட அளவுகோல்களின் அடிப்படையில் முடிவுகள்", "आपके 7 सत्यापित मापदंडों के आधार पर परिणाम")}
         </div>
       </div>
 
-      {/* Citizen Summary Profile Banner */}
       {/* Citizen Summary Profile Banner */}
       {!userProfile ? (
         <div className="bg-gradient-to-r from-blue-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl mb-8 border border-blue-900 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -212,13 +151,13 @@ export function RecommendationsGridPage({
               <span>{L("Step 1: Complete Beneficiary Intake", "படி 1: புதிய விண்ணப்பப் பதிவு", "चरण 1: नया आवेदक पंजीकरण")}</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-white">
-              {L("Please Fill the Applicant Input Form First", "முதலில் புதிய விண்ணப்பதாரர் படிவத்தை நிரப்பவும்", "कृपया पहले नया आवेदक इनपुट फ़ॉर्म भरें")}
+              {L("Please Complete the 7-Step Wizard First", "முதலில் 7-படி வழிகாட்டியை முடிக்கவும்", "कृपया पहले 7-चरण विज़ार्ड पूरा करें")}
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
               {L(
-                "You haven't submitted your applicant details yet. Complete the 7-parameter intake form with Voice or OCR to calculate your exact 100% eligible welfare schemes.",
-                "நீங்கள் இன்னும் உங்கள் சுயவிவரத்தை பதிவு செய்யவில்லை. உங்களுக்கான துல்லியமான 100% தகுதியான திட்டங்களை கணக்கிட குரல் அல்லது OCR மூலம் பதிவு செய்யவும்.",
-                "आपने अभी तक आवेदक विवरण दर्ज नहीं किया है। अपनी सटीक 100% पात्र योजनाएँ देखने के लिए वॉयस या OCR द्वारा फ़ॉर्म भरें।"
+                "You haven't submitted your applicant details yet. Complete the 7-step wizard to see your personalized 100% eligible welfare schemes.",
+                "நீங்கள் இன்னும் உங்கள் விவரங்களை பதிவு செய்யவில்லை. உங்களுக்கான துல்லியமான தகுதியான திட்டங்களை காண வழிகாட்டியை முடிக்கவும்.",
+                "आपने अभी तक आवेदक विवरण दर्ज नहीं किया है। व्यक्तिगत पात्र योजनाएँ देखने के लिए 7-चरण विज़ार्ड पूरा करें।"
               )}
             </p>
           </div>
@@ -228,7 +167,7 @@ export function RecommendationsGridPage({
               className="px-6 py-3.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-2xl font-black text-xs shadow-lg transition flex items-center justify-center space-x-2 cursor-pointer"
             >
               <Sparkles className="w-4 h-4 text-amber-300" />
-              <span>{L("Open Applicant Input Form ➔", "விண்ணப்ப படிவத்தை திறக்க ➔", "आवेदक इनपुट फ़ॉर्म खोलें ➔")}</span>
+              <span>{L("Start 7-Step Wizard ➔", "7-படி வழிகாட்டியைத் தொடங்க ➔", "7-चरण विज़ार्ड शुरू करें ➔")}</span>
             </button>
           </div>
         </div>
@@ -261,12 +200,12 @@ export function RecommendationsGridPage({
                   {userProfile.caste}
                 </span>
                 <span className="bg-white/10 px-3 py-1 rounded-xl font-semibold border border-white/10">
-                  {L("SHG Status:", "சுயஉதவிக்குழு:", "SHG स्थिति:")} {userProfile.shg_membership === "Yes" ? L("Member", "உறுப்பினர்", "सदस्य") : L("Non-Member", "உறுப்பினர் இல்லை", "गैर-सदस्य")}
+                  {L("SHG:", "சுயஉதவிக்குழு:", "SHG:")} {userProfile.shg_membership === "Yes" ? L("Member", "உறுப்பினர்", "सदस्य") : L("Non-Member", "உறுப்பினர் இல்லை", "गैर-सदस्य")}
                 </span>
               </div>
             </div>
 
-            {/* Matches & Live Score Box */}
+            {/* Match summary stats */}
             <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/10 shrink-0">
               <div className="text-center px-4 border-r border-white/10">
                 <span className="text-3xl font-black text-emerald-400 block">
@@ -277,11 +216,11 @@ export function RecommendationsGridPage({
                 </span>
               </div>
               <div className="text-center px-4">
-                <span className="text-3xl font-black text-amber-400 block">
+                <span className="text-3xl font-black text-slate-400 block">
                   {ineligibleSchemes.length}
                 </span>
                 <span className="text-[10px] text-slate-300 font-bold uppercase tracking-wider">
-                  {L("Locked / Frozen", "நிறுத்தப்பட்டவை", "अपात्र / लॉक")}
+                  {L("Locked / Ineligible", "நிறுத்தப்பட்டவை", "अपात्र / लॉक")}
                 </span>
               </div>
             </div>
@@ -296,7 +235,7 @@ export function RecommendationsGridPage({
             <button
               key={tab.id}
               onClick={() => setActiveFilter(tab.id)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
                 activeFilter === tab.id
                   ? 'bg-blue-600 text-white shadow-xs'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -321,24 +260,38 @@ export function RecommendationsGridPage({
       </div>
 
       {/* ========================================================= */}
-      {/* 1. 100% ELIGIBLE SCHEMES (ACTIVE COLOR UI)                */}
+      {/* UNIFIED SCHEME CARDS GRID (ONE BROWSING PATTERN)          */}
       {/* ========================================================= */}
-      {eligibleSchemes.length > 0 && (activeFilter === "ALL" || activeFilter === "ELIGIBLE" || activeFilter === "MICRO" || activeFilter === "TERM") && (
-        <div className="mb-10">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-2">
-              <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
-              <h2 className="text-base font-black text-slate-900 uppercase tracking-wide">
-                {isTa ? `100% தகுதியான அரசு திட்டங்கள் (${eligibleSchemes.length})` : `100% Eligible Schemes (${eligibleSchemes.length})`}
-              </h2>
-            </div>
-            <span className="text-xs font-semibold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300">
-              {isTa ? "செயல்பாட்டில் உள்ளது • வங்கிக்கு விண்ணப்பிக்கலாம்" : "Active UI • Direct Bank Handshake Enabled"}
-            </span>
+      <div className="mb-10">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+            <h2 className="text-sm font-black text-slate-800 uppercase tracking-wide">
+              {isTa 
+                ? `பொருந்திய அரசு திட்டங்கள் (${filteredSchemes.length})` 
+                : `Matched Welfare Schemes (${filteredSchemes.length})`}
+            </h2>
           </div>
+          <span className="text-xs font-medium text-slate-500">
+            {activeFilter === 'ALL' 
+              ? (isTa ? "தகுதியானவை முதலில் வரிசைப்படுத்தப்பட்டுள்ளன" : "Eligible schemes ranked first")
+              : (isTa ? "வடிகட்டப்பட்ட முடிவுகள்" : "Filtered results")}
+          </span>
+        </div>
 
+        {filteredSchemes.length === 0 ? (
+          <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center text-slate-500">
+            <p className="text-sm font-bold">{isTa ? "திட்டங்கள் எதுவும் பொருந்தவில்லை." : "No schemes match your selected filter."}</p>
+            <button
+              onClick={() => { setActiveFilter("ALL"); setSearchQuery(""); }}
+              className="mt-3 px-4 py-2 bg-blue-50 text-blue-700 text-xs font-bold rounded-xl hover:bg-blue-100 transition cursor-pointer"
+            >
+              {isTa ? "அனைத்து திட்டங்களையும் காட்டு" : "Reset Filters"}
+            </button>
+          </div>
+        ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {eligibleSchemes.map((scheme) => (
+            {filteredSchemes.map((scheme) => (
               <LiveSchemeCard
                 key={scheme.scheme_id}
                 scheme={scheme}
@@ -351,43 +304,10 @@ export function RecommendationsGridPage({
               />
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* ========================================================= */}
-      {/* 2. INELIGIBLE / FROZEN SCHEMES (<100% MATCH)              */}
-      {/* ========================================================= */}
-      {ineligibleSchemes.length > 0 && (activeFilter === "ALL" || activeFilter === "FROZEN") && (
-        <div className="mb-10">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-2">
-              <Lock className="w-4 h-4 text-slate-400" />
-              <h2 className="text-base font-black text-slate-600 uppercase tracking-wide">
-                {isTa ? `நிறுத்திவைக்கப்பட்ட / தகுதியற்ற திட்டங்கள் (${ineligibleSchemes.length})` : `Locked / Ineligible Schemes (<100% Match) (${ineligibleSchemes.length})`}
-              </h2>
-            </div>
-            <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
-              {isTa ? "சாம்பல் நிறம் • தகுதி வரம்பு விளக்கம்" : "Grayscale Frozen State • Rule Breakdown"}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {ineligibleSchemes.map((scheme) => (
-              <LiveSchemeCard
-                key={scheme.scheme_id}
-                scheme={scheme}
-                userProfile={userProfile}
-                lang={lang}
-                onSelect={handleSelectScheme}
-                onOpenCalculator={onOpenCalculator}
-                onOpenLocator={onOpenLocator}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Scheme Detail Audit Drawer */}
+      {/* Scheme Detail Audit Modal */}
       {selectedSchemeDetail && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
           <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
@@ -403,7 +323,7 @@ export function RecommendationsGridPage({
               </div>
               <button
                 onClick={() => setSelectedSchemeDetail(null)}
-                className="text-xs font-bold px-2.5 py-1 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl"
+                className="text-xs font-bold px-2.5 py-1 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl cursor-pointer"
               >
                 Close
               </button>
@@ -449,7 +369,7 @@ export function RecommendationsGridPage({
                       handleBankApplicationRoute(selectedSchemeDetail);
                       setSelectedSchemeDetail(null);
                     }}
-                    className="flex-1 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl font-black text-xs transition flex items-center justify-center gap-1.5 shadow-md"
+                    className="flex-1 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-2xl font-black text-xs transition flex items-center justify-center gap-1.5 shadow-md cursor-pointer"
                   >
                     <Landmark className="w-4 h-4 text-amber-300" />
                     <span>{isTa ? "வங்கி கடன் விண்ணப்பத்தை தொடர்க ➔" : "Route to Partner Bank for Direct Sanction ➔"}</span>
@@ -467,7 +387,7 @@ export function RecommendationsGridPage({
         </div>
       )}
 
-      {/* Alpha Portal Official Gazette Verification Modal */}
+      {/* Official Gazette Verification Modal */}
       {gazetteScheme && (
         <AlphaGazetteModal
           scheme={gazetteScheme}
@@ -479,3 +399,5 @@ export function RecommendationsGridPage({
     </div>
   );
 }
+
+export default RecommendationsGridPage;

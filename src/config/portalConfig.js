@@ -75,12 +75,33 @@ export function navigateToAlpha(schemeId = "", openNewTab = true) {
  */
 export function navigateToBeta(jwtToken = "", referralId = "", openNewTab = true) {
   const base = PORTAL_URLS.BETA;
-  const tokenParam = jwtToken ? `token=${encodeURIComponent(jwtToken)}` : "";
-  const refParam = referralId ? `ref=${encodeURIComponent(referralId)}` : "";
-  const params = [tokenParam, refParam].filter(Boolean).join("&");
-  const url = params ? `${base}?${params}` : base;
+  
+  // SECURE TRANSMISSION: Store JWT and referral in sessionStorage and cookie instead of URL query parameter
+  if (typeof window !== "undefined") {
+    try {
+      if (jwtToken) {
+        sessionStorage.setItem("beta_jwt_token", jwtToken);
+        document.cookie = `beta_jwt_token=${encodeURIComponent(jwtToken)}; path=/; SameSite=Lax`;
+        
+        // Also broadcast for any listening beta tab
+        if ("BroadcastChannel" in window) {
+          const channel = new BroadcastChannel("beta_token_transfer");
+          channel.postMessage({ token: jwtToken, referralId });
+          channel.close();
+        }
+      }
+      if (referralId) {
+        sessionStorage.setItem("beta_referral_id", referralId);
+      }
+    } catch (e) {
+      console.error("[PortalRouter] Storage error:", e);
+    }
+  }
 
-  console.log(`[PortalRouter] Launching Beta Portal (Bank) with JWT: ${url} [newTab: ${openNewTab}]`);
+  // URL has NO applicant JWT token attached — clean address bar & history
+  const url = base;
+
+  console.log(`[PortalRouter] Launching Beta Portal (Bank) securely without token in URL: ${url} [newTab: ${openNewTab}]`);
   if (openNewTab && typeof window !== "undefined") {
     window.open(url, "_blank");
   } else if (typeof window !== "undefined") {

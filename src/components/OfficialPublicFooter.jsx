@@ -20,20 +20,20 @@ export function OfficialPublicFooter({ lang = "en" }) {
               <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
                 <Building2 className="w-4 h-4" />
               </div>
-              <span>{L("About SchemeConnect DPI", "திட்டங்கள் இணைப்பு (DPI) பற்றி", "स्कीमकनेक्ट डीपीआई के बारे में")}</span>
+              <span>{L("About JanSetu AI Prototype", "ஜன்சேது AI மாதிரி பற்றி", "जनसेतु AI प्रोटोटाइप के बारे में")}</span>
             </div>
             
             <p className="text-slate-400 text-xs leading-relaxed">
               {L(
-                "SchemeConnect is an open Digital Public Infrastructure (DPI) empowering micro-entrepreneurs, street vendors, and Self-Help Groups (SHGs) to discover, verify, and access central & state concessional welfare credit with zero paperwork.",
-                "ஸ்கீம்கனெக்ட் என்பது சிறு வணிகர்கள், தெருவோர வியாபாரிகள் மற்றும் சுயஉதவிக்குழுக்கள் மத்திய-மாநில நலத்திட்ட சலுகைக் கடன்களை காகிதமில்லா முறையில் நேரடியாகப் பெற உதவும் திறந்த டிஜிட்டல் பொது உள்கட்டமைப்பு ஆகும்.",
-                "स्कीमकनेक्ट एक खुला डिजिटल पब्लिक इंफ्रास्ट्रक्चर (DPI) है जो सूक्ष्म उद्यमियों, सड़क विक्रेताओं और स्वयं सहायता समूहों (SHG) को शून्य कागजी कार्रवाई के साथ सरकारी कल्याणकारी रियायती ऋण प्राप्त करने में सक्षम बनाता है।"
+                "JanSetu AI is an academic concept prototype empowering micro-entrepreneurs, street vendors, and Self-Help Groups (SHGs) to discover, verify, and access simulated concessional welfare credit with zero paperwork.",
+                "ஜன்சேது AI என்பது சிறு வணிகர்கள் மற்றும் தெருவோர வியாபாரிகள் மாதிரி நலத்திட்ட சலுகைக் கடன்களை காகிதமில்லா முறையில் பெற உதவும் மாதிரி முன்மாதிரி தளம் ஆகும்.",
+                "जनसेतु AI एक शैक्षणिक प्रोटोटाइप है जो सूक्ष्म उद्यमियों, सड़क विक्रेताओं और स्वयं सहायता समूहों (SHG) को शून्य कागजी कार्रवाई के साथ कल्याणकारी रियायती ऋण प्राप्त करने का अनुकरण करता है।"
               )}
             </p>
 
             <div className="pt-1 flex items-center space-x-2 text-[11px] text-emerald-400">
               <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-              <span>{L("Authorized by Ministry of Social Justice & Empowerment", "சமூக நீதி & அதிகாரமளித்தல் அமைச்சகத்தால் அங்கீகரிக்கப்பட்டது", "सामाजिक न्याय एवं अधिकारिता मंत्रालय द्वारा अधिकृत")}</span>
+              <span>{L("Academic Concept Prototype • Welfare Simulation", "கல்வி முன்மாதிரி • நலத்திட்ட மாதிரி", "अकादमिक प्रोटोटाइप • कल्याणकारी योजना अनुकरण")}</span>
             </div>
           </div>
 
@@ -41,7 +41,7 @@ export function OfficialPublicFooter({ lang = "en" }) {
           <div className="space-y-3">
             <h4 className="text-white font-bold text-sm tracking-tight flex items-center space-x-2">
               <Phone className="w-4 h-4 text-blue-400" />
-              <span>{L("Helpline & Citizen Support", "உதவி மையம் & பொது மக்கள் ஆதரவு", "हेल्पलाइन एवं नागरिक सहायता")}</span>
+              <span>{L("Helpline & Prototype Support", "உதவி மையம் & மாதிரி ஆதரவு", "हेल्पलाइन एवं प्रोटोटाइप सहायता")}</span>
             </h4>
 
             <div className="space-y-2 text-xs text-slate-400">
@@ -49,14 +49,14 @@ export function OfficialPublicFooter({ lang = "en" }) {
                 <Phone className="w-3.5 h-3.5 text-slate-500 mt-0.5 shrink-0" />
                 <div>
                   <span className="text-slate-200 font-bold block text-sm">1800-111-2026</span>
-                  <span className="text-[11px] text-slate-500">{L("National Welfare Toll-Free Helpline", "தேசிய கட்டணமில்லா உதவி எண்", "राष्ट्रीय कल्याण टोल-फ्री हेल्पलाइन")}</span>
+                  <span className="text-[11px] text-slate-500">{L("Simulated Welfare Helpline (Demo)", "மாதிரி உதவி எண் (டெமோ)", "सिम्युलेटेड हेल्पलाइन (डेमो)")}</span>
                 </div>
               </div>
 
               <div className="flex items-center space-x-2.5">
                 <Mail className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                <a href="mailto:support.schemeconnect@gov.in" className="text-slate-300 hover:text-white transition underline">
-                  support.schemeconnect@gov.in
+                <a href="mailto:support@schemeconnect.dev" className="text-slate-300 hover:text-white transition underline">
+                  support@schemeconnect.dev
                 </a>
               </div>
 
@@ -102,11 +102,11 @@ export function OfficialPublicFooter({ lang = "en" }) {
 
         {/* Bottom Copyright & Disclaimer */}
         <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-500 text-center sm:text-left">
-          <p>© 2026 JanSetu AI Autonomous DPI Ecosystem. All rights reserved.</p>
-          <p className="flex items-center justify-center space-x-2">
-            <span>Ministry of Social Justice & Empowerment</span>
+          <p>© 2026 JanSetu AI • Project Expo Concept Prototype. All rights reserved.</p>
+          <p className="flex items-center justify-center space-x-2 text-amber-400 font-medium">
+            <span>Concept Prototype</span>
             <span>•</span>
-            <span>Government of India</span>
+            <span>Not an official Government of India service</span>
           </p>
         </div>
 

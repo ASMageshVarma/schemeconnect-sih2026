@@ -16,6 +16,7 @@ import {
   SCHEMECONNECT_PUBLIC_KEY_FINGERPRINT, generateReferralJWT 
 } from './utils/jwtToken';
 import { navigateToSchemeConnect } from './config/portalConfig';
+import { PrototypeDisclaimerBanner } from './components/PrototypeDisclaimerBanner';
 
 export function BetaApp() {
   const [lang, setLang] = useState('en'); // 'en' | 'ta' | 'hi'
@@ -133,13 +134,30 @@ export function BetaApp() {
     }
   };
 
-  // Read URL parameters on startup (/apply?token=... or /admin)
+  // Read secure token from sessionStorage, cookie, or broadcast channel
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      const token = params.get("token");
+      let token = params.get("token");
       const view = params.get("view");
       const path = window.location.pathname;
+
+      // Check sessionStorage / cookie if not in URL
+      if (!token) {
+        try {
+          token = sessionStorage.getItem("beta_jwt_token");
+          if (!token) {
+            const match = document.cookie.match(/beta_jwt_token=([^;]+)/);
+            if (match) token = decodeURIComponent(match[1]);
+          }
+        } catch (e) {}
+      } else {
+        // If token arrived in URL query, consume it, save to sessionStorage, and STRIP FROM URL to protect privacy
+        try {
+          sessionStorage.setItem("beta_jwt_token", token);
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } catch (e) {}
+      }
 
       if (token) {
         processIncomingToken(token);
@@ -149,12 +167,24 @@ export function BetaApp() {
       } else if (view === "home" || path === "/") {
         setActiveRoute("home");
       } else {
-        // By default on /apply without params, generate and verify sample citizen token
+        // Default sample citizen token
         const demo = generateReferralJWT(
           { scheme_id: "NSFDC_MICRO", scheme_name: "NSFDC Micro-Credit Finance Scheme", sanctioned_amount: 200000, concessional_interest_rate: 5.0 },
           { name: "Rajan S.", age: 39, income: 180000, caste: "OBC", sector: "Street Vendor" }
         );
         processIncomingToken(demo.token);
+      }
+
+      // Listen to cross-tab token broadcasts
+      if ("BroadcastChannel" in window) {
+        const transferChannel = new BroadcastChannel("beta_token_transfer");
+        transferChannel.onmessage = (e) => {
+          if (e.data?.token) {
+            processIncomingToken(e.data.token);
+            setActiveRoute("apply");
+          }
+        };
+        return () => transferChannel.close();
       }
     }
   }, []);
@@ -280,6 +310,8 @@ export function BetaApp() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans flex flex-col">
+      {/* Persistent Prototype Disclaimer Banner */}
+      <PrototypeDisclaimerBanner />
       
       {/* ========================================================================= */}
       {/* SECTION 1: BANK OFFICER HEADER & SECURITY BADGE                           */}
@@ -809,7 +841,7 @@ export function BetaApp() {
               Partner Banking Hub — Participating Credit Institutions
             </h1>
             <p className="text-sm text-slate-600 mt-1 max-w-3xl leading-relaxed">
-              Public sector and cooperative banking partners authorized under the Ministry of Social Justice &amp; Empowerment to disburse concessional micro-credit and capital-subsidized term loans.
+              Public sector and cooperative banking simulation partners demonstrating concessional micro-credit and capital-subsidized term loans.
             </p>
           </div>
 
@@ -1238,7 +1270,7 @@ export function BetaApp() {
 
           <div className="border-t border-slate-800/80 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px]">
             <p className="text-slate-500">
-              © 2026 ZETA BANK • Partner Banking Consortium • JanSetu Sovereign Credit Protocol
+              © 2026 ZETA BANK • Prototype Banking Consortium • Project Expo Concept Simulation
             </p>
             <div className="flex items-center gap-3">
               <span className="text-slate-400">Audit Grade: Z+ High Assurance</span>

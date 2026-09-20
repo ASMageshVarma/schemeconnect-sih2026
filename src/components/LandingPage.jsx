@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   Sparkles, ArrowRight, ShieldCheck, Building2, Users, 
   CheckCircle2, TrendingUp, Landmark, Award, MapPin, 
@@ -10,9 +10,52 @@ export function LandingPage({
   lang = "en", 
   setLang, 
   t, 
-  onNavigate 
+  onNavigate,
+  onAiSearch
 }) {
   const isTa = lang === "ta";
+  const isHi = lang === "hi";
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
+
+  const handleVoiceInput = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Speech Recognition is not supported in this browser. Please use Chrome or Edge.");
+      return;
+    }
+
+    if (isListening) {
+      if (recognitionRef.current) recognitionRef.current.stop();
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = isTa ? "ta-IN" : isHi ? "hi-IN" : "en-IN";
+      recognition.interimResults = false;
+
+      recognition.onstart = () => setIsListening(true);
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setSearchQuery(transcript);
+        setIsListening(false);
+        if (onAiSearch) {
+          onAiSearch(transcript);
+        }
+      };
+      recognition.onerror = () => setIsListening(false);
+      recognition.onend = () => setIsListening(false);
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (e) {
+      setIsListening(false);
+    }
+  };
 
   return (
     <div className="w-full bg-slate-50/70 text-slate-900 animate-fadeIn">
@@ -31,8 +74,8 @@ export function LandingPage({
             <ShieldCheck className="w-4 h-4 text-blue-600" />
             <span>
               {isTa 
-                ? "சமூக நீதி & அதிகாரமளித்தல் அமைச்சகம் • JanSetu இறையாண்மை நிதித் தளம்" 
-                : "Ministry of Social Justice & Empowerment • JanSetu Sovereign FinTech Rail"}
+                ? "ப்ராஜெக்ட் எக்ஸ்போ மாதிரி முன்மாதிரி • JanSetu AI நலத்திட்ட மாதிரி தளம்" 
+                : "Project Expo Concept Prototype • JanSetu AI Civic FinTech Simulation"}
             </span>
           </motion.div>
 
@@ -58,6 +101,95 @@ export function LandingPage({
               : "Discover verified government concessional micro-credit (≤₹1.40L), term loans (≤₹50L), and 35% capital subsidies in under 2 minutes with voice-to-text input, OCR verification, and real-time ministry sync."}
           </motion.p>
 
+          {/* Prominent Voice/Text Input tied to AI Mitra Advisor */}
+          <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+            className="w-full max-w-2xl mx-auto mb-10 bg-white rounded-3xl p-3 sm:p-4 shadow-xl border-2 border-blue-600/30 text-left ring-4 ring-blue-500/10"
+          >
+            <div className="flex items-center justify-between px-2 pb-2 text-xs font-black text-slate-700">
+              <div className="flex items-center space-x-2 text-blue-700">
+                <Bot className="w-4 h-4 text-purple-600" />
+                <span>{isTa ? "AI மித்ரா நேரடி தேடல்" : "AI Mitra Smart Scheme Matcher"}</span>
+              </div>
+              <span className="text-[10px] text-slate-400 font-semibold hidden sm:inline">
+                {isTa ? "குரல் அல்லது எழுத்து மூலம் கேட்கவும்" : "Type or speak to find matches directly"}
+              </span>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (onAiSearch) {
+                  onAiSearch(searchQuery);
+                } else {
+                  onNavigate("find-schemes");
+                }
+              }}
+              className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-2xl p-1.5 focus-within:ring-2 focus-within:ring-blue-500 focus-within:bg-white transition"
+            >
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={isTa 
+                  ? "எ.கா: 'தெருவோர வியாபார கடன்' அல்லது 'கைவினைஞர் மானியம்'..." 
+                  : "e.g. 'loan for street vendor shop' or 'subsidy for handicraft'..."}
+                className="flex-1 bg-transparent px-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 outline-none placeholder:text-slate-400"
+              />
+
+              {/* Mic Button */}
+              <button
+                type="button"
+                onClick={handleVoiceInput}
+                title={isListening ? "Stop Listening" : "Speak to AI Mitra"}
+                className={`p-2.5 rounded-xl transition cursor-pointer shrink-0 ${
+                  isListening 
+                    ? "bg-rose-600 text-white animate-pulse" 
+                    : "bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200"
+                }`}
+              >
+                <Mic className="w-4 h-4" />
+              </button>
+
+              {/* Submit / Match CTA */}
+              <button
+                type="submit"
+                className="px-4 sm:px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-xl transition flex items-center gap-1.5 shadow-md shrink-0 cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <span>{isTa ? "பொருத்துக" : "Find Matches"}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </form>
+
+            {/* Quick Suggestions Chips */}
+            <div className="flex flex-wrap gap-1.5 mt-3 px-1">
+              <span className="text-[10px] font-black uppercase text-slate-400 py-1 mr-1">
+                {isTa ? "பரிந்துரைகள்:" : "Quick:"}
+              </span>
+              {[
+                { label: isTa ? "🛒 தெருவோர வியாபாரம் (PM SVANidhi)" : "🛒 Street Vendor (₹50k)", query: "street vendor loan PM SVANidhi" },
+                { label: isTa ? "🪡 கைவினைஞர் கருவி (Vishwakarma)" : "🪡 Artisan Toolkit (₹15k)", query: "artisan Vishwakarma toolkit" },
+                { label: isTa ? "🏭 உற்பத்தி மானியம் (PMEGP 35%)" : "🏭 Manufacturing 35% Subsidy", query: "manufacturing subsidy PMEGP" },
+                { label: isTa ? "💼 SC/ST சலுகைக் கடன் (NSFDC)" : "💼 SC/ST Concessional (NSFDC)", query: "SC/ST concessional loan NSFDC" },
+              ].map((chip, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery(chip.query);
+                    if (onAiSearch) onAiSearch(chip.query);
+                  }}
+                  className="text-[11px] font-semibold bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 hover:border-blue-300 px-2.5 py-1 rounded-xl transition cursor-pointer"
+                >
+                  {chip.label}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+
           {/* Core Multi-Page CTAs */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
@@ -66,23 +198,23 @@ export function LandingPage({
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14"
           >
             
-            {/* Primary CTA: Find Eligible Schemes */}
+            {/* Primary CTA: 7-Step Guided Wizard */}
             <button
               onClick={() => onNavigate("find-schemes")}
-              className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 text-white font-black text-sm rounded-2xl shadow-xl hover:shadow-2xl transition flex items-center justify-center space-x-3 group transform hover:-translate-y-0.5"
+              className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 text-white font-black text-sm rounded-2xl shadow-xl hover:shadow-2xl transition flex items-center justify-center space-x-3 group transform hover:-translate-y-0.5 cursor-pointer"
             >
               <Sparkles className="w-5 h-5 text-amber-300" />
-              <span>{isTa ? "திட்டங்களைக் கண்டறியவும் (Find Schemes)" : "Find Eligible Schemes"}</span>
+              <span>{isTa ? "7-படி தகுதி வழிகாட்டியைத் தொடங்க (7-Step Wizard)" : "Start 7-Step Eligibility Wizard"}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition" />
             </button>
 
-            {/* Alpha Portal Console CTA */}
+            {/* Catalog CTA */}
             <button
-              onClick={() => onNavigate("alpha-portal")}
-              className="w-full sm:w-auto px-6 py-4 bg-white hover:bg-indigo-50 text-indigo-900 border border-indigo-200 font-bold text-xs rounded-2xl shadow-sm transition flex items-center justify-center space-x-2"
+              onClick={() => onNavigate("all-schemes")}
+              className="w-full sm:w-auto px-6 py-4 bg-white hover:bg-slate-100 text-slate-800 border border-slate-200 font-bold text-xs rounded-2xl shadow-sm transition flex items-center justify-center space-x-2 cursor-pointer"
             >
-              <Radio className="w-4 h-4 text-indigo-600 animate-pulse" />
-              <span>{isTa ? "அரசு நிர்வாக முகப்பு (Alpha Portal)" : "Alpha Portal Admin Console"}</span>
+              <FileText className="w-4 h-4 text-blue-600" />
+              <span>{isTa ? "அனைத்து 20+ திட்டங்களை பார்க்க" : "Browse All 20+ Schemes"}</span>
             </button>
 
           </motion.div>

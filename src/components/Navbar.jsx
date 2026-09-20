@@ -1,5 +1,5 @@
 import React from 'react';
-import { Building2, Bot, Calculator } from 'lucide-react';
+import { Building2 } from 'lucide-react';
 
 export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontSize, setFontSize, onLogoClick }) {
   const isTa = lang === "ta";
@@ -32,47 +32,16 @@ export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontS
               </div>
               <p className="text-[11px] text-slate-400 font-medium hidden sm:block">
                 {L(
-                  "Ministry of Social Justice & Empowerment • Government of India",
-                  "சமூக நீதி மற்றும் அதிகாரமளித்தல் அமைச்சகம் • இந்திய அரசு",
-                  "सामाजिक न्याय एवं अधिकारिता मंत्रालय • भारत सरकार"
+                  "Project Expo Concept Prototype • Welfare Scheme Matching Simulation",
+                  "ப்ராஜெக்ட் எக்ஸ்போ மாதிரி முன்மாதிரி • நலத்திட்ட பொருத்தம்",
+                  "प्रोजेक्ट एक्सपो प्रोटोटाइप • कल्याणकारी योजना मिलान"
                 )}
               </p>
             </div>
           </div>
 
-          {/* Right Controls: Calculator, AI Mitra, and Single Language Dropdown */}
-          <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
-            
-            {/* Financial Calculator Button */}
-            <button
-              type="button"
-              onClick={() => setView('calc')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
-                view === 'calc'
-                  ? 'bg-blue-600 text-white font-bold'
-                  : 'bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700'
-              }`}
-              title="Financial Subsidy & EMI Calculator"
-            >
-              <Calculator className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="hidden sm:inline">{L("Calculator", "கால்குலேட்டர்", "कैलकुलेटर")}</span>
-            </button>
-
-            {/* AI Mitra Counselor Access */}
-            <button
-              type="button"
-              onClick={() => setView('counselor')}
-              className={`p-2 rounded-lg transition cursor-pointer ${
-                view === 'counselor'
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700'
-              }`}
-              title="AI Mitra Welfare Advisor"
-            >
-              <Bot className="w-4 h-4 text-purple-300" />
-            </button>
-
-            {/* Single Language Dropdown (i18n Switcher) */}
+          {/* Right Controls: Language Dropdown only (Calculator & AI Mitra are in AppShell tabs) */}
+          <div className="flex items-center shrink-0">
             <select
               value={lang}
               onChange={(e) => setLang(e.target.value)}
@@ -83,7 +52,6 @@ export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontS
               <option value="ta">தமிழ் (Tamil)</option>
               <option value="hi">हिंदी (Hindi)</option>
             </select>
-
           </div>
 
         </div>

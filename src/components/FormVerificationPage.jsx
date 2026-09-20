@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+﻿import React, { useState, useRef } from 'react';
 import { 
   User, Briefcase, IndianRupee, MapPin, Sparkles, Mic, MicOff, 
   Camera, Upload, CheckCircle2, AlertCircle, ArrowRight, ShieldCheck, 
@@ -30,7 +30,7 @@ export function FormVerificationPage({
   const isHi = formLang === "hi";
   const L = (en, ta, hi) => isHi ? hi : (isTa ? ta : en);
 
-  // ─── STRICT ZERO-HARDCODED DATA: Initialized completely blank ──────────
+  // â”€â”€â”€ STRICT ZERO-HARDCODED DATA: Initialized completely blank â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [profile, setProfile] = useState(initialProfile || {
     name: "",
     age: "",
@@ -72,7 +72,7 @@ export function FormVerificationPage({
     income: null
   });
 
-  // ── 4-FACTOR IDENTITY & DOCUMENT AUTHENTICATION GATEWAY STATE ────────────
+  // â”€â”€ 4-FACTOR IDENTITY & DOCUMENT AUTHENTICATION GATEWAY STATE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const [ocrCards, setOcrCards] = useState({
     aadhaar:   { status: 'idle', file: null, extracted: null, badge: null },
     pan:       { status: 'idle', file: null, extracted: null, badge: null },
@@ -85,6 +85,13 @@ export function FormVerificationPage({
   const [otpError, setOtpError] = useState(null);
   const [isFullyAuthenticated, setIsFullyAuthenticated] = useState(false);
 
+  // â”€â”€ 7-Step Wizard State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  const [wizardStep, setWizardStep] = useState(1);
+  const WIZARD_TOTAL = 7;
+
+  const wizardNext = () => setWizardStep(s => Math.min(s + 1, WIZARD_TOTAL));
+  const wizardBack = () => setWizardStep(s => Math.max(s - 1, 1));
+
   const allOcrPassed = Object.values(ocrCards).every(c => c.status === 'passed');
   const ocrPassedCount = Object.values(ocrCards).filter(c => c.status === 'passed').length;
 
@@ -93,7 +100,7 @@ export function FormVerificationPage({
     aadhaar: { masked: "XXXX-XXXX-9812", full: "5489-2104-9812" },
     pan: { id: "ABCDE1234F", name: "RAJAN S" },
     community: { serial: "TN-CST-2026/8821", category: "OBC" },
-    income: { amount: 180000, amountFmt: "₹1,80,000", serial: "TN-INC-2026/4102", year: "2026" },
+    income: { amount: 180000, amountFmt: "â‚¹1,80,000", serial: "TN-INC-2026/4102", year: "2026" },
   };
 
   const triggerCardOcr = (cardKey, fileName = null) => {
@@ -106,20 +113,20 @@ export function FormVerificationPage({
       let extracted, badge;
       switch (cardKey) {
         case 'aadhaar':
-          extracted = { masked: DEMO_DATA.aadhaar.masked, full: DEMO_DATA.aadhaar.full, checksum: "Verhoeff ✓" };
-          badge = "Aadhaar Format & Checksum Verified 🟢";
+          extracted = { masked: DEMO_DATA.aadhaar.masked, full: DEMO_DATA.aadhaar.full, checksum: "Verhoeff âœ“" };
+          badge = "Aadhaar Format & Checksum Verified ðŸŸ¢";
           break;
         case 'pan':
           extracted = { id: DEMO_DATA.pan.id, name: DEMO_DATA.pan.name, type: "Individual (P)", active: true };
-          badge = "PAN Active & Structure Confirmed 🟢";
+          badge = "PAN Active & Structure Confirmed ðŸŸ¢";
           break;
         case 'community':
           extracted = { serial: DEMO_DATA.community.serial, category: DEMO_DATA.community.category, state: "Tamil Nadu" };
-          badge = "e-District Category Validated 🟢";
+          badge = "e-District Category Validated ðŸŸ¢";
           break;
         case 'income':
           extracted = { amount: DEMO_DATA.income.amount, amountFmt: DEMO_DATA.income.amountFmt, serial: DEMO_DATA.income.serial, year: DEMO_DATA.income.year };
-          badge = "Revenue Income Threshold Passed 🟢";
+          badge = "Revenue Income Threshold Passed ðŸŸ¢";
           break;
         default: break;
       }
@@ -174,7 +181,7 @@ export function FormVerificationPage({
         confetti({ particleCount: 120, spread: 90, origin: { y: 0.6 } });
       } catch (e) {}
     } else {
-      setOtpError(L("Invalid OTP. Enter test OTP 1234.", "தவறான OTP. சோதனை OTP 1234 என உள்ளிடவும்.", "अमान्य ओटीपी। टेस्ट ओटीपी 1234 दर्ज करें।"));
+      setOtpError(L("Invalid OTP. Enter test OTP 1234.", "à®¤à®µà®±à®¾à®© OTP. à®šà¯‹à®¤à®©à¯ˆ OTP 1234 à®Žà®© à®‰à®³à¯à®³à®¿à®Ÿà®µà¯à®®à¯.", "à¤…à¤®à¤¾à¤¨à¥à¤¯ à¤“à¤Ÿà¥€à¤ªà¥€à¥¤ à¤Ÿà¥‡à¤¸à¥à¤Ÿ à¤“à¤Ÿà¥€à¤ªà¥€ 1234 à¤¦à¤°à¥à¤œ à¤•à¤°à¥‡à¤‚à¥¤"));
     }
   };
 
@@ -193,8 +200,8 @@ export function FormVerificationPage({
     if (!SpeechRecognition) {
       alert(L(
         "Speech Recognition API is not supported in this browser. Please use Google Chrome or Edge.",
-        "இந்த உலாவியில் பேச்சு அறிதல் வசதி இல்லை. Chrome அல்லது Edge பயன்படுத்தவும்.",
-        "इस ब्राउज़र में स्पीच रिकग्निशन समर्थित नहीं है। कृपया Chrome या Edge का उपयोग करें।"
+        "à®‡à®¨à¯à®¤ à®‰à®²à®¾à®µà®¿à®¯à®¿à®²à¯ à®ªà¯‡à®šà¯à®šà¯ à®…à®±à®¿à®¤à®²à¯ à®µà®šà®¤à®¿ à®‡à®²à¯à®²à¯ˆ. Chrome à®…à®²à¯à®²à®¤à¯ Edge à®ªà®¯à®©à¯à®ªà®Ÿà¯à®¤à¯à®¤à®µà¯à®®à¯.",
+        "à¤‡à¤¸ à¤¬à¥à¤°à¤¾à¤‰à¤œà¤¼à¤° à¤®à¥‡à¤‚ à¤¸à¥à¤ªà¥€à¤š à¤°à¤¿à¤•à¤—à¥à¤¨à¤¿à¤¶à¤¨ à¤¸à¤®à¤°à¥à¤¥à¤¿à¤¤ à¤¨à¤¹à¥€à¤‚ à¤¹à¥ˆà¥¤ à¤•à¥ƒà¤ªà¤¯à¤¾ Chrome à¤¯à¤¾ Edge à¤•à¤¾ à¤‰à¤ªà¤¯à¥‹à¤— à¤•à¤°à¥‡à¤‚à¥¤"
       ));
       return;
     }
@@ -215,8 +222,8 @@ export function FormVerificationPage({
       recognition.onstart = () => {
         setIsListening(true);
         setVoiceTranscript(
-          isHi ? "सुन रहा हूँ... कृपया अपनी आयु, क्षेत्र, व्यवसाय और आय बोलें..."
-          : isTa ? "கேட்கிறது... உங்கள் வயது, பகுதி, தொழில் மற்றும் வருமானத்தை கூறுங்கள்..."
+          isHi ? "à¤¸à¥à¤¨ à¤°à¤¹à¤¾ à¤¹à¥‚à¤... à¤•à¥ƒà¤ªà¤¯à¤¾ à¤…à¤ªà¤¨à¥€ à¤†à¤¯à¥, à¤•à¥à¤·à¥‡à¤¤à¥à¤°, à¤µà¥à¤¯à¤µà¤¸à¤¾à¤¯ à¤”à¤° à¤†à¤¯ à¤¬à¥‹à¤²à¥‡à¤‚..."
+          : isTa ? "à®•à¯‡à®Ÿà¯à®•à®¿à®±à®¤à¯... à®‰à®™à¯à®•à®³à¯ à®µà®¯à®¤à¯, à®ªà®•à¯à®¤à®¿, à®¤à¯Šà®´à®¿à®²à¯ à®®à®±à¯à®±à¯à®®à¯ à®µà®°à¯à®®à®¾à®©à®¤à¯à®¤à¯ˆ à®•à¯‚à®±à¯à®™à¯à®•à®³à¯..."
           : "Listening... speak your age, area, sector, and annual income..."
         );
       };
@@ -286,9 +293,9 @@ export function FormVerificationPage({
         let foundAge = null;
         if (ageNumMatch && parseInt(ageNumMatch[1]) >= 18 && parseInt(ageNumMatch[1]) <= 75) {
           foundAge = parseInt(ageNumMatch[1]);
-        } else if (lower.includes("thirty eight") || lower.includes("thirty-eight") || text.includes("38") || text.includes("முப்பத்தெட்டு")) {
+        } else if (lower.includes("thirty eight") || lower.includes("thirty-eight") || text.includes("38") || text.includes("à®®à¯à®ªà¯à®ªà®¤à¯à®¤à¯†à®Ÿà¯à®Ÿà¯")) {
           foundAge = 38;
-        } else if (lower.includes("thirty nine") || lower.includes("thirty-nine") || text.includes("39") || text.includes("முப்பத்தொன்பது")) {
+        } else if (lower.includes("thirty nine") || lower.includes("thirty-nine") || text.includes("39") || text.includes("à®®à¯à®ªà¯à®ªà®¤à¯à®¤à¯Šà®©à¯à®ªà®¤à¯")) {
           foundAge = 39;
         } else if (lower.includes("thirty five") || text.includes("35")) {
           foundAge = 35;
@@ -305,15 +312,15 @@ export function FormVerificationPage({
       // 2. AREA (e.g. "urban", "city", "town", "rural", "village")
       if (
         lower.includes("urban") || lower.includes("city") || lower.includes("town") || lower.includes("metro") ||
-        text.includes("நகரம்") || text.includes("நகர்ப்புறம்") ||
-        text.includes("शहरी") || text.includes("शहर") || text.includes("नगर")
+        text.includes("à®¨à®•à®°à®®à¯") || text.includes("à®¨à®•à®°à¯à®ªà¯à®ªà¯à®±à®®à¯") ||
+        text.includes("à¤¶à¤¹à¤°à¥€") || text.includes("à¤¶à¤¹à¤°") || text.includes("à¤¨à¤—à¤°")
       ) {
         updated.area = "Urban";
         extractedFields.push("Area: Urban");
       } else if (
         lower.includes("rural") || lower.includes("village") || lower.includes("panchayat") ||
-        text.includes("கிராமம்") || text.includes("கிராமப்புறம்") ||
-        text.includes("ग्रामीण") || text.includes("गांव") || text.includes("गाँव") || text.includes("देहात")
+        text.includes("à®•à®¿à®°à®¾à®®à®®à¯") || text.includes("à®•à®¿à®°à®¾à®®à®ªà¯à®ªà¯à®±à®®à¯") ||
+        text.includes("à¤—à¥à¤°à¤¾à¤®à¥€à¤£") || text.includes("à¤—à¤¾à¤‚à¤µ") || text.includes("à¤—à¤¾à¤à¤µ") || text.includes("à¤¦à¥‡à¤¹à¤¾à¤¤")
       ) {
         updated.area = "Rural";
         extractedFields.push("Area: Rural");
@@ -322,35 +329,35 @@ export function FormVerificationPage({
       // 3. SECTOR (e.g. "street vendor", "vendor", "artisan", "handicraft", "manufacturing")
       if (
         lower.includes("vendor") || lower.includes("street") || lower.includes("hawker") || lower.includes("thela") || lower.includes("selling") ||
-        text.includes("வியாபாரி") || text.includes("தெருவோர") ||
-        text.includes("सड़क") || text.includes("विक्रेता") || text.includes("ठेला") || text.includes("दुकान")
+        text.includes("à®µà®¿à®¯à®¾à®ªà®¾à®°à®¿") || text.includes("à®¤à¯†à®°à¯à®µà¯‹à®°") ||
+        text.includes("à¤¸à¤¡à¤¼à¤•") || text.includes("à¤µà¤¿à¤•à¥à¤°à¥‡à¤¤à¤¾") || text.includes("à¤ à¥‡à¤²à¤¾") || text.includes("à¤¦à¥à¤•à¤¾à¤¨")
       ) {
         updated.sector = "Street Vendor";
         extractedFields.push("Sector: Street Vendor");
       } else if (
         lower.includes("artisan") || lower.includes("handicraft") || lower.includes("craft") || lower.includes("potter") || lower.includes("weaver") ||
-        text.includes("கைவினை") || text.includes("விஸ்வகர்மா") ||
-        text.includes("कारीगर") || text.includes("हस्तशिल्प") || text.includes("विश्वकर्मा")
+        text.includes("à®•à¯ˆà®µà®¿à®©à¯ˆ") || text.includes("à®µà®¿à®¸à¯à®µà®•à®°à¯à®®à®¾") ||
+        text.includes("à¤•à¤¾à¤°à¥€à¤—à¤°") || text.includes("à¤¹à¤¸à¥à¤¤à¤¶à¤¿à¤²à¥à¤ª") || text.includes("à¤µà¤¿à¤¶à¥à¤µà¤•à¤°à¥à¤®à¤¾")
       ) {
         updated.sector = "Handicraft/Artisan";
         extractedFields.push("Sector: Handicraft/Artisan");
       } else if (
         lower.includes("manufactur") || lower.includes("factory") || lower.includes("production") ||
-        text.includes("உற்பத்தி") || text.includes("ஆலை") ||
-        text.includes("विनिर्माण") || text.includes("फैक्ट्री") || text.includes("कारखाना")
+        text.includes("à®‰à®±à¯à®ªà®¤à¯à®¤à®¿") || text.includes("à®†à®²à¯ˆ") ||
+        text.includes("à¤µà¤¿à¤¨à¤¿à¤°à¥à¤®à¤¾à¤£") || text.includes("à¤«à¥ˆà¤•à¥à¤Ÿà¥à¤°à¥€") || text.includes("à¤•à¤¾à¤°à¤–à¤¾à¤¨à¤¾")
       ) {
         updated.sector = "Manufacturing";
         extractedFields.push("Sector: Manufacturing");
       } else if (
         lower.includes("service") || lower.includes("driver") || lower.includes("repair") || lower.includes("mechanic") ||
-        text.includes("சேவை") || text.includes("सेवा")
+        text.includes("à®šà¯‡à®µà¯ˆ") || text.includes("à¤¸à¥‡à¤µà¤¾")
       ) {
         updated.sector = "Services";
         extractedFields.push("Sector: Services");
       } else if (
         lower.includes("farm") || lower.includes("agricult") || lower.includes("dairy") || lower.includes("cultivat") ||
-        text.includes("விவசாயம்") || text.includes("பண்ணை") ||
-        text.includes("कृषि") || text.includes("खेती") || text.includes("किसान")
+        text.includes("à®µà®¿à®µà®šà®¾à®¯à®®à¯") || text.includes("à®ªà®£à¯à®£à¯ˆ") ||
+        text.includes("à¤•à¥ƒà¤·à¤¿") || text.includes("à¤–à¥‡à¤¤à¥€") || text.includes("à¤•à¤¿à¤¸à¤¾à¤¨")
       ) {
         updated.sector = "Agriculture/Farming";
         extractedFields.push("Sector: Agriculture/Farming");
@@ -361,17 +368,17 @@ export function FormVerificationPage({
         const parsedIncome = extractIncomeFromHindi(text);
         if (parsedIncome) {
           updated.income = parsedIncome;
-          extractedFields.push(`Income: ₹${parsedIncome.toLocaleString('en-IN')}`);
+          extractedFields.push(`Income: â‚¹${parsedIncome.toLocaleString('en-IN')}`);
         }
       } else {
         let foundIncome = null;
         // Check for decimal/integer followed by lakh/lakhs/lac/lacs
-        const lakhMatch = text.match(/(?:annual\s*income|income|earning|salary|வருமானம்|விகிதம்)?\s*(?:is|of|rs\.?|inr|₹)?\s*(\d+(?:\.\d+)?)\s*(?:lakh|lakhs|lac|lacs|l|லட்சம்)/i);
+        const lakhMatch = text.match(/(?:annual\s*income|income|earning|salary|à®µà®°à¯à®®à®¾à®©à®®à¯|à®µà®¿à®•à®¿à®¤à®®à¯)?\s*(?:is|of|rs\.?|inr|â‚¹)?\s*(\d+(?:\.\d+)?)\s*(?:lakh|lakhs|lac|lacs|l|à®²à®Ÿà¯à®šà®®à¯)/i);
         if (lakhMatch) {
           foundIncome = Math.round(parseFloat(lakhMatch[1]) * 100000);
         } else {
           // Check for thousand/k
-          const thousandMatch = text.match(/(?:annual\s*income|income|earning|salary)?\s*(?:is|of|rs\.?|inr|₹)?\s*(\d+(?:\.\d+)?)\s*(?:thousand|k|ஆயிரம்)/i);
+          const thousandMatch = text.match(/(?:annual\s*income|income|earning|salary)?\s*(?:is|of|rs\.?|inr|â‚¹)?\s*(\d+(?:\.\d+)?)\s*(?:thousand|k|à®†à®¯à®¿à®°à®®à¯)/i);
           if (thousandMatch) {
             foundIncome = Math.round(parseFloat(thousandMatch[1]) * 1000);
           } else {
@@ -379,7 +386,7 @@ export function FormVerificationPage({
             const directDigits = text.match(/\b([1-9]\d{4,6})\b/);
             if (directDigits) {
               foundIncome = parseInt(directDigits[1]);
-            } else if (lower.includes("one point eight") || lower.includes("1.8") || text.includes("ஒன்றரை")) {
+            } else if (lower.includes("one point eight") || lower.includes("1.8") || text.includes("à®’à®©à¯à®±à®°à¯ˆ")) {
               foundIncome = 180000;
             } else if (lower.includes("two lakh") || text.includes("200000")) {
               foundIncome = 200000;
@@ -393,16 +400,16 @@ export function FormVerificationPage({
 
         if (foundIncome) {
           updated.income = foundIncome;
-          extractedFields.push(`Income: ₹${foundIncome.toLocaleString('en-IN')}`);
+          extractedFields.push(`Income: â‚¹${foundIncome.toLocaleString('en-IN')}`);
         }
       }
 
       // 5. SHG Status
       if (
-        lower.includes("shg") || text.includes("சுயஉதவி") || text.includes("குழு") ||
-        text.includes("स्वयं सहायता") || text.includes("एसएचजी") || text.includes("समूह")
+        lower.includes("shg") || text.includes("à®šà¯à®¯à®‰à®¤à®µà®¿") || text.includes("à®•à¯à®´à¯") ||
+        text.includes("à¤¸à¥à¤µà¤¯à¤‚ à¤¸à¤¹à¤¾à¤¯à¤¤à¤¾") || text.includes("à¤à¤¸à¤à¤šà¤œà¥€") || text.includes("à¤¸à¤®à¥‚à¤¹")
       ) {
-        if (lower.includes("non") || lower.includes("not") || lower.includes("இல்லை") || lower.includes("नहीं")) {
+        if (lower.includes("non") || lower.includes("not") || lower.includes("à®‡à®²à¯à®²à¯ˆ") || lower.includes("à¤¨à¤¹à¥€à¤‚")) {
           updated.shg_membership = "No";
           extractedFields.push("SHG: Non-Member");
         } else {
@@ -412,10 +419,10 @@ export function FormVerificationPage({
       }
 
       // 6. Gender
-      if (lower.includes("female") || lower.includes("woman") || text.includes("பெண்") || text.includes("महिला") || text.includes("औरत")) {
+      if (lower.includes("female") || lower.includes("woman") || text.includes("à®ªà¯†à®£à¯") || text.includes("à¤®à¤¹à¤¿à¤²à¤¾") || text.includes("à¤”à¤°à¤¤")) {
         updated.gender = "Female";
         extractedFields.push("Gender: Female");
-      } else if (lower.includes("male") || lower.includes("man") || text.includes("ஆண்") || text.includes("पुरुष")) {
+      } else if (lower.includes("male") || lower.includes("man") || text.includes("à®†à®£à¯") || text.includes("à¤ªà¥à¤°à¥à¤·")) {
         updated.gender = "Male";
         extractedFields.push("Gender: Male");
       }
@@ -423,14 +430,14 @@ export function FormVerificationPage({
       // 7. Caste / Social Category
       if (
         lower.includes("sc/st") || lower.includes("sc") || lower.includes("st") ||
-        text.includes("பட்டியலின") || text.includes("अनुसूचित") || text.includes("एससी") || text.includes("एसटी")
+        text.includes("à®ªà®Ÿà¯à®Ÿà®¿à®¯à®²à®¿à®©") || text.includes("à¤…à¤¨à¥à¤¸à¥‚à¤šà¤¿à¤¤") || text.includes("à¤à¤¸à¤¸à¥€") || text.includes("à¤à¤¸à¤Ÿà¥€")
       ) {
         updated.caste = "SC/ST";
         extractedFields.push("Category: SC/ST");
-      } else if (lower.includes("obc") || lower.includes("backward") || text.includes("பிற்படுத்தப்பட்ட") || text.includes("ओबीसी")) {
+      } else if (lower.includes("obc") || lower.includes("backward") || text.includes("à®ªà®¿à®±à¯à®ªà®Ÿà¯à®¤à¯à®¤à®ªà¯à®ªà®Ÿà¯à®Ÿ") || text.includes("à¤“à¤¬à¥€à¤¸à¥€")) {
         updated.caste = "OBC";
         extractedFields.push("Category: OBC");
-      } else if (lower.includes("general") || text.includes("பொது") || text.includes("सामान्य")) {
+      } else if (lower.includes("general") || text.includes("à®ªà¯Šà®¤à¯") || text.includes("à¤¸à¤¾à¤®à¤¾à¤¨à¥à¤¯")) {
         updated.caste = "General";
         extractedFields.push("Category: General");
       }
@@ -443,10 +450,10 @@ export function FormVerificationPage({
       if (extractedFields.length > 0) {
         setVoiceSuccessMsg(
           isHi
-            ? `✓ वॉयस इनपुट स्वीकृत: ${extractedFields.join(" • ")}`
+            ? `âœ“ à¤µà¥‰à¤¯à¤¸ à¤‡à¤¨à¤ªà¥à¤Ÿ à¤¸à¥à¤µà¥€à¤•à¥ƒà¤¤: ${extractedFields.join(" â€¢ ")}`
             : isTa
-            ? `✓ குரல் பதிவு இணைக்கப்பட்டது: ${extractedFields.join(" • ")}`
-            : `✓ Voice Input Extracted & Applied: ${extractedFields.join(" • ")}`
+            ? `âœ“ à®•à¯à®°à®²à¯ à®ªà®¤à®¿à®µà¯ à®‡à®£à¯ˆà®•à¯à®•à®ªà¯à®ªà®Ÿà¯à®Ÿà®¤à¯: ${extractedFields.join(" â€¢ ")}`
+            : `âœ“ Voice Input Extracted & Applied: ${extractedFields.join(" â€¢ ")}`
         );
       }
 
@@ -471,8 +478,8 @@ export function FormVerificationPage({
       t.includes("government of india") || 
       t.includes("govt of india") || 
       t.includes("bharat sarkar") || 
-      t.includes("मेरा आधार") ||
-      t.includes("ஆதார்") ||
+      t.includes("à¤®à¥‡à¤°à¤¾ à¤†à¤§à¤¾à¤°") ||
+      t.includes("à®†à®¤à®¾à®°à¯") ||
       /\b\d{4}\s?\d{4}\s?\d{4}\b/.test(t);
 
     // 2. PAN Card Markers
@@ -495,7 +502,7 @@ export function FormVerificationPage({
       t.includes("community certificate") || 
       t.includes("revenue department") || 
       t.includes("caste certificate") || 
-      t.includes("சாதிச் சான்றிதழ்");
+      t.includes("à®šà®¾à®¤à®¿à®šà¯ à®šà®¾à®©à¯à®±à®¿à®¤à®´à¯");
 
     let docType = null;
     if (hasAadhaar) docType = "Aadhaar Card (UIDAI)";
@@ -535,13 +542,13 @@ export function FormVerificationPage({
         setOcrConfidence(confidence);
         setOcrErrorMsg(
           isHi
-            ? "❌ दस्तावेज़ प्रमाणीकरण विफल: अपलोड की गई छवि में आधार, पैन या उद्यम जैसे आधिकारिक सरकारी पहचान पत्र के संकेत नहीं मिले। कृपया स्पष्ट सरकारी दस्तावेज़ अपलोड करें।"
+            ? "âŒ à¤¦à¤¸à¥à¤¤à¤¾à¤µà¥‡à¤œà¤¼ à¤ªà¥à¤°à¤®à¤¾à¤£à¥€à¤•à¤°à¤£ à¤µà¤¿à¤«à¤²: à¤…à¤ªà¤²à¥‹à¤¡ à¤•à¥€ à¤—à¤ˆ à¤›à¤µà¤¿ à¤®à¥‡à¤‚ à¤†à¤§à¤¾à¤°, à¤ªà¥ˆà¤¨ à¤¯à¤¾ à¤‰à¤¦à¥à¤¯à¤® à¤œà¥ˆà¤¸à¥‡ à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤¸à¤°à¤•à¤¾à¤°à¥€ à¤ªà¤¹à¤šà¤¾à¤¨ à¤ªà¤¤à¥à¤° à¤•à¥‡ à¤¸à¤‚à¤•à¥‡à¤¤ à¤¨à¤¹à¥€à¤‚ à¤®à¤¿à¤²à¥‡à¥¤ à¤•à¥ƒà¤ªà¤¯à¤¾ à¤¸à¥à¤ªà¤·à¥à¤Ÿ à¤¸à¤°à¤•à¤¾à¤°à¥€ à¤¦à¤¸à¥à¤¤à¤¾à¤µà¥‡à¤œà¤¼ à¤…à¤ªà¤²à¥‹à¤¡ à¤•à¤°à¥‡à¤‚à¥¤"
             : isTa
-            ? "❌ ஆவண சரிபார்ப்பு தோல்வியடைந்தது: பதிவேற்றப்பட்ட படம் அரசு அடையாள அட்டை (ஆதார், பான் அல்லது உத்யம்) இல்லை. சரியான ஆவணத்தை பதிவேற்றவும்."
-            : "❌ Document Authentication Failed: Not a recognized Government ID. The image does not contain valid Aadhaar, PAN, or Udyam certificate markers. Please upload an official document."
+            ? "âŒ à®†à®µà®£ à®šà®°à®¿à®ªà®¾à®°à¯à®ªà¯à®ªà¯ à®¤à¯‹à®²à¯à®µà®¿à®¯à®Ÿà¯ˆà®¨à¯à®¤à®¤à¯: à®ªà®¤à®¿à®µà¯‡à®±à¯à®±à®ªà¯à®ªà®Ÿà¯à®Ÿ à®ªà®Ÿà®®à¯ à®…à®°à®šà¯ à®…à®Ÿà¯ˆà®¯à®¾à®³ à®…à®Ÿà¯à®Ÿà¯ˆ (à®†à®¤à®¾à®°à¯, à®ªà®¾à®©à¯ à®…à®²à¯à®²à®¤à¯ à®‰à®¤à¯à®¯à®®à¯) à®‡à®²à¯à®²à¯ˆ. à®šà®°à®¿à®¯à®¾à®© à®†à®µà®£à®¤à¯à®¤à¯ˆ à®ªà®¤à®¿à®µà¯‡à®±à¯à®±à®µà¯à®®à¯."
+            : "âŒ Document Authentication Failed: Not a recognized Government ID. The image does not contain valid Aadhaar, PAN, or Udyam certificate markers. Please upload an official document."
         );
         speakText(
-          isHi ? "दस्तावेज़ अमान्य है।" : isTa ? "செல்லுபடியாகாத ஆவணம்." : "Document authentication failed. Not a valid government identity card.",
+          isHi ? "à¤¦à¤¸à¥à¤¤à¤¾à¤µà¥‡à¤œà¤¼ à¤…à¤®à¤¾à¤¨à¥à¤¯ à¤¹à¥ˆà¥¤" : isTa ? "à®šà¯†à®²à¯à®²à¯à®ªà®Ÿà®¿à®¯à®¾à®•à®¾à®¤ à®†à®µà®£à®®à¯." : "Document authentication failed. Not a valid government identity card.",
           formLang
         );
         return;
@@ -554,10 +561,10 @@ export function FormVerificationPage({
     } catch (err) {
       setOcrErrorMsg(
         isHi
-          ? "❌ फ़ाइल पढ़ने में त्रुटि: कृपया स्पष्ट छवि (JPG / PNG) अपलोड करें।"
+          ? "âŒ à¤«à¤¼à¤¾à¤‡à¤² à¤ªà¤¢à¤¼à¤¨à¥‡ à¤®à¥‡à¤‚ à¤¤à¥à¤°à¥à¤Ÿà¤¿: à¤•à¥ƒà¤ªà¤¯à¤¾ à¤¸à¥à¤ªà¤·à¥à¤Ÿ à¤›à¤µà¤¿ (JPG / PNG) à¤…à¤ªà¤²à¥‹à¤¡ à¤•à¤°à¥‡à¤‚à¥¤"
           : isTa
-          ? "❌ ஆவணத்தை படிப்பதில் பிழை: தெளிவான புகைப்படத்தை பதிவேற்றவும்."
-          : "❌ Document Read Error: Could not process file. Please upload a clear photo of an official ID."
+          ? "âŒ à®†à®µà®£à®¤à¯à®¤à¯ˆ à®ªà®Ÿà®¿à®ªà¯à®ªà®¤à®¿à®²à¯ à®ªà®¿à®´à¯ˆ: à®¤à¯†à®³à®¿à®µà®¾à®© à®ªà¯à®•à¯ˆà®ªà¯à®ªà®Ÿà®¤à¯à®¤à¯ˆ à®ªà®¤à®¿à®µà¯‡à®±à¯à®±à®µà¯à®®à¯."
+          : "âŒ Document Read Error: Could not process file. Please upload a clear photo of an official ID."
       );
     } finally {
       setIsProcessingOcr(false);
@@ -572,7 +579,7 @@ export function FormVerificationPage({
     let extractedGender = null;
 
     // Detect Year of Birth / DOB
-    const yobMatch = text.match(/(?:DOB|Year of Birth|YOB|Birth|பிறந்த தேதி)[\s:]*([0-3]?\d[\/\-][01]?\d[\/\-][12][90]\d\d|[12][90]\d\d)/i);
+    const yobMatch = text.match(/(?:DOB|Year of Birth|YOB|Birth|à®ªà®¿à®±à®¨à¯à®¤ à®¤à¯‡à®¤à®¿)[\s:]*([0-3]?\d[\/\-][01]?\d[\/\-][12][90]\d\d|[12][90]\d\d)/i);
     if (yobMatch) {
       const matched = yobMatch[1];
       const year = matched.length === 4 ? parseInt(matched) : parseInt(matched.slice(-4));
@@ -583,14 +590,14 @@ export function FormVerificationPage({
     }
 
     // Detect Gender
-    if (text.toLowerCase().includes("female") || text.toLowerCase().includes("பெண்") || text.toLowerCase().includes("महिला")) {
+    if (text.toLowerCase().includes("female") || text.toLowerCase().includes("à®ªà¯†à®£à¯") || text.toLowerCase().includes("à¤®à¤¹à¤¿à¤²à¤¾")) {
       extractedGender = "Female";
-    } else if (text.toLowerCase().includes("male") || text.toLowerCase().includes("ஆண்") || text.toLowerCase().includes("पुरुष")) {
+    } else if (text.toLowerCase().includes("male") || text.toLowerCase().includes("à®†à®£à¯") || text.toLowerCase().includes("à¤ªà¥à¤°à¥à¤·")) {
       extractedGender = "Male";
     }
 
     // Detect Name
-    const nameMatch = text.match(/(?:Name|பெயர்|नाम)[\s:]*([A-Za-z\s\.]{3,30})/i);
+    const nameMatch = text.match(/(?:Name|à®ªà¯†à®¯à®°à¯|à¤¨à¤¾à¤®)[\s:]*([A-Za-z\s\.]{3,30})/i);
     if (nameMatch && nameMatch[1].trim().length > 2) {
       extractedName = nameMatch[1].trim();
     }
@@ -624,14 +631,14 @@ export function FormVerificationPage({
 
     setOcrSuccessMsg(
       isHi
-        ? `✓ ${docType} सफलतापूर्वक सत्यापित (OCR विश्वसनीयता: ${confidence}%)। विवरण फॉर्म में जोड़े गए।`
+        ? `âœ“ ${docType} à¤¸à¤«à¤²à¤¤à¤¾à¤ªà¥‚à¤°à¥à¤µà¤• à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¿à¤¤ (OCR à¤µà¤¿à¤¶à¥à¤µà¤¸à¤¨à¥€à¤¯à¤¤à¤¾: ${confidence}%)à¥¤ à¤µà¤¿à¤µà¤°à¤£ à¤«à¥‰à¤°à¥à¤® à¤®à¥‡à¤‚ à¤œà¥‹à¤¡à¤¼à¥‡ à¤—à¤à¥¤`
         : isTa
-        ? `✓ ${docType} வெற்றிகரமாக சரிபார்க்கப்பட்டது (OCR உறுதிப்பாடு: ${confidence}%). விவரங்கள் இணைக்கப்பட்டன.`
-        : `✓ Authenticated ${docType} (OCR Confidence: ${confidence}%). Verified identity parameters populated.`
+        ? `âœ“ ${docType} à®µà¯†à®±à¯à®±à®¿à®•à®°à®®à®¾à®• à®šà®°à®¿à®ªà®¾à®°à¯à®•à¯à®•à®ªà¯à®ªà®Ÿà¯à®Ÿà®¤à¯ (OCR à®‰à®±à¯à®¤à®¿à®ªà¯à®ªà®¾à®Ÿà¯: ${confidence}%). à®µà®¿à®µà®°à®™à¯à®•à®³à¯ à®‡à®£à¯ˆà®•à¯à®•à®ªà¯à®ªà®Ÿà¯à®Ÿà®©.`
+        : `âœ“ Authenticated ${docType} (OCR Confidence: ${confidence}%). Verified identity parameters populated.`
     );
 
     speakText(
-      isHi ? `${docType} सत्यापित।` : isTa ? `${docType} சரிபார்க்கப்பட்டது.` : `${docType} authenticated successfully.`,
+      isHi ? `${docType} à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¿à¤¤à¥¤` : isTa ? `${docType} à®šà®°à®¿à®ªà®¾à®°à¯à®•à¯à®•à®ªà¯à®ªà®Ÿà¯à®Ÿà®¤à¯.` : `${docType} authenticated successfully.`,
       formLang
     );
   };
@@ -659,14 +666,14 @@ export function FormVerificationPage({
 
       setOcrSuccessMsg(
         isHi
-          ? "✓ नमूना आधार कार्ड (UIDAI) सफलतापूर्वक सत्यापित (OCR विश्वसनीयता: 96%)। विवरण जोड़े गए।"
+          ? "âœ“ à¤¨à¤®à¥‚à¤¨à¤¾ à¤†à¤§à¤¾à¤° à¤•à¤¾à¤°à¥à¤¡ (UIDAI) à¤¸à¤«à¤²à¤¤à¤¾à¤ªà¥‚à¤°à¥à¤µà¤• à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¿à¤¤ (OCR à¤µà¤¿à¤¶à¥à¤µà¤¸à¤¨à¥€à¤¯à¤¤à¤¾: 96%)à¥¤ à¤µà¤¿à¤µà¤°à¤£ à¤œà¥‹à¤¡à¤¼à¥‡ à¤—à¤à¥¤"
           : isTa 
-          ? "✓ மாதிரி ஆதார் அட்டை (UIDAI) வெற்றிகரமாக சரிபார்க்கப்பட்டது (OCR உறுதிப்பாடு: 96%). விவரங்கள் இணைக்கப்பட்டன."
-          : "✓ UIDAI Authenticated: Sample Aadhaar Card Verified (Confidence: 96%) | Identity Verified 🟢"
+          ? "âœ“ à®®à®¾à®¤à®¿à®°à®¿ à®†à®¤à®¾à®°à¯ à®…à®Ÿà¯à®Ÿà¯ˆ (UIDAI) à®µà¯†à®±à¯à®±à®¿à®•à®°à®®à®¾à®• à®šà®°à®¿à®ªà®¾à®°à¯à®•à¯à®•à®ªà¯à®ªà®Ÿà¯à®Ÿà®¤à¯ (OCR à®‰à®±à¯à®¤à®¿à®ªà¯à®ªà®¾à®Ÿà¯: 96%). à®µà®¿à®µà®°à®™à¯à®•à®³à¯ à®‡à®£à¯ˆà®•à¯à®•à®ªà¯à®ªà®Ÿà¯à®Ÿà®©."
+          : "âœ“ UIDAI Authenticated: Sample Aadhaar Card Verified (Confidence: 96%) | Identity Verified ðŸŸ¢"
       );
 
       speakText(
-        isHi ? "आधार कार्ड सत्यापित।" : isTa ? "ஆதார் அட்டை சரிபார்க்கப்பட்டது." : "Sample Aadhaar identity document authenticated.",
+        isHi ? "à¤†à¤§à¤¾à¤° à¤•à¤¾à¤°à¥à¤¡ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¿à¤¤à¥¤" : isTa ? "à®†à®¤à®¾à®°à¯ à®…à®Ÿà¯à®Ÿà¯ˆ à®šà®°à®¿à®ªà®¾à®°à¯à®•à¯à®•à®ªà¯à®ªà®Ÿà¯à®Ÿà®¤à¯." : "Sample Aadhaar identity document authenticated.",
         formLang
       );
     }, 900);
@@ -768,813 +775,472 @@ export function FormVerificationPage({
         />
       )}
 
-      {/* ========================================================================= */}
-      {/* SECTION 1: OFFICIAL WELCOME HERO & NEW APPLICANT ACTION                   */}
-      {/* ========================================================================= */}
-      <section className="mb-10 bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs">
-        <div className="max-w-3xl">
-          
-          {/* Badge */}
-          <div className="inline-flex items-center space-x-2 bg-blue-50 text-blue-900 px-3.5 py-1 rounded-full text-xs font-bold border border-blue-200 mb-4">
-            <ShieldCheck className="w-4 h-4 text-blue-600" />
-            <span>{L("Official Digital Public Infrastructure (DPI) Portal", "அதிகாரப்பூர்வ டிஜிட்டல் பொது உள்கட்டமைப்பு (DPI) போர்டல்", "आधिकारिक डिजिटल पब्लिक इंफ्रास्ट्रक्चर (DPI) पोर्टल")}</span>
-          </div>
+      {/* â”€â”€â”€ 7-STEP GUIDED WIZARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
 
-          {/* Headline */}
-          <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-3">
-            {L("Welcome to SchemeConnect Gateway", "ஸ்கீம்கனெக்ட் இணைய வாயிலுக்கு வரவேற்கிறோம்", "स्कीमकनेक्ट गेटवे में आपका स्वागत है")}
-          </h1>
-
-          {/* Description */}
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6">
-            {L(
-              "National unified welfare scheme discovery and credit facilitation platform under the Ministry of Social Justice & Empowerment. Discover verified statutory welfare subsidies, concessional micro-credit (≤₹1.40L), and MSME term loans with instant biometric and OCR pre-screening.",
-              "மத்திய சமூக நீதி மற்றும் அதிகாரமளித்தல் அமைச்சகத்தின் கீழ் இயங்கும் ஒருங்கிணைந்த நலத்திட்ட கண்டுபிடிப்பு மற்றும் சலுகைக் கடன் வசதி தளம். தகுதியான மத்திய-மாநில மானியங்கள் மற்றும் குறைந்த வட்டி நுண்கடன்களை (≤₹1.40L) எளிய ஆவண சரிபார்ப்பு மூலம் பெறுங்கள்.",
-              "सामाजिक न्याय एवं अधिकारिता मंत्रालय के अंतर्गत राष्ट्रीय एकीकृत कल्याण योजना खोज एवं ऋण सुविधा मंच। तत्काल बायोमेट्रिक और ओसीआर पूर्व-जांच के साथ पात्र सरकारी सब्सिडी और रियायती सूक्ष्म ऋण (≤₹1.40L) खोजें।"
-            )}
-          </p>
-
-          {/* Primary Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            
-            <button
-              type="button"
-              onClick={scrollToSectionIntake}
-              className="px-6 py-3.5 bg-[#1e293b] hover:bg-[#0f172a] text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center space-x-2 cursor-pointer"
-            >
-              <span>{L("Click Here for New Applicant Registration ➔", "புதிய விண்ணப்பதாரர் பதிவுக்கு இங்கே கிளிக் செய்யவும் ➔", "नए आवेदक पंजीकरण के लिए यहाँ क्लिक करें ➔")}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setShowTrackModal(true)}
-              className="px-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl border border-slate-300 transition flex items-center justify-center space-x-2 cursor-pointer"
-            >
-              <Search className="w-4 h-4 text-slate-600" />
-              <span>{L("Track Existing Application", "விண்ணப்ப நிலையை அறிய", "मौजूदा आवेदन ट्रैक करें")}</span>
-            </button>
-
-          </div>
-
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* SECTION 2: DYNAMIC BENEFICIARY INTAKE & PRE-SCREENING                     */}
-      {/* ========================================================================= */}
-      <section id="section-intake" className="scroll-mt-20">
-        
-        {/* AI Mitra Advisor Header & Status */}
-        <div className="flex items-center justify-between bg-purple-50 border border-purple-200 rounded-2xl p-4 mb-6">
-          <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl bg-purple-600 text-white flex items-center justify-center">
-              <Bot className="w-5 h-5" />
-            </div>
+        {/* Progress Bar Header */}
+        <div className="bg-[#0f172a] px-6 py-5">
+          <div className="flex items-center justify-between mb-3">
             <div>
-              <span className="text-xs font-bold text-purple-950 block">
-                {L("AI Mitra Advisor Intake Assistant Active", "AI மித்ரா நலத்திட்ட வழிகாட்டி தயார் நிலையில் உள்ளது", "एआई मित्रा सलाहकार इनपुट सहायक सक्रिय")}
+              <span className="text-[10px] font-black uppercase tracking-widest text-blue-400">
+                {L('Eligibility Wizard', 'à®¤à®•à¯à®¤à®¿ à®µà®´à®¿à®•à®¾à®Ÿà¯à®Ÿà®¿', 'à¤ªà¤¾à¤¤à¥à¤°à¤¤à¤¾ à¤µà¤¿à¤œà¤¼à¤¾à¤°à¥à¤¡')}
               </span>
-              <span className="text-[11px] text-purple-700">
-                {L("Voice-to-Text & Tesseract OCR multi-modal parsing enabled", "குரல்வழி பதிவு மற்றும் OCR ஆவண ஸ்கேனர் வசதி இயக்கப்பட்டுள்ளது", "वॉयस-टू-टेक्स्ट एवं टेसरैक्ट ओसीआर मल्टी-मॉडल पार्सिंग सक्षम")}
+              <div className="text-lg font-black text-white mt-0.5">
+                {L(`Step ${wizardStep} of ${WIZARD_TOTAL}`, `à®ªà®Ÿà®¿ ${wizardStep} / ${WIZARD_TOTAL}`, `à¤šà¤°à¤£ ${wizardStep} / ${WIZARD_TOTAL}`)}
+              </div>
+            </div>
+            <div className="text-right">
+              <span className={`text-[10px] font-black px-2.5 py-1 rounded-full ${isFormComplete ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}`}>
+                {isFormComplete ? L('âœ“ Ready', 'âœ“ à®¤à®¯à®¾à®°à¯', 'âœ“ à¤¤à¥ˆà¤¯à¤¾à¤°') : L('Incomplete', 'à®®à¯à®´à¯à®®à¯ˆà®¯à®¿à®²à¯à®²à¯ˆ', 'à¤…à¤ªà¥‚à¤°à¥à¤£')}
               </span>
             </div>
           </div>
-          <span className="hidden sm:inline-block text-[10px] font-bold bg-purple-100 text-purple-800 px-2.5 py-1 rounded-full border border-purple-300">
-            Multi-Modal Online 🟢
-          </span>
-        </div>
-
-      {/* 2 Top Multi-Modal Input Cards (Voice + OCR) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        
-        {/* Module A: Voice-to-Text Speech Recognition */}
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50/70 p-5 rounded-3xl border border-blue-200 shadow-sm flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-2 text-blue-900 font-black text-xs">
-                <Mic className="w-4 h-4 text-blue-600" />
-                <span>{L("Voice-to-Text Intake", "குரல் வழி பதிவு (Voice-to-Text)", "वॉयस-टू-टेक्स्ट इनपुट")}</span>
-              </div>
-              <span className="text-[10px] font-bold px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full">
-                {isHi ? "हिंदी (hi-IN)" : isTa ? "தமிழ் (ta-IN)" : "English (en-IN)"}
-              </span>
-            </div>
-
-            <p className="text-xs text-slate-600 mb-4 leading-relaxed">
-              {L(
-                "Press mic and speak: 'I am 38 years old, urban street vendor, annual income 1.8 lakhs.'",
-                "மைக் பட்டனை அழுத்தி: 'எனக்கு வயது 38, நகர்ப்புற தெருவோர வியாபாரி, வருமானம் 1.8 லட்சம்' என்று பேசுங்கள்.",
-                "माइक दबाकर बोलें: 'मेरी आयु 38 वर्ष है, शहरी सड़क विक्रेता, वार्षिक आय 1 लाख 80 हजार है।'"
-              )}
-            </p>
-
-            {/* Transcript Preview */}
-            {voiceTranscript && (
-              <div className="p-3 bg-white rounded-2xl border border-blue-200 text-xs font-medium text-slate-800 mb-3 animate-fadeIn">
-                <span className="text-[10px] font-bold text-blue-600 uppercase block mb-1">
-                  {L("Live Transcript:", "நேரலை டிரான்ஸ்கிரிப்ட்:", "लाइव ट्रांसक्रिप्ट:")}
-                </span>
-                "{voiceTranscript}"
-              </div>
-            )}
-
-            {/* Voice Success Alert */}
-            {voiceSuccessMsg && (
-              <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-2xl text-xs font-bold text-emerald-800 mb-3 animate-fadeIn flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span>{voiceSuccessMsg}</span>
-              </div>
-            )}
-          </div>
-
-          <div className="pt-2 flex gap-2">
-            {!isListening ? (
-              <button
-                type="button"
-                onClick={startVoiceInput}
-                className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-xs flex items-center justify-center space-x-2 shadow-md transition cursor-pointer"
-              >
-                <Mic className="w-4 h-4 text-amber-300" />
-                <span>{L("Click to Speak Details", "பேச தொடங்கவும் (Start Speaking)", "बोलना शुरू करने के लिए क्लिक करें")}</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={stopVoiceInput}
-                className="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-black text-xs flex items-center justify-center space-x-2 shadow-md transition animate-pulse cursor-pointer"
-              >
-                <MicOff className="w-4 h-4 text-white" />
-                <span>{L("Stop Recording", "பேசி முடிந்தது (Stop Listening)", "रिकॉर्डिंग रोकें")}</span>
-              </button>
-            )}
-
-            {voiceTranscript && !isListening && (
-              <button
-                type="button"
-                onClick={() => parseVoiceTranscript(voiceTranscript)}
-                className="px-3.5 py-3 bg-white hover:bg-blue-50 border border-blue-300 text-blue-900 rounded-2xl font-bold text-xs flex items-center justify-center shadow-xs transition"
-                title="Re-apply transcript to form fields"
-              >
-                <span>⚡ {L("Apply", "பயன்படுத்து", "लागू करें")}</span>
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Module B: Client-Side OCR Document Scanner */}
-        <div className="bg-gradient-to-br from-indigo-50 to-purple-50/70 p-5 rounded-3xl border border-indigo-200 shadow-sm flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-2 text-indigo-900 font-black text-xs">
-                <Camera className="w-4 h-4 text-indigo-600" />
-                <span>{L("OCR Document Scanner", "ஆவண ஸ்கேனர் (Tesseract OCR)", "OCR दस्तावेज़ स्कैनर")}</span>
-              </div>
-              <span className="text-[10px] font-bold px-2 py-0.5 bg-indigo-100 text-indigo-800 rounded-full">
-                Tesseract.js Engine
-              </span>
-            </div>
-
-            <p className="text-xs text-slate-600 mb-3 leading-relaxed">
-              {L(
-                "Upload Aadhaar, PAN, or Udyam certificate to auto-extract applicant name, DOB, and district.",
-                "ஆதார், பான் அல்லது உதயம் சான்றிதழை பதிவேற்றி பெயர், பிறந்த தேதி மற்றும் மாவட்டத்தை பெறவும்.",
-                "आवेदक का नाम, जन्मतिथि और जिला निकालने के लिए आधार, पैन या उद्यम प्रमाणपत्र अपलोड करें।"
-              )}
-            </p>
-
-            {/* OCR Success Banner */}
-            {ocrSuccessMsg && (
-              <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-2xl text-xs font-bold text-emerald-800 mb-3 animate-fadeIn flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                <span>{ocrSuccessMsg}</span>
-              </div>
-            )}
-
-            {/* OCR Rejection / Error Banner */}
-            {ocrErrorMsg && (
-              <div className="p-3 bg-rose-50 border border-rose-300 rounded-2xl text-xs font-bold text-rose-800 mb-3 animate-fadeIn flex items-start gap-2">
-                <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-                <span>{ocrErrorMsg}</span>
-              </div>
-            )}
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-2 pt-2">
-            
-            {/* File Upload Trigger */}
-            <label className="flex-1 py-3 bg-white hover:bg-slate-50 border border-indigo-300 rounded-2xl text-xs font-bold text-indigo-900 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs transition">
-              {isProcessingOcr ? <Loader2 className="w-4 h-4 animate-spin text-indigo-600" /> : <Upload className="w-4 h-4 text-indigo-600" />}
-              <span>{isProcessingOcr ? L("Authenticating...", "சரிபார்க்கிறது...", "सत्यापित कर रहा है...") : L("Upload ID File", "அட்டையை பதிவேற்றுக", "दस्तावेज़ अपलोड करें")}</span>
-              <input 
-                type="file" 
-                accept="image/*" 
-                onChange={handleFileUpload}
-                className="hidden" 
-                disabled={isProcessingOcr}
+          {/* Step progress dots */}
+          <div className="flex gap-1.5">
+            {Array.from({ length: WIZARD_TOTAL }).map((_, i) => (
+              <div
+                key={i}
+                className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+                  i + 1 < wizardStep ? 'bg-emerald-400' :
+                  i + 1 === wizardStep ? 'bg-blue-400' : 'bg-slate-700'
+                }`}
               />
-            </label>
-
-            {/* Quick Demo Sample Auto-Scan */}
-            <button
-              type="button"
-              onClick={() => simulateOcrSample("aadhaar")}
-              disabled={isProcessingOcr}
-              className="py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-black shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span>{L("Sample Aadhaar Scan", "மாதிரி ஆதார் ஸ்கேன்", "नमूना आधार कार्ड")}</span>
-            </button>
-
+            ))}
           </div>
         </div>
 
-      </div>
+        {/* Step Content */}
+        <div className="px-6 py-8">
 
-      {/* ========================================================= */}
-      {/* 7 ELIGIBILITY PARAMETERS FORM (ZERO-HARDCODED)            */}
-      {/* ========================================================= */}
-      <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-slate-200 shadow-xl p-6 sm:p-8 space-y-6">
-        
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-          <div>
-            <h2 className="text-base font-black text-slate-900">
-              {L("7 Deterministic Eligibility Parameters", "7 முக்கிய தகுதி அளவுகோல்கள்", "7 निर्धारक पात्रता मापदंड")}
-            </h2>
-            <p className="text-[11px] text-slate-500 font-medium">
-              {L("All fields are strictly required for deterministic matching", "துல்லியமான பொருத்தத்திற்கு அனைத்து விவரங்களும் தேவை", "सटीक मिलान के लिए सभी फ़ील्ड अनिवार्य हैं")}
-            </p>
-          </div>
-          <span className={`text-[10px] font-black px-2.5 py-1 rounded-full border ${isFormComplete ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
-            {isFormComplete ? L("✓ Ready for Matching", "✓ தயார்", "✓ मिलान के लिए तैयार") : L("Pending Input (*)", "முழுமையடையவில்லை (*)", "अपूर्ण इनपुट (*)")}
-          </span>
-        </div>
-
-        {/* Row 1: Full Name & Age */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-black uppercase text-slate-600 mb-1.5 flex items-center justify-between">
-              <span>{L("Full Name *", "முழுப் பெயர் *", "पूरा नाम *")}</span>
-              {!profile.name && <span className="text-[10px] text-rose-500 font-bold">{L("Required", "தேவை", "आवश्यक")}</span>}
-            </label>
-            <input
-              type="text"
-              placeholder={L("e.g. Rajan S. / A. Selvam", "எ.கா: ராஜன் எஸ்.", "उदा. राजन एस. / ए. सेल्वम")}
-              value={profile.name}
-              onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-black uppercase text-slate-600 mb-1.5 flex items-center justify-between">
-              <span>{L("1. Age (18–75 Years) *", "1. வயது (18–75) *", "1. आयु (18–75 वर्ष) *")}</span>
-              {!profile.age && <span className="text-[10px] text-rose-500 font-bold">{L("Required", "தேவை", "आवश्यक")}</span>}
-            </label>
-            <input
-              type="number"
-              min="18"
-              max="75"
-              placeholder={L("Enter age (e.g. 38 or 39)", "வயதை உள்ளிடவும் (எ.கா: 38)", "आयु दर्ज करें (उदा. 38 या 39)")}
-              value={profile.age}
-              onChange={(e) => setProfile({ ...profile, age: e.target.value })}
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-blue-900 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"
-              required
-            />
-          </div>
-        </div>
-
-        {/* Row 2: Area & Sector */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-black uppercase text-slate-600 mb-1.5 flex items-center justify-between">
-              <span>{L("2. Geographic Area *", "2. இருப்பிட பகுதி *", "2. भौगोलिक क्षेत्र *")}</span>
-              {!profile.area && <span className="text-[10px] text-rose-500 font-bold">{L("Select", "தேர்வு செய்க", "चुनें")}</span>}
-            </label>
-            <select
-              value={profile.area}
-              onChange={(e) => setProfile({ ...profile, area: e.target.value })}
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"
-              required
-            >
-              <option value="">{L("-- Select Area --", "-- பகுதியைத் தேர்வு செய்க --", "-- क्षेत्र चुनें --")}</option>
-              <option value="Urban">{L("Urban (City / Municipality)", "நகர்ப்புறம் (Urban)", "शहरी (नगरपालिका / शहर)")}</option>
-              <option value="Rural">{L("Rural (Village / Panchayat)", "கிராமப்புறம் (Rural)", "ग्रामीण (ग्राम पंचायत)")}</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-black uppercase text-slate-600 mb-1.5 flex items-center justify-between">
-              <span>{L("3. Target Sector *", "3. தொழில் பிரிவு *", "3. लक्षित क्षेत्र / व्यवसाय *")}</span>
-              {!profile.sector && <span className="text-[10px] text-rose-500 font-bold">{L("Select", "தேர்வு செய்க", "चुनें")}</span>}
-            </label>
-            <select
-              value={profile.sector}
-              onChange={(e) => setProfile({ ...profile, sector: e.target.value })}
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"
-              required
-            >
-              <option value="">{L("-- Select Trade / Sector --", "-- தொழிலைத் தேர்வு செய்க --", "-- व्यवसाय चुनें --")}</option>
-              <option value="Street Vendor">{L("Street Vendor / Retail Trader", "தெருவோர வியாபாரி (Street Vendor)", "सड़क विक्रेता / खुदरा व्यापारी")}</option>
-              <option value="Handicraft/Artisan">{L("Handicraft / Artisan / Vishwakarma", "கைவினைஞர் (Handicraft/Artisan)", "कारीगर / हस्तशिल्प / विश्वकर्मा")}</option>
-              <option value="Manufacturing">{L("Manufacturing / Production Unit", "உற்பத்தி தொழில் (Manufacturing)", "विनिर्माण / उत्पादन इकाई")}</option>
-              <option value="Services">{L("Services / Repair / Logistics", "சேவை பிரிவு (Services)", "सेवाएँ / मरम्मत / रसद")}</option>
-              <option value="Agriculture/Farming">{L("Agriculture / Allied Livestock", "விவசாயம் / கால்நடை (Agriculture)", "कृषि / संबद्ध पशुपालन")}</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Row 3: Income & SHG Status */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-black uppercase text-slate-600 mb-1.5 flex items-center justify-between">
-              <span>{L("4. Annual Household Income (₹) *", "4. ஆண்டு குடும்ப வருமானம் (₹) *", "4. वार्षिक पारिवारिक आय (₹) *")}</span>
-              {!profile.income && <span className="text-[10px] text-rose-500 font-bold">{L("Required", "தேவை", "आवश्यक")}</span>}
-            </label>
-            <input
-              type="number"
-              step="5000"
-              placeholder={L("e.g. 180000 or 200000", "எ.கா: 180000", "उदा. 180000 या 200000")}
-              value={profile.income}
-              onChange={(e) => setProfile({ ...profile, income: e.target.value })}
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-emerald-800 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"
-              required
-            />
-            <span className="text-[10px] text-emerald-600 font-bold mt-1 block">
-              {L("✓ Concessional Credit Ceiling: ≤ ₹5,00,000", "✓ சலுகைக் கடன் உச்சவரம்பு: ≤ ₹5,00,000", "✓ रियायती ऋण सीमा: ≤ ₹5,00,000")}
-            </span>
-          </div>
-
-          <div>
-            <label className="block text-xs font-black uppercase text-slate-600 mb-1.5 flex items-center justify-between">
-              <span>{L("5. SHG Membership Status *", "5. சுயஉதவிக்குழு நிலை *", "5. SHG सदस्यता स्थिति *")}</span>
-              {!profile.shg_membership && <span className="text-[10px] text-rose-500 font-bold">{L("Select", "தேர்வு செய்க", "चुनें")}</span>}
-            </label>
-            <select
-              value={profile.shg_membership}
-              onChange={(e) => setProfile({ ...profile, shg_membership: e.target.value })}
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"
-              required
-            >
-              <option value="">{L("-- Select SHG Status --", "-- தேர்வு செய்க --", "-- SHG स्थिति चुनें --")}</option>
-              <option value="No">{L("No (Not a Member)", "இல்லை (Non-Member)", "नहीं (सदस्य नहीं)")}</option>
-              <option value="Yes">{L("Yes (Active SHG Member)", "ஆம் (Active SHG Member)", "हाँ (सक्रिय SHG सदस्य)")}</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Row 4: Gender & Social Category */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-black uppercase text-slate-600 mb-1.5 flex items-center justify-between">
-              <span>{L("6. Gender *", "6. பாலினம் *", "6. लिंग *")}</span>
-              {!profile.gender && <span className="text-[10px] text-rose-500 font-bold">{L("Select", "தேர்வு செய்க", "चुनें")}</span>}
-            </label>
-            <select
-              value={profile.gender}
-              onChange={(e) => setProfile({ ...profile, gender: e.target.value })}
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"
-              required
-            >
-              <option value="">{L("-- Select Gender --", "-- பாலினம் தேர்வு செய்க --", "-- लिंग चुनें --")}</option>
-              <option value="Male">{L("Male", "ஆண் (Male)", "पुरुष (Male)")}</option>
-              <option value="Female">{L("Female (Special 4% Subsidies)", "பெண் (Female - 4% சிறப்பு சலுகை)", "महिला (विशेष 4% सब्सिडी)")}</option>
-              <option value="Transgender">{L("Transgender", "மூன்றாம் பாலினம் (Transgender)", "ट्रांसजेंडर")}</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-black uppercase text-slate-600 mb-1.5 flex items-center justify-between">
-              <span>{L("7. Social Category *", "7. சமூகப் பிரிவு *", "7. सामाजिक श्रेणी *")}</span>
-              {!profile.caste && <span className="text-[10px] text-rose-500 font-bold">{L("Select", "தேர்வு செய்க", "चुनें")}</span>}
-            </label>
-            <select
-              value={profile.caste}
-              onChange={(e) => setProfile({ ...profile, caste: e.target.value })}
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-blue-900 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"
-              required
-            >
-              <option value="">{L("-- Select Category --", "-- சமூகப் பிரிவு தேர்வு --", "-- श्रेणी चुनें --")}</option>
-              <option value="SC/ST">{L("SC / ST (Target Welfare Beneficiary)", "பட்டியலினத்தவர் (SC / ST)", "अनुसूचित जाति / जनजाति (SC/ST)")}</option>
-              <option value="OBC">{L("OBC (Other Backward Classes)", "பிற்படுத்தப்பட்டோர் (OBC)", "अन्य पिछड़ा वर्ग (OBC)")}</option>
-              <option value="General">{L("General / Other", "பொதுப் பிரிவு (General)", "सामान्य / अन्य")}</option>
-            </select>
-          </div>
-        </div>
-
-        {/* ========================================================================= */}
-        {/* 4-FACTOR DOCUMENT & IDENTITY AUTHENTICATION GATEWAY                       */}
-        {/* ========================================================================= */}
-        <div className="pt-6 border-t border-slate-200">
-
-          {/* Module Header with Live Reactive Approval Badge */}
-          <div className="bg-slate-900 text-white rounded-2xl p-5 mb-4 shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          {/* â”€â”€ STEP 1: Full Name & Gender â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {wizardStep === 1 && (
+            <div className="animate-fadeIn space-y-5">
               <div>
-                <span className="text-sm font-black tracking-tight text-white">
-                  🛡️ 4-Factor Identity &amp; Document Authentication Gateway
-                </span>
-                <p className="text-[11px] text-slate-300 mt-1">
-                  {L(
-                    "Client-side Tesseract.js OCR · Zero server uploads · UIDAI mobile OTP handshake required before scheme evaluation.",
-                    "கிளையன்ட்-பக்க OCR · ஆவணங்கள் சர்வரில் பதிவேற்றப்படாது · திட்ட மதிப்பீட்டிற்கு முன் UIDAI OTP சரிபார்ப்பு கட்டாயம்.",
-                    "क्लाइंट-साइड OCR · शून्य सर्वर अपलोड · योजना मूल्यांकन से पूर्व UIDAI OTP हैंडशेक अनिवार्य।"
-                  )}
+                <p className="text-[11px] font-black uppercase text-blue-600 tracking-wider mb-1">
+                  {L('Step 1 â€” Identity', 'à®ªà®Ÿà®¿ 1 â€” à®…à®Ÿà¯ˆà®¯à®¾à®³à®®à¯', 'à¤šà¤°à¤£ 1 â€” à¤ªà¤¹à¤šà¤¾à¤¨')}
                 </p>
-                {/* Progress Indicator */}
-                <div className="flex items-center gap-2 mt-2">
-                  {[0,1,2,3].map(i => {
-                    const keys = ['aadhaar','pan','community','income'];
-                    const s = ocrCards[keys[i]].status;
-                    return (
-                      <div key={i} className={`h-1.5 w-12 rounded-full transition-all ${
-                        s === 'passed' ? 'bg-emerald-400' : s === 'scanning' ? 'bg-amber-400 animate-pulse' : 'bg-slate-600'
-                      }`} />
-                    );
-                  })}
-                  <span className="text-[10px] text-slate-400 font-mono ml-1">{ocrPassedCount}/4 verified</span>
-                </div>
+                <h2 className="text-xl font-black text-slate-900">
+                  {L("What's your name and gender?", 'à®‰à®™à¯à®•à®³à¯ à®ªà¯†à®¯à®°à¯ à®®à®±à¯à®±à¯à®®à¯ à®ªà®¾à®²à®¿à®©à®®à¯ à®Žà®©à¯à®©?', 'à¤†à¤ªà¤•à¤¾ à¤¨à¤¾à¤® à¤”à¤° à¤²à¤¿à¤‚à¤— à¤•à¥à¤¯à¤¾ à¤¹à¥ˆ?')}
+                </h2>
               </div>
 
-              {/* Live Reactive Approval Badge */}
-              <div className="shrink-0">
-                {isFullyAuthenticated ? (
-                  <div className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 border-2 border-emerald-400 font-black text-xs animate-pulse shadow-sm">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    <span>AUTHENTICATION APPROVED 🟢</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/80 font-bold text-xs">
-                    <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-                    <span>AUTHENTICATION PENDING ⚠️</span>
-                  </div>
+              <div>
+                <label className="block text-xs font-black uppercase text-slate-600 mb-1.5">
+                  {L('Full Name *', 'à®®à¯à®´à¯à®ªà¯ à®ªà¯†à®¯à®°à¯ *', 'à¤ªà¥‚à¤°à¤¾ à¤¨à¤¾à¤® *')}
+                </label>
+                <input
+                  type="text"
+                  placeholder={L('e.g. Rajan S. / A. Selvam', 'à®Ž.à®•à®¾: à®°à®¾à®œà®©à¯ à®Žà®¸à¯.', 'à¤‰à¤¦à¤¾. à¤°à¤¾à¤œà¤¨ à¤à¤¸.')}
+                  value={profile.name}
+                  onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-black uppercase text-slate-600 mb-1.5">
+                  {L('Gender *', 'à®ªà®¾à®²à®¿à®©à®®à¯ *', 'à¤²à¤¿à¤‚à¤— *')}
+                </label>
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { v: 'Male',        label: L('Male', 'à®†à®£à¯', 'à¤ªà¥à¤°à¥à¤·') },
+                    { v: 'Female',      label: L('Female', 'à®ªà¯†à®£à¯', 'à¤®à¤¹à¤¿à¤²à¤¾') },
+                    { v: 'Transgender', label: L('Transgender', 'à®®à¯‚à®©à¯à®±à®¾à®®à¯', 'à¤Ÿà¥à¤°à¤¾à¤‚à¤¸à¤œà¥‡à¤‚à¤¡à¤°') },
+                  ].map(opt => (
+                    <button
+                      key={opt.v}
+                      type="button"
+                      onClick={() => setProfile({ ...profile, gender: opt.v })}
+                      className={`py-3 rounded-xl border-2 text-xs font-black transition cursor-pointer ${
+                        profile.gender === opt.v
+                          ? 'border-blue-600 bg-blue-50 text-blue-800'
+                          : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-blue-300'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+                {profile.gender === 'Female' && (
+                  <p className="text-[11px] text-emerald-700 font-semibold mt-2 bg-emerald-50 px-3 py-1.5 rounded-lg">
+                    âœ“ {L('Women entrepreneurs get an additional 4% interest subvention on eligible schemes.', 'à®ªà¯†à®£à¯ à®¤à¯Šà®´à®¿à®²à¯à®®à¯à®©à¯ˆà®µà¯‹à®°à¯à®•à¯à®•à¯ 4% à®•à¯‚à®Ÿà¯à®¤à®²à¯ à®µà®Ÿà¯à®Ÿà®¿ à®šà®²à¯à®•à¯ˆ.', 'à¤®à¤¹à¤¿à¤²à¤¾ à¤‰à¤¦à¥à¤¯à¤®à¤¿à¤¯à¥‹à¤‚ à¤•à¥‹ 4% à¤…à¤¤à¤¿à¤°à¤¿à¤•à¥à¤¤ à¤¬à¥à¤¯à¤¾à¤œ à¤¸à¤¬à¥à¤¸à¤¿à¤¡à¥€à¥¤')}
+                  </p>
                 )}
               </div>
             </div>
-          </div>
+          )}
 
-          {/* ── STEP 1: 4-CARD OCR SCANNER GRID ─────────────────────────────────── */}
-          <div className="mb-4">
-            {/* Demo Speedup Button */}
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-black uppercase text-slate-700 tracking-wider flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-800 text-xs font-black flex items-center justify-center">1</span>
-                {L("Step 1: Scan 4 Identity Documents", "படி 1: 4 அடையாள ஆவணங்களை ஸ்கேன் செய்க", "चरण 1: 4 पहचान दस्तावेज़ स्कैन करें")}
-              </span>
-              <button
-                type="button"
-                onClick={triggerDemoScanAll}
-                disabled={allOcrPassed}
-                className="text-[11px] font-bold text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg border border-amber-200 transition cursor-pointer flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>{L("⚡ Demo Mode: Scan Sample Citizen Packet", "⚡ மாதிரி குடிமகன் பொதியை ஸ்கேன் செய்க", "⚡ डेमो मोड: नमूना नागरिक पैकेट स्कैन करें")}</span>
-              </button>
-            </div>
-
-            {/* 4-Card Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-
-              {/* Card A: Aadhaar */}
-              {(() => {
-                const card = ocrCards.aadhaar;
-                return (
-                  <div className={`rounded-2xl border-2 transition ${card.status === 'passed' ? 'border-emerald-300 bg-emerald-50/40' : card.status === 'scanning' ? 'border-blue-300 bg-blue-50/30' : 'border-slate-200 bg-white'}`}>
-                    <div className="p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">🪪</span>
-                          <div>
-                            <span className="text-xs font-black text-slate-800 block">Card A: Aadhaar</span>
-                            <span className="text-[10px] text-slate-400">UIDAI 12-digit + Verhoeff</span>
-                          </div>
-                        </div>
-                        {card.status === 'passed' && <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />}
-                        {card.status === 'scanning' && <Loader2 className="w-4 h-4 text-blue-500 animate-spin shrink-0" />}
-                      </div>
-
-                      {card.status === 'passed' ? (
-                        <div className="space-y-1.5">
-                          <div className="text-[10px] px-2 py-1 bg-emerald-100 text-emerald-800 rounded font-mono font-bold">{card.extracted?.masked}</div>
-                          <div className="text-[10px] px-2 py-1 bg-white border border-emerald-200 text-slate-600 rounded">Verhoeff: {card.extracted?.checksum}</div>
-                          <div className="text-[10px] font-bold text-emerald-700 mt-1">{card.badge}</div>
-                        </div>
-                      ) : card.status === 'scanning' ? (
-                        <div className="text-[11px] text-blue-600 font-bold animate-pulse py-1">Running Verhoeff checksum & eKYC structure...</div>
-                      ) : (
-                        <label className="block border border-dashed border-slate-300 hover:border-blue-400 rounded-xl p-3 text-center cursor-pointer bg-slate-50/60 hover:bg-blue-50/20 transition">
-                          <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => e.target.files?.[0] && triggerCardOcr('aadhaar', e.target.files[0].name)} />
-                          <Upload className="w-4 h-4 text-slate-400 mx-auto mb-1" />
-                          <span className="text-[10px] text-slate-500 font-medium">Drop Aadhaar card or click</span>
-                        </label>
-                      )}
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* Card B: PAN */}
-              {(() => {
-                const card = ocrCards.pan;
-                return (
-                  <div className={`rounded-2xl border-2 transition ${card.status === 'passed' ? 'border-emerald-300 bg-emerald-50/40' : card.status === 'scanning' ? 'border-blue-300 bg-blue-50/30' : 'border-slate-200 bg-white'}`}>
-                    <div className="p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">💳</span>
-                          <div>
-                            <span className="text-xs font-black text-slate-800 block">Card B: PAN Card</span>
-                            <span className="text-[10px] text-slate-400">NSDL ABCDE1234F structure</span>
-                          </div>
-                        </div>
-                        {card.status === 'passed' && <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />}
-                        {card.status === 'scanning' && <Loader2 className="w-4 h-4 text-blue-500 animate-spin shrink-0" />}
-                      </div>
-
-                      {card.status === 'passed' ? (
-                        <div className="space-y-1.5">
-                          <div className="text-[10px] px-2 py-1 bg-emerald-100 text-emerald-800 rounded font-mono font-bold">{card.extracted?.id} · {card.extracted?.type}</div>
-                          <div className="text-[10px] px-2 py-1 bg-white border border-emerald-200 text-slate-600 rounded">Name match: {card.extracted?.name}</div>
-                          <div className="text-[10px] font-bold text-emerald-700 mt-1">{card.badge}</div>
-                        </div>
-                      ) : card.status === 'scanning' ? (
-                        <div className="text-[11px] text-blue-600 font-bold animate-pulse py-1">Querying NSDL PAN structure & name match...</div>
-                      ) : (
-                        <label className="block border border-dashed border-slate-300 hover:border-blue-400 rounded-xl p-3 text-center cursor-pointer bg-slate-50/60 hover:bg-blue-50/20 transition">
-                          <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => e.target.files?.[0] && triggerCardOcr('pan', e.target.files[0].name)} />
-                          <Upload className="w-4 h-4 text-slate-400 mx-auto mb-1" />
-                          <span className="text-[10px] text-slate-500 font-medium">Drop PAN card or click</span>
-                        </label>
-                      )}
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* Card C: Community Certificate */}
-              {(() => {
-                const card = ocrCards.community;
-                return (
-                  <div className={`rounded-2xl border-2 transition ${card.status === 'passed' ? 'border-emerald-300 bg-emerald-50/40' : card.status === 'scanning' ? 'border-blue-300 bg-blue-50/30' : 'border-slate-200 bg-white'}`}>
-                    <div className="p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">📜</span>
-                          <div>
-                            <span className="text-xs font-black text-slate-800 block">Card C: Community Cert.</span>
-                            <span className="text-[10px] text-slate-400">e-District serial + category</span>
-                          </div>
-                        </div>
-                        {card.status === 'passed' && <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />}
-                        {card.status === 'scanning' && <Loader2 className="w-4 h-4 text-blue-500 animate-spin shrink-0" />}
-                      </div>
-
-                      {card.status === 'passed' ? (
-                        <div className="space-y-1.5">
-                          <div className="text-[10px] px-2 py-1 bg-emerald-100 text-emerald-800 rounded font-mono font-bold">{card.extracted?.serial}</div>
-                          <div className="text-[10px] px-2 py-1 bg-white border border-emerald-200 text-slate-600 rounded">Category: {card.extracted?.category} · {card.extracted?.state}</div>
-                          <div className="text-[10px] font-bold text-emerald-700 mt-1">{card.badge}</div>
-                        </div>
-                      ) : card.status === 'scanning' ? (
-                        <div className="text-[11px] text-blue-600 font-bold animate-pulse py-1">Cross-checking category vs intake form data...</div>
-                      ) : (
-                        <label className="block border border-dashed border-slate-300 hover:border-blue-400 rounded-xl p-3 text-center cursor-pointer bg-slate-50/60 hover:bg-blue-50/20 transition">
-                          <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => e.target.files?.[0] && triggerCardOcr('community', e.target.files[0].name)} />
-                          <Upload className="w-4 h-4 text-slate-400 mx-auto mb-1" />
-                          <span className="text-[10px] text-slate-500 font-medium">Drop Community Certificate or click</span>
-                        </label>
-                      )}
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* Card D: Income Certificate */}
-              {(() => {
-                const card = ocrCards.income;
-                return (
-                  <div className={`rounded-2xl border-2 transition ${
-                    card.status === 'passed' ? 'border-emerald-300 bg-emerald-50/40' :
-                    card.status === 'scanning' ? 'border-blue-300 bg-blue-50/30' :
-                    'border-slate-200 bg-white'
-                  }`}>
-                    <div className="p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">📊</span>
-                          <div>
-                            <span className="text-xs font-black text-slate-800 block">Card D: Income Cert.</span>
-                            <span className="text-[10px] text-slate-400">Revenue dept + income threshold</span>
-                          </div>
-                        </div>
-                        {card.status === 'passed' && <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />}
-                        {card.status === 'scanning' && <Loader2 className="w-4 h-4 text-blue-500 animate-spin shrink-0" />}
-                      </div>
-
-                      {card.status === 'passed' ? (
-                        <div className="space-y-1.5">
-                          <div className="text-[10px] px-2 py-1 bg-emerald-100 text-emerald-800 rounded font-mono font-bold">
-                            {card.extracted?.amountFmt} · FY {card.extracted?.year}
-                          </div>
-                          <div className="text-[10px] px-2 py-1 bg-white border border-emerald-200 text-slate-600 rounded">
-                            Serial: {card.extracted?.serial}
-                          </div>
-                          <div className="text-[10px] font-bold text-emerald-700 mt-1">{card.badge}</div>
-                        </div>
-                      ) : card.status === 'scanning' ? (
-                        <div className="text-[11px] text-blue-600 font-bold animate-pulse py-1">Verifying income vs scheme threshold caps...</div>
-                      ) : (
-                        <label className="block border border-dashed border-slate-300 hover:border-blue-400 rounded-xl p-3 text-center cursor-pointer bg-slate-50/60 hover:bg-blue-50/20 transition">
-                          <input type="file" accept="image/*,.pdf" className="hidden" onChange={(e) => e.target.files?.[0] && triggerCardOcr('income', e.target.files[0].name)} />
-                          <Upload className="w-4 h-4 text-slate-400 mx-auto mb-1" />
-                          <span className="text-[10px] text-slate-500 font-medium">Drop Income Certificate or click</span>
-                        </label>
-                      )}
-                    </div>
-                  </div>
-                );
-              })()}
-
-            </div>
-
-            {/* All 4 Passed Summary */}
-            {allOcrPassed && (
-              <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span className="text-xs font-black text-emerald-900">
-                  ✓ All 4 Documents Verified — OCR Complete · Proceed to Mobile OTP Handshake
-                </span>
+          {/* â”€â”€ STEP 2: Age â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {wizardStep === 2 && (
+            <div className="animate-fadeIn space-y-5">
+              <div>
+                <p className="text-[11px] font-black uppercase text-blue-600 tracking-wider mb-1">
+                  {L('Step 2 â€” Age', 'à®ªà®Ÿà®¿ 2 â€” à®µà®¯à®¤à¯', 'à¤šà¤°à¤£ 2 â€” à¤†à¤¯à¥')}
+                </p>
+                <h2 className="text-xl font-black text-slate-900">
+                  {L('How old are you?', 'à®‰à®™à¯à®•à®³à¯ à®µà®¯à®¤à¯ à®Žà®©à¯à®©?', 'à¤†à¤ªà¤•à¥€ à¤†à¤¯à¥ à¤•à¥à¤¯à¤¾ à¤¹à¥ˆ?')}
+                </h2>
+                <p className="text-sm text-slate-500 mt-1">
+                  {L('Must be between 18 and 75 years.', '18 à®®à¯à®¤à®²à¯ 75 à®µà®¯à®¤à¯ à®µà®°à¯ˆ.', '18 à¤¸à¥‡ 75 à¤µà¤°à¥à¤· à¤•à¥‡ à¤¬à¥€à¤š à¤¹à¥‹à¤¨à¥€ à¤šà¤¾à¤¹à¤¿à¤à¥¤')}
+                </p>
               </div>
-            )}
-          </div>
-
-          {/* ── STEP 2: MOBILE UIDAI OTP HANDSHAKE ──────────────────────────────── */}
-          <div className={`p-5 bg-white border-2 rounded-2xl transition ${
-            allOcrPassed ? 'border-blue-200' : 'border-slate-200 opacity-50 pointer-events-none'
-          }`}>
-            <div className="flex items-center space-x-2 mb-3">
-              <span className={`w-6 h-6 rounded-full text-xs font-black flex items-center justify-center ${
-                allOcrPassed ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-400'
-              }`}>2</span>
-              <h4 className="text-xs font-black uppercase text-slate-800 tracking-wider">
-                {L("Step 2: Mobile UIDAI OTP Handshake", "படி 2: மொபைல் UIDAI OTP கைகுலுக்கல்", "चरण 2: मोबाइल यूआईडीएआई ओटीपी हैंडशेक")}
-              </h4>
-              {!allOcrPassed && (
-                <span className="text-[10px] text-slate-400 font-medium hidden sm:inline">
-                  (Complete all 4 OCR scans first)
-                </span>
+              <input
+                type="number"
+                min="18"
+                max="75"
+                placeholder={L('Enter your age (e.g. 38)', 'à®µà®¯à®¤à¯ˆ à®‰à®³à¯à®³à®¿à®Ÿà®µà¯à®®à¯ (à®Ž.à®•à®¾: 38)', 'à¤†à¤¯à¥ à¤¦à¤°à¥à¤œ à¤•à¤°à¥‡à¤‚ (à¤‰à¤¦à¤¾. 38)')}
+                value={profile.age}
+                onChange={(e) => setProfile({ ...profile, age: e.target.value })}
+                className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-200 rounded-xl text-2xl font-black text-blue-900 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-center"
+              />
+              {profile.age && (Number(profile.age) < 18 || Number(profile.age) > 75) && (
+                <p className="text-rose-600 text-xs font-bold">
+                  {L('Age must be 18â€“75 years.', 'à®µà®¯à®¤à¯ 18â€“75 à®†à®• à®‡à®°à¯à®•à¯à®• à®µà¯‡à®£à¯à®Ÿà¯à®®à¯.', 'à¤†à¤¯à¥ 18â€“75 à¤µà¤°à¥à¤· à¤¹à¥‹à¤¨à¥€ à¤šà¤¾à¤¹à¤¿à¤à¥¤')}
+                </p>
               )}
             </div>
+          )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
-              <div className="sm:col-span-6">
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  {L("10-Digit Mobile (Linked to Aadhaar):", "ஆதாருடன் இணைக்கப்பட்ட 10 இலக்க மொபைல்:", "आधार से जुड़ा 10-अंकीय मोबाइल:")}
+          {/* â”€â”€ STEP 3: Area / Location â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {wizardStep === 3 && (
+            <div className="animate-fadeIn space-y-5">
+              <div>
+                <p className="text-[11px] font-black uppercase text-blue-600 tracking-wider mb-1">
+                  {L('Step 3 â€” Location', 'à®ªà®Ÿà®¿ 3 â€” à®‡à®°à¯à®ªà¯à®ªà®¿à®Ÿà®®à¯', 'à¤šà¤°à¤£ 3 â€” à¤¸à¥à¤¥à¤¾à¤¨')}
+                </p>
+                <h2 className="text-xl font-black text-slate-900">
+                  {L('Where do you live?', 'à®¨à¯€à®™à¯à®•à®³à¯ à®Žà®™à¯à®•à¯ à®µà®šà®¿à®•à¯à®•à®¿à®±à¯€à®°à¯à®•à®³à¯?', 'à¤†à¤ª à¤•à¤¹à¤¾à¤ à¤°à¤¹à¤¤à¥‡ à¤¹à¥ˆà¤‚?')}
+                </h2>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { v: 'Urban', emoji: 'ðŸ™ï¸', label: L('Urban', 'à®¨à®•à®°à¯à®ªà¯à®ªà¯à®±à®®à¯', 'à¤¶à¤¹à¤°à¥€'), sub: L('City / Municipality', 'à®¨à®•à®°à®®à¯ / à®Šà®°à®¾à®Ÿà¯à®šà®¿', 'à¤¶à¤¹à¤° / à¤¨à¤—à¤°à¤ªà¤¾à¤²à¤¿à¤•à¤¾') },
+                  { v: 'Rural', emoji: 'ðŸŒ¾', label: L('Rural', 'à®•à®¿à®°à®¾à®®à®ªà¯à®ªà¯à®±à®®à¯', 'à¤—à¥à¤°à¤¾à¤®à¥€à¤£'), sub: L('Village / Panchayat', 'à®•à®¿à®°à®¾à®®à®®à¯ / à®ªà®žà¯à®šà®¾à®¯à®¤à¯à®¤à¯', 'à¤—à¥à¤°à¤¾à¤® / à¤ªà¤‚à¤šà¤¾à¤¯à¤¤') },
+                ].map(opt => (
+                  <button
+                    key={opt.v}
+                    type="button"
+                    onClick={() => setProfile({ ...profile, area: opt.v })}
+                    className={`py-6 rounded-2xl border-2 text-center transition cursor-pointer ${
+                      profile.area === opt.v
+                        ? 'border-blue-600 bg-blue-50'
+                        : 'border-slate-200 bg-slate-50 hover:border-blue-300'
+                    }`}
+                  >
+                    <div className="text-3xl mb-2">{opt.emoji}</div>
+                    <div className={`text-sm font-black ${profile.area === opt.v ? 'text-blue-800' : 'text-slate-800'}`}>{opt.label}</div>
+                    <div className="text-[11px] text-slate-500 mt-0.5">{opt.sub}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* â”€â”€ STEP 4: Sector â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {wizardStep === 4 && (
+            <div className="animate-fadeIn space-y-5">
+              <div>
+                <p className="text-[11px] font-black uppercase text-blue-600 tracking-wider mb-1">
+                  {L('Step 4 â€” Sector', 'à®ªà®Ÿà®¿ 4 â€” à®¤à¯Šà®´à®¿à®²à¯', 'à¤šà¤°à¤£ 4 â€” à¤µà¥à¤¯à¤µà¤¸à¤¾à¤¯')}
+                </p>
+                <h2 className="text-xl font-black text-slate-900">
+                  {L('What type of business do you run?', 'à®¨à¯€à®™à¯à®•à®³à¯ à®Žà®¨à¯à®¤ à®µà®•à¯ˆ à®µà®£à®¿à®•à®®à¯ à®¨à®Ÿà®¤à¯à®¤à¯à®•à®¿à®±à¯€à®°à¯à®•à®³à¯?', 'à¤†à¤ª à¤•à¤¿à¤¸ à¤ªà¥à¤°à¤•à¤¾à¤° à¤•à¤¾ à¤µà¥à¤¯à¤µà¤¸à¤¾à¤¯ à¤šà¤²à¤¾à¤¤à¥‡ à¤¹à¥ˆà¤‚?')}
+                </h2>
+              </div>
+              <div className="space-y-2">
+                {[
+                  { v: 'Street Vendor',       emoji: 'ðŸ›’', label: L('Street Vendor / Retail Trader', 'à®¤à¯†à®°à¯à®µà¯‹à®° à®µà®¿à®¯à®¾à®ªà®¾à®°à®¿', 'à¤¸à¤¡à¤¼à¤• à¤µà¤¿à¤•à¥à¤°à¥‡à¤¤à¤¾ / à¤–à¥à¤¦à¤°à¤¾ à¤µà¥à¤¯à¤¾à¤ªà¤¾à¤°à¥€') },
+                  { v: 'Handicraft/Artisan',   emoji: 'ðŸª¡', label: L('Handicraft / Artisan / Vishwakarma', 'à®•à¯ˆà®µà®¿à®©à¯ˆà®žà®°à¯', 'à¤•à¤¾à¤°à¥€à¤—à¤° / à¤¹à¤¸à¥à¤¤à¤¶à¤¿à¤²à¥à¤ª') },
+                  { v: 'Manufacturing',         emoji: 'ðŸ­', label: L('Manufacturing / Production Unit', 'à®‰à®±à¯à®ªà®¤à¯à®¤à®¿ à®¤à¯Šà®´à®¿à®²à¯', 'à¤µà¤¿à¤¨à¤¿à¤°à¥à¤®à¤¾à¤£ / à¤‰à¤¤à¥à¤ªà¤¾à¤¦à¤¨') },
+                  { v: 'Services',              emoji: 'ðŸ”§', label: L('Services / Repair / Logistics', 'à®šà¯‡à®µà¯ˆ à®ªà®¿à®°à®¿à®µà¯', 'à¤¸à¥‡à¤µà¤¾à¤à¤ / à¤®à¤°à¤®à¥à¤®à¤¤') },
+                  { v: 'Agriculture/Farming',   emoji: 'ðŸŒ±', label: L('Agriculture / Allied Livestock', 'à®µà®¿à®µà®šà®¾à®¯à®®à¯', 'à¤•à¥ƒà¤·à¤¿ / à¤ªà¤¶à¥à¤ªà¤¾à¤²à¤¨') },
+                ].map(opt => (
+                  <button
+                    key={opt.v}
+                    type="button"
+                    onClick={() => setProfile({ ...profile, sector: opt.v })}
+                    className={`w-full flex items-center gap-4 px-5 py-4 rounded-xl border-2 text-left transition cursor-pointer ${
+                      profile.sector === opt.v
+                        ? 'border-blue-600 bg-blue-50'
+                        : 'border-slate-200 bg-slate-50 hover:border-blue-300'
+                    }`}
+                  >
+                    <span className="text-2xl">{opt.emoji}</span>
+                    <span className={`text-sm font-bold ${profile.sector === opt.v ? 'text-blue-800' : 'text-slate-800'}`}>{opt.label}</span>
+                    {profile.sector === opt.v && <span className="ml-auto text-blue-600 font-black text-lg">âœ“</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* â”€â”€ STEP 5: Annual Income â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {wizardStep === 5 && (
+            <div className="animate-fadeIn space-y-5">
+              <div>
+                <p className="text-[11px] font-black uppercase text-blue-600 tracking-wider mb-1">
+                  {L('Step 5 â€” Income', 'à®ªà®Ÿà®¿ 5 â€” à®µà®°à¯à®®à®¾à®©à®®à¯', 'à¤šà¤°à¤£ 5 â€” à¤†à¤¯')}
+                </p>
+                <h2 className="text-xl font-black text-slate-900">
+                  {L('What is your annual household income?', 'à®‰à®™à¯à®•à®³à¯ à®†à®£à¯à®Ÿà¯ à®•à¯à®Ÿà¯à®®à¯à®ª à®µà®°à¯à®®à®¾à®©à®®à¯ à®Žà®©à¯à®©?', 'à¤†à¤ªà¤•à¥€ à¤µà¤¾à¤°à¥à¤·à¤¿à¤• à¤ªà¤¾à¤°à¤¿à¤µà¤¾à¤°à¤¿à¤• à¤†à¤¯ à¤•à¥à¤¯à¤¾ à¤¹à¥ˆ?')}
+                </h2>
+                <p className="text-sm text-slate-500 mt-1">
+                  {L('Enter in â‚¹ (Indian Rupees).', 'â‚¹ (à®‡à®¨à¯à®¤à®¿à®¯ à®°à¯‚à®ªà®¾à®¯à¯) à®‡à®²à¯ à®‰à®³à¯à®³à®¿à®Ÿà®µà¯à®®à¯.', 'â‚¹ (à¤­à¤¾à¤°à¤¤à¥€à¤¯ à¤°à¥à¤ªà¤¯à¥‡) à¤®à¥‡à¤‚ à¤¦à¤°à¥à¤œ à¤•à¤°à¥‡à¤‚à¥¤')}
+                </p>
+              </div>
+              <input
+                type="number"
+                step="5000"
+                placeholder={L('e.g. 180000', 'à®Ž.à®•à®¾: 180000', 'à¤‰à¤¦à¤¾. 180000')}
+                value={profile.income}
+                onChange={(e) => setProfile({ ...profile, income: e.target.value })}
+                className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-200 rounded-xl text-xl font-black text-emerald-800 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none text-center"
+              />
+              <div className="grid grid-cols-3 gap-2">
+                {[60000, 120000, 180000, 240000, 360000, 500000].map(amt => (
+                  <button
+                    key={amt}
+                    type="button"
+                    onClick={() => setProfile({ ...profile, income: amt })}
+                    className={`py-2.5 rounded-xl border text-xs font-bold transition cursor-pointer ${
+                      Number(profile.income) === amt
+                        ? 'border-emerald-500 bg-emerald-50 text-emerald-800'
+                        : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-emerald-300'
+                    }`}
+                  >
+                    â‚¹{(amt/100000).toFixed(1)}L
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11px] text-emerald-600 font-semibold bg-emerald-50 px-3 py-2 rounded-lg">
+                âœ“ {L('Concessional credit ceiling: â‰¤ â‚¹5,00,000', 'à®šà®²à¯à®•à¯ˆà®•à¯ à®•à®Ÿà®©à¯ à®‰à®šà¯à®šà®µà®°à®®à¯à®ªà¯: â‰¤ â‚¹5,00,000', 'à¤°à¤¿à¤¯à¤¾à¤¯à¤¤à¥€ à¤‹à¤£ à¤¸à¥€à¤®à¤¾: â‰¤ â‚¹5,00,000')}
+              </p>
+            </div>
+          )}
+
+          {/* â”€â”€ STEP 6: Social Category (Caste) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {wizardStep === 6 && (
+            <div className="animate-fadeIn space-y-5">
+              <div>
+                <p className="text-[11px] font-black uppercase text-blue-600 tracking-wider mb-1">
+                  {L('Step 6 â€” Category', 'à®ªà®Ÿà®¿ 6 â€” à®šà®®à¯‚à®•à®ªà¯ à®ªà®¿à®°à®¿à®µà¯', 'à¤šà¤°à¤£ 6 â€” à¤¶à¥à¤°à¥‡à¤£à¥€')}
+                </p>
+                <h2 className="text-xl font-black text-slate-900">
+                  {L('What is your social category?', 'à®‰à®™à¯à®•à®³à¯ à®šà®®à¯‚à®•à®ªà¯ à®ªà®¿à®°à®¿à®µà¯ à®Žà®©à¯à®©?', 'à¤†à¤ªà¤•à¥€ à¤¸à¤¾à¤®à¤¾à¤œà¤¿à¤• à¤¶à¥à¤°à¥‡à¤£à¥€ à¤•à¥à¤¯à¤¾ à¤¹à¥ˆ?')}
+                </h2>
+                <p className="text-sm text-slate-500 mt-1">
+                  {L('Determines SC/ST-specific welfare scheme eligibility.', 'SC/ST à®•à¯à®±à®¿à®ªà¯à®ªà®¿à®Ÿà¯à®Ÿ à®¨à®²à®¤à¯à®¤à®¿à®Ÿà¯à®Ÿ à®¤à®•à¯à®¤à®¿à®¯à¯ˆ à®¨à®¿à®°à¯à®£à®¯à®¿à®•à¯à®•à®¿à®±à®¤à¯.', 'SC/ST à¤µà¤¿à¤¶à¤¿à¤·à¥à¤Ÿ à¤•à¤²à¥à¤¯à¤¾à¤£ à¤¯à¥‹à¤œà¤¨à¤¾ à¤ªà¤¾à¤¤à¥à¤°à¤¤à¤¾ à¤¨à¤¿à¤°à¥à¤§à¤¾à¤°à¤¿à¤¤ à¤•à¤°à¤¤à¥€ à¤¹à¥ˆà¥¤')}
+                </p>
+              </div>
+              <div className="space-y-3">
+                {[
+                  { v: 'SC/ST',    label: L('SC / ST', 'à®ªà®Ÿà¯à®Ÿà®¿à®¯à®²à®¿à®©à®¤à¯à®¤à®µà®°à¯ (SC/ST)', 'à¤…à¤¨à¥à¤¸à¥‚à¤šà¤¿à¤¤ à¤œà¤¾à¤¤à¤¿ / à¤œà¤¨à¤œà¤¾à¤¤à¤¿'), sub: L('Target Welfare Beneficiary', 'à®‡à®²à®•à¯à®•à¯ à®¨à®²à®©à¯à®ªà¯à®°à®¿ à®ªà®¯à®©à®¾à®³à®¿', 'à¤²à¤•à¥à¤·à¤¿à¤¤ à¤•à¤²à¥à¤¯à¤¾à¤£ à¤²à¤¾à¤­à¤¾à¤°à¥à¤¥à¥€'), badge: L('Most Schemes', 'à®…à®¤à®¿à®• à®¤à®¿à®Ÿà¯à®Ÿà®™à¯à®•à®³à¯', 'à¤…à¤§à¤¿à¤•à¤¾à¤‚à¤¶ à¤¯à¥‹à¤œà¤¨à¤¾à¤à¤'), badgeColor: 'bg-emerald-100 text-emerald-800' },
+                  { v: 'OBC',      label: L('OBC', 'à®ªà®¿à®±à¯à®ªà®Ÿà¯à®¤à¯à®¤à®ªà¯à®ªà®Ÿà¯à®Ÿà¯‹à®°à¯ (OBC)', 'à¤…à¤¨à¥à¤¯ à¤ªà¤¿à¤›à¤¡à¤¼à¤¾ à¤µà¤°à¥à¤—'), sub: L('Other Backward Classes', 'à®ªà®¿à®±à¯à®ªà®Ÿà¯à®¤à¯à®¤à®ªà¯à®ªà®Ÿà¯à®Ÿ à®ªà®¿à®°à®¿à®µà®¿à®©à®°à¯', 'à¤…à¤¨à¥à¤¯ à¤ªà¤¿à¤›à¤¡à¤¼à¥‡ à¤µà¤°à¥à¤—'), badge: L('Many Schemes', 'à®ªà®² à®¤à®¿à®Ÿà¯à®Ÿà®™à¯à®•à®³à¯', 'à¤•à¤ˆ à¤¯à¥‹à¤œà¤¨à¤¾à¤à¤'), badgeColor: 'bg-blue-100 text-blue-800' },
+                  { v: 'General',  label: L('General / Other', 'à®ªà¯Šà®¤à¯à®ªà¯ à®ªà®¿à®°à®¿à®µà¯', 'à¤¸à¤¾à¤®à¤¾à¤¨à¥à¤¯ / à¤…à¤¨à¥à¤¯'), sub: L('Universal income-based schemes apply', 'à®ªà¯Šà®¤à¯à®µà®¾à®© à®µà®°à¯à®®à®¾à®© à®…à®Ÿà®¿à®ªà¯à®ªà®Ÿà¯ˆ à®¤à®¿à®Ÿà¯à®Ÿà®™à¯à®•à®³à¯', 'à¤¸à¤¾à¤°à¥à¤µà¤­à¥Œà¤®à¤¿à¤• à¤†à¤¯ à¤†à¤§à¤¾à¤°à¤¿à¤¤ à¤¯à¥‹à¤œà¤¨à¤¾à¤à¤'), badge: L('Income Schemes', 'à®µà®°à¯à®®à®¾à®© à®¤à®¿à®Ÿà¯à®Ÿà®™à¯à®•à®³à¯', 'à¤†à¤¯ à¤¯à¥‹à¤œà¤¨à¤¾à¤à¤'), badgeColor: 'bg-slate-100 text-slate-700' },
+                ].map(opt => (
+                  <button
+                    key={opt.v}
+                    type="button"
+                    onClick={() => setProfile({ ...profile, caste: opt.v })}
+                    className={`w-full flex items-center gap-4 px-5 py-4 rounded-xl border-2 text-left transition cursor-pointer ${
+                      profile.caste === opt.v
+                        ? 'border-blue-600 bg-blue-50'
+                        : 'border-slate-200 bg-slate-50 hover:border-blue-300'
+                    }`}
+                  >
+                    <div className="flex-1">
+                      <div className={`text-sm font-black ${profile.caste === opt.v ? 'text-blue-900' : 'text-slate-800'}`}>{opt.label}</div>
+                      <div className="text-[11px] text-slate-500 mt-0.5">{opt.sub}</div>
+                    </div>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${opt.badgeColor}`}>{opt.badge}</span>
+                    {profile.caste === opt.v && <span className="text-blue-600 font-black text-lg">âœ“</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* â”€â”€ STEP 7: SHG Membership + Document Auth + Submit â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+          {wizardStep === 7 && (
+            <div className="animate-fadeIn space-y-6">
+              <div>
+                <p className="text-[11px] font-black uppercase text-blue-600 tracking-wider mb-1">
+                  {L('Step 7 â€” Final Step', 'à®ªà®Ÿà®¿ 7 â€” à®‡à®±à¯à®¤à®¿ à®ªà®Ÿà®¿', 'à¤šà¤°à¤£ 7 â€” à¤…à¤‚à¤¤à¤¿à¤® à¤šà¤°à¤£')}
+                </p>
+                <h2 className="text-xl font-black text-slate-900">
+                  {L('SHG Membership & Document Verification', 'SHG à®‰à®±à¯à®ªà¯à®ªà®¿à®©à®°à¯ à®¨à®¿à®²à¯ˆ & à®†à®µà®£ à®šà®°à®¿à®ªà®¾à®°à¯à®ªà¯à®ªà¯', 'SHG à¤¸à¤¦à¤¸à¥à¤¯à¤¤à¤¾ à¤”à¤° à¤¦à¤¸à¥à¤¤à¤¾à¤µà¥‡à¤œà¤¼ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨')}
+                </h2>
+              </div>
+
+              {/* SHG */}
+              <div>
+                <label className="block text-xs font-black uppercase text-slate-600 mb-2">
+                  {L('Are you an SHG member?', 'à®¨à¯€à®™à¯à®•à®³à¯ SHG à®‰à®±à¯à®ªà¯à®ªà®¿à®©à®°à®¾?', 'à¤•à¥à¤¯à¤¾ à¤†à¤ª SHG à¤¸à¤¦à¤¸à¥à¤¯ à¤¹à¥ˆà¤‚?')}
                 </label>
-                <div className="relative">
-                  <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-                  <input
-                    type="tel"
-                    maxLength="10"
-                    disabled={!allOcrPassed || isFullyAuthenticated}
-                    placeholder="9876543210"
-                    value={mobileNumber}
-                    onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, ''))}
-                    className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-slate-100 disabled:text-slate-400"
-                  />
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { v: 'Yes', label: L('Yes â€” Active SHG Member', 'à®†à®®à¯ â€” SHG à®‰à®±à¯à®ªà¯à®ªà®¿à®©à®°à¯', 'à¤¹à¤¾à¤ â€” à¤¸à¤•à¥à¤°à¤¿à¤¯ SHG à¤¸à¤¦à¤¸à¥à¤¯') },
+                    { v: 'No',  label: L('No â€” Not a Member', 'à®‡à®²à¯à®²à¯ˆ â€” à®‰à®±à¯à®ªà¯à®ªà®¿à®©à®°à¯ à®‡à®²à¯à®²à¯ˆ', 'à¤¨à¤¹à¥€à¤‚ â€” à¤¸à¤¦à¤¸à¥à¤¯ à¤¨à¤¹à¥€à¤‚') },
+                  ].map(opt => (
+                    <button
+                      key={opt.v}
+                      type="button"
+                      onClick={() => setProfile({ ...profile, shg_membership: opt.v })}
+                      className={`py-4 rounded-xl border-2 text-sm font-black transition cursor-pointer ${
+                        profile.shg_membership === opt.v
+                          ? 'border-blue-600 bg-blue-50 text-blue-800'
+                          : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-blue-300'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              <div className="sm:col-span-6">
+              {/* Document Authentication (compact) */}
+              <div className="bg-slate-900 text-white rounded-2xl p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-black">ðŸ›¡ï¸ {L('4-Factor Document Verification', '4-à®•à®¾à®°à®£à®¿ à®†à®µà®£ à®šà®°à®¿à®ªà®¾à®°à¯à®ªà¯à®ªà¯', '4-à¤•à¤¾à¤°à¤• à¤¦à¤¸à¥à¤¤à¤¾à¤µà¥‡à¤œà¤¼ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¨')}</span>
+                  <div className="flex gap-1">
+                    {[0,1,2,3].map(i => {
+                      const keys = ['aadhaar','pan','community','income'];
+                      const s = ocrCards[keys[i]].status;
+                      return (
+                        <div key={i} className={`h-2 w-8 rounded-full transition-all ${
+                          s === 'passed' ? 'bg-emerald-400' : s === 'scanning' ? 'bg-amber-400 animate-pulse' : 'bg-slate-600'
+                        }`} />
+                      );
+                    })}
+                  </div>
+                </div>
+                <p className="text-[11px] text-slate-400 mb-4">
+                  {L('Scan demo Aadhaar, PAN, Community & Income certificates to unlock evaluation.', 'à®®à®¾à®¤à®¿à®°à®¿ à®†à®¤à®¾à®°à¯, PAN, à®šà®®à¯‚à®• à®šà®¾à®©à¯à®±à¯ à®®à®±à¯à®±à¯à®®à¯ à®µà®°à¯à®®à®¾à®© à®šà®¾à®©à¯à®±à®¿à®¤à®´à¯à®•à®³à¯ˆ à®¸à¯à®•à¯‡à®©à¯ à®šà¯†à®¯à¯à®¯à®µà¯à®®à¯.', 'à¤¡à¥‡à¤®à¥‹ à¤†à¤§à¤¾à¤°, PAN, à¤¸à¤®à¥à¤¦à¤¾à¤¯ à¤”à¤° à¤†à¤¯ à¤ªà¥à¤°à¤®à¤¾à¤£à¤ªà¤¤à¥à¤° à¤¸à¥à¤•à¥ˆà¤¨ à¤•à¤°à¥‡à¤‚à¥¤')}
+                </p>
                 <button
                   type="button"
-                  onClick={triggerSendOtp}
-                  disabled={!allOcrPassed || isFullyAuthenticated || mobileNumber.length < 10}
-                  className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 ${
-                    allOcrPassed && !isFullyAuthenticated && mobileNumber.length === 10
-                      ? "bg-[#1e293b] hover:bg-[#0f172a] text-white shadow-xs cursor-pointer"
-                      : "bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300"
-                  }`}
+                  onClick={triggerDemoScanAll}
+                  disabled={allOcrPassed}
+                  className="w-full py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-700 disabled:cursor-not-allowed text-white text-xs font-black rounded-xl transition flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span>{otpSent ? L("Resend OTP", "மீண்டும் OTP அனுப்புக", "ओटीपी पुनः भेजें") : L("Send UIDAI Verification OTP", "UIDAI சரிபார்ப்பு OTP அனுப்புக", "यूआईडीएआई सत्यापन ओटीपी भेजें")}</span>
+                  <Sparkles className="w-4 h-4" />
+                  {allOcrPassed
+                    ? L('âœ“ All 4 Documents Verified', 'âœ“ 4 à®†à®µà®£à®™à¯à®•à®³à¯ à®šà®°à®¿à®ªà®¾à®°à¯à®•à¯à®•à®ªà¯à®ªà®Ÿà¯à®Ÿà®©', 'âœ“ 4 à¤¦à¤¸à¥à¤¤à¤¾à¤µà¥‡à¤œà¤¼ à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¿à¤¤')
+                    : L('âš¡ Demo: Auto-Scan All 4 Documents', 'âš¡ à®®à®¾à®¤à®¿à®°à®¿: 4 à®†à®µà®£à®™à¯à®•à®³à¯ˆà®¯à¯à®®à¯ à®¸à¯à®•à¯‡à®©à¯ à®šà¯†à®¯à¯à®•', 'âš¡ à¤¡à¥‡à¤®à¥‹: à¤¸à¤­à¥€ 4 à¤¦à¤¸à¥à¤¤à¤¾à¤µà¥‡à¤œà¤¼ à¤¸à¥à¤•à¥ˆà¤¨ à¤•à¤°à¥‡à¤‚')}
                 </button>
-              </div>
-            </div>
 
-            {otpSent && !isFullyAuthenticated && (
-              <div className="mt-4 p-4 bg-blue-50/70 border border-blue-200 rounded-xl space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <span className="text-xs font-bold text-blue-950">
-                    {L("Enter 4-Digit UIDAI OTP sent to mobile:", "மொபைலுக்கு அனுப்பப்பட்ட OTP:", "मोबाइल पर भेजा गया ओटीपी दर्ज करें:")}
-                  </span>
-                  <span className="text-[11px] font-mono text-blue-800 bg-blue-100 px-2 py-0.5 rounded">
-                    Demo Test OTP: <b>1234</b>
-                  </span>
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    maxLength="4"
-                    placeholder="1234"
-                    value={otpInput}
-                    onChange={(e) => setOtpInput(e.target.value)}
-                    className="w-32 px-3 py-2 bg-white border border-blue-300 rounded-xl text-center font-mono font-black text-sm text-slate-900 focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={triggerVerifyOtp}
-                    className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition flex items-center space-x-1.5 cursor-pointer"
-                  >
-                    <Key className="w-3.5 h-3.5" />
-                    <span>{L("Verify OTP & Grant Approval", "சரிபார்த்து அனுமதி வழங்குக", "ओटीपी सत्यापित करें एवं अनुमोदन दें")}</span>
-                  </button>
-                </div>
-                {otpError && <span className="text-xs text-rose-600 font-bold block">{otpError}</span>}
-              </div>
-            )}
+                {/* OTP Section */}
+                {allOcrPassed && !isFullyAuthenticated && (
+                  <div className="mt-4 space-y-2 border-t border-slate-700 pt-4">
+                    <p className="text-[11px] text-slate-300 font-bold">
+                      {L('Enter Mobile OTP to complete authentication:', 'à®®à¯Šà®ªà¯ˆà®²à¯ OTP à®‰à®³à¯à®³à®¿à®Ÿà®µà¯à®®à¯:', 'à¤®à¥‹à¤¬à¤¾à¤‡à¤² OTP à¤¦à¤°à¥à¤œ à¤•à¤°à¥‡à¤‚:')}
+                    </p>
+                    <div className="flex gap-2">
+                      <input
+                        type="tel"
+                        maxLength={4}
+                        placeholder="1234"
+                        value={otpInput}
+                        onChange={(e) => setOtpInput(e.target.value)}
+                        className="flex-1 px-3 py-2.5 bg-slate-800 border border-slate-600 rounded-xl text-white text-center text-xl font-black outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      {!otpSent ? (
+                        <button
+                          type="button"
+                          onClick={triggerSendOtp}
+                          className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition cursor-pointer"
+                        >
+                          {L('Send OTP', 'OTP à®…à®©à¯à®ªà¯à®ªà¯', 'OTP à¤­à¥‡à¤œà¥‡à¤‚')}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={triggerVerifyOtp}
+                          className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition cursor-pointer"
+                        >
+                          {L('Verify', 'à®šà®°à®¿à®ªà®¾à®°à¯', 'à¤¸à¤¤à¥à¤¯à¤¾à¤ªà¤¿à¤¤ à¤•à¤°à¥‡à¤‚')}
+                        </button>
+                      )}
+                    </div>
+                    {otpError && <p className="text-rose-400 text-[11px] font-bold">{otpError}</p>}
+                  </div>
+                )}
 
-            {isFullyAuthenticated && (
-              <div className="mt-4 p-3.5 bg-emerald-50 border border-emerald-300 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-fadeIn">
-                <div className="flex items-center space-x-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <div>
-                    <span className="text-xs font-black text-emerald-950 block">
-                      ✓ 4-Factor Authentication Complete — Beneficiary Approved
-                    </span>
-                    <span className="text-[11px] text-emerald-800">
-                      Aadhaar 🟢 · PAN 🟢 · Community 🟢 · Income 🟢 · OTP +91 {mobileNumber} 🟢
+                {isFullyAuthenticated && (
+                  <div className="mt-3 flex items-center gap-2 bg-emerald-500/20 border border-emerald-400/40 rounded-xl px-4 py-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <span className="text-emerald-300 font-black text-xs">
+                      {L('AUTHENTICATION APPROVED â€” Ready to evaluate', 'à®…à®©à¯à®®à®¤à®¿ à®ªà¯†à®±à®ªà¯à®ªà®Ÿà¯à®Ÿà®¤à¯ â€” à®®à®¤à®¿à®ªà¯à®ªà¯€à®Ÿà¯à®Ÿà®¿à®±à¯à®•à¯ à®¤à®¯à®¾à®°à¯', 'à¤ªà¥à¤°à¤®à¤¾à¤£à¥€à¤•à¤°à¤£ à¤¸à¥à¤µà¥€à¤•à¥ƒà¤¤ â€” à¤®à¥‚à¤²à¥à¤¯à¤¾à¤‚à¤•à¤¨ à¤•à¥‡ à¤²à¤¿à¤ à¤¤à¥ˆà¤¯à¤¾à¤°')}
                     </span>
                   </div>
-                </div>
-                <div className="flex items-center gap-2 self-end sm:self-auto">
-                  <button
-                    type="button"
-                    onClick={() => navigateToAlpha("", true)}
-                    className="px-3 py-1 bg-white hover:bg-slate-50 text-blue-900 border border-emerald-300 rounded-lg text-[11px] font-bold transition flex items-center gap-1 shadow-xs cursor-pointer"
-                    title="Open Alpha Portal in new tab"
-                  >
-                    <Landmark className="w-3.5 h-3.5 text-blue-700" />
-                    <span>{L("Alpha Portal ↗", "ஆல்ஃபா போர்டல் ↗", "अल्फा पोर्टल ↗")}</span>
-                  </button>
-                  <span className="text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 px-2 py-1 rounded border border-emerald-300 block">
-                    TRUST: 100%
-                  </span>
-                </div>
+                )}
               </div>
-            )}
-          </div>
+
+              {/* Final Submit */}
+              <form onSubmit={handleSubmit}>
+                <button
+                  type="submit"
+                  disabled={!isFormComplete || !isFullyAuthenticated}
+                  className={`w-full py-4 font-black text-sm rounded-2xl shadow-lg transition flex items-center justify-center gap-2 ${
+                    isFormComplete && isFullyAuthenticated
+                      ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white cursor-pointer'
+                      : 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                  }`}
+                >
+                  {isFormComplete && isFullyAuthenticated ? (
+                    <>
+                      <Sparkles className="w-5 h-5 text-amber-300" />
+                      {L('Evaluate My Scheme Matches â†’', 'à®Žà®©à¯ à®¤à®¿à®Ÿà¯à®Ÿ à®ªà¯Šà®°à¯à®¤à¯à®¤à®™à¯à®•à®³à¯ˆ à®®à®¤à®¿à®ªà¯à®ªà¯€à®Ÿà¯ à®šà¯†à®¯à¯ â†’', 'à¤®à¥‡à¤°à¥€ à¤¯à¥‹à¤œà¤¨à¤¾ à¤®à¤¿à¤²à¤¾à¤¨ à¤•à¤¾ à¤®à¥‚à¤²à¥à¤¯à¤¾à¤‚à¤•à¤¨ à¤•à¤°à¥‡à¤‚ â†’')}
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="w-4 h-4 text-slate-400" />
+                      {L('ðŸ”’ Complete all steps above to proceed', 'ðŸ”’ à®¤à¯Šà®Ÿà®° à®®à¯‡à®±à¯à®•à®£à¯à®Ÿ à®…à®©à¯ˆà®¤à¯à®¤à¯ˆà®¯à¯à®®à¯ à®¨à®¿à®°à®ªà¯à®ªà®µà¯à®®à¯', 'ðŸ”’ à¤†à¤—à¥‡ à¤¬à¤¢à¤¼à¤¨à¥‡ à¤•à¥‡ à¤²à¤¿à¤ à¤¸à¤­à¥€ à¤šà¤°à¤£ à¤ªà¥‚à¤°à¥‡ à¤•à¤°à¥‡à¤‚')}
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+          )}
 
         </div>
 
-        {/* Submit & Next Button with Strict Navigation Gate */}
-        <div className="pt-5 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+        {/* Navigation Footer */}
+        <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
           <button
             type="button"
-            onClick={onBack}
-            className="w-full sm:w-auto px-5 py-3 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition cursor-pointer"
+            onClick={wizardBack}
+            disabled={wizardStep === 1}
+            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-100 transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
-            {L("← Back to Home", "← முகப்புக்கு திரும்ப", "← होम पर वापस")}
+            â† {L('Back', 'à®¤à®¿à®°à¯à®®à¯à®ªà¯', 'à¤µà¤¾à¤ªà¤¸')}
           </button>
 
-          <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto">
-            {isFullyAuthenticated && (
-              <button
-                type="button"
-                onClick={() => navigateToAlpha("", true)}
-                className="w-full sm:w-auto px-5 py-3.5 font-bold text-xs rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-900 transition flex items-center justify-center space-x-1.5 cursor-pointer shadow-xs"
-              >
-                <Landmark className="w-4 h-4 text-blue-700" />
-                <span>{L("Open Alpha Portal ↗", "ஆல்ஃபா போர்ட்டலைத் திறக்க ↗", "अल्फा पोर्टल खोलें ↗")}</span>
-              </button>
-            )}
+          <span className="text-xs font-black text-slate-400">
+            {wizardStep} / {WIZARD_TOTAL}
+          </span>
 
-            {/* Strict Navigation Gate Button */}
+          {wizardStep < WIZARD_TOTAL ? (
             <button
-              type="submit"
-              disabled={!isFormComplete || !isFullyAuthenticated}
-              className={`w-full sm:w-auto px-8 py-3.5 font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center space-x-2 ${
-                isFormComplete && isFullyAuthenticated
-                  ? "bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-emerald-500/20"
-                  : "bg-slate-200 text-slate-500 cursor-not-allowed border border-slate-300"
-              }`}
+              type="button"
+              onClick={wizardNext}
+              disabled={
+                (wizardStep === 1 && (!profile.name.trim() || !profile.gender)) ||
+                (wizardStep === 2 && (!profile.age || Number(profile.age) < 18 || Number(profile.age) > 75)) ||
+                (wizardStep === 3 && !profile.area) ||
+                (wizardStep === 4 && !profile.sector) ||
+                (wizardStep === 5 && (!profile.income || Number(profile.income) <= 0)) ||
+                (wizardStep === 6 && !profile.caste)
+              }
+              className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed rounded-xl text-sm font-bold text-white transition cursor-pointer"
             >
-              {isFormComplete && isFullyAuthenticated ? (
-                <>
-                  <span>{L("Evaluate Scheme Matches & Eligibility ➔", "தகுதியான திட்டங்களை மதிப்பீடு செய்க ➔", "योजना मिलान एवं पात्रता का मूल्यांकन करें ➔")}</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              ) : (
-                <>
-                  <Lock className="w-4 h-4 text-slate-400" />
-                  <span>{L("🔒 Complete Document Authentication Above to Proceed", "🔒 மேலே உள்ள ஆவண சரிபார்ப்பை முடித்து தொடரவும்", "🔒 आगे बढ़ने के लिए ऊपर दस्तावेज़ सत्यापन पूरा करें")}</span>
-                </>
-              )}
+              {L('Next', 'à®…à®Ÿà¯à®¤à¯à®¤à¯', 'à¤…à¤—à¤²à¤¾')} â†’
             </button>
-          </div>
+          ) : (
+            <div className="w-24" />
+          )}
         </div>
-
-      </form>
-      </section>
+      </div>
 
     </div>
   );

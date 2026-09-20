@@ -14,6 +14,7 @@ import {
   triggerQuickDemo, subscribeToAlphaChanges
 } from './utils/realtimeSync';
 import { navigateToSchemeConnect } from './config/portalConfig';
+import { PrototypeDisclaimerBanner } from './components/PrototypeDisclaimerBanner';
 
 // ── Utility: Browser-side SHA-256 Hash Generator ──
 async function generateSHA256Hash(message) {
@@ -133,8 +134,8 @@ export function AlphaApp() {
 
     // 2. Cryptographic RS256 Policy Signing
     const signedJWT = generateRS256Signature({
-      iss: "alpha-governance.gov.in",
-      aud: ["schemeconnect.in", "beta-banking.schemeconnect.in"],
+      iss: "alpha-governance.demo",
+      aud: ["jansetu.demo", "beta-banking.jansetu.demo"],
       sha256_criteria: hash,
       action: actionType,
       admin: adminId,
@@ -297,6 +298,8 @@ export function AlphaApp() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans flex flex-col">
+      {/* Persistent Prototype Disclaimer Banner */}
+      <PrototypeDisclaimerBanner />
       
       {/* Official Gazette Modal */}
       {gazetteScheme && (
@@ -326,7 +329,7 @@ export function AlphaApp() {
                   </span>
                 </div>
                 <p className="text-[10px] text-slate-400 font-medium hidden sm:block">
-                  Ministry of Social Justice &amp; Empowerment • Government of India • Policy Authority
+                  Project Expo Concept Prototype • Social Justice &amp; Welfare Policy Simulation Node
                 </p>
               </div>
             </div>
@@ -1116,7 +1119,7 @@ export function AlphaApp() {
 
           <div className="border-t border-slate-800/80 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px]">
             <p className="text-slate-500">
-              © 2026 ALPHA PORTAL • Ministry of Social Justice &amp; Empowerment • JanSetu Sovereign Policy Rail
+              © 2026 ALPHA PORTAL • Project Expo Concept Prototype • Welfare Policy Simulation Node
             </p>
             <div className="flex items-center gap-3">
               <span className="text-slate-400">Decoupled Triple-Portal Ecosystem</span>

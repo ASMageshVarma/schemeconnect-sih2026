@@ -84,8 +84,8 @@ export function generateReferralJWT(scheme, userProfile, verificationAudit = {})
   };
 
   const payload = {
-    iss: "jansetu.gov.in",
-    aud: "beta-banking.jansetu.gov.in",
+    iss: "jansetu.demo",
+    aud: "beta-banking.jansetu.demo",
     sub: profile.name || "Rajan S.",
     referral_id: referralId,
     nonce: nonce,
