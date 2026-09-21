@@ -21,8 +21,8 @@ const CONSENT_CONTENT = {
     cb1: "I consent to simulated eKYC identity pre-verification for scheme eligibility checking.",
     cb2: "I consent to session-only processing of my demographic data for welfare scheme discovery.",
     cb3: "I authorize issuance of a signed JWT referral token to a partner bank upon my explicit request.",
-    accept: "Accept All & Begin Intake",
-    decline: "I do not consent (Exit)",
+    accept: "I Agree & Provide Consent",
+    decline: "Decline & Exit",
     privacy_ref: "Data Privacy Reference: DPDPA 2023 - IT Act Section 43A",
     grievance: "Support & Grievance: support@schemeconnect.dev",
     processing: "Please check all 3 consent boxes to continue.",
@@ -41,8 +41,8 @@ const CONSENT_CONTENT = {
     cb1: "திட்டத் தகுதி சரிபார்ப்புக்காக eKYC அடையாள முன் சரிபார்ப்புக்கு சம்மதிக்கிறேன்.",
     cb2: "நலத்திட்ட கண்டுபிடிப்புக்காக என் ஜனவிழி தரவை அமர்வுக்கு மட்டும் செயலாக்க சம்மதிக்கிறேன்.",
     cb3: "என் வெளிப்படையான கோரிக்கையின் பேரில் கூட்டாளி வங்கிக்கு கையொப்பமிடப்பட்ட JWT பரிந்துரை டோக்கனை வழங்க அங்கீகரிக்கிறேன்.",
-    accept: "அனைத்தையும் ஏற்றுக்கொண்டு தொடரவும்",
-    decline: "சம்மதிக்கவில்லை (வெளியேறு)",
+    accept: "நான் ஒப்புக்கொள்கிறேன் & தொடர்க",
+    decline: "Decline & Exit",
     privacy_ref: "தனியுரிமை குறிப்பு: DPDPA 2023 - IT சட்டம் பிரிவு 43A",
     grievance: "ஆதரவு & புகார்: support@schemeconnect.dev",
     processing: "தொடர அனைத்து 3 சம்மத பெட்டிகளையும் சரிபார்க்கவும்.",
@@ -61,8 +61,8 @@ const CONSENT_CONTENT = {
     cb1: "मैं योजना पात्रता जाँच के लिए eKYC पहचान पूर्व-सत्यापन की सहमति देता/देती हूँ।",
     cb2: "मैं कल्याण योजना खोज के लिए अपने जनसांख्यिकीय डेटा को सत्र-केवल प्रसंस्करण की सहमति देता/देती हूँ।",
     cb3: "मैं अपने स्पष्ट अनुरोध पर भागीदार बैंक को हस्ताक्षरित JWT रेफरल टोकन जारी करने का अधिकार देता/देती हूँ।",
-    accept: "सभी स्वीकार करें और आगे बढ़ें",
-    decline: "मैं सहमत नहीं हूँ (बाहर जाएँ)",
+    accept: "I Agree & Provide Consent",
+    decline: "Decline & Exit",
     privacy_ref: "डेटा गोपनीयता संदर्भ: DPDPA 2023 - IT अधिनियम धारा 43A",
     grievance: "सहायता एवं शिकायत: support@schemeconnect.dev",
     processing: "जारी रखने के लिए सभी 3 सहमति बॉक्स चेक करें।",
@@ -86,10 +86,10 @@ export function ConsentModal({ onAccept, onDecline, initialLang = "en" }) {
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-fadeIn">
-      <div className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border-2 border-blue-200 max-h-[92vh] overflow-y-auto">
+      <div className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border-2 border-blue-200 max-h-[92vh] flex flex-col overflow-hidden animate-scaleIn">
 
         {/* Header */}
-        <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-900 text-white p-6 rounded-t-3xl">
+        <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-900 text-white p-6 rounded-t-3xl shrink-0">
           <div className="flex items-center justify-between mb-3">
             <div className="w-10 h-10 rounded-xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center">
               <Building2 className="w-5 h-5 text-amber-400" />
@@ -100,7 +100,7 @@ export function ConsentModal({ onAccept, onDecline, initialLang = "en" }) {
                 <button
                   key={l}
                   onClick={() => setModalLang(l)}
-                  className={`px-3 py-1.5 rounded-xl transition ${
+                  className={`px-3 py-1.5 rounded-xl transition cursor-pointer ${
                     modalLang === l
                       ? "bg-white text-blue-900 shadow"
                       : "text-white/70 hover:text-white"
@@ -118,8 +118,8 @@ export function ConsentModal({ onAccept, onDecline, initialLang = "en" }) {
           <p className="text-xs text-slate-300 mt-0.5">{c.subtitle}</p>
         </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-5">
+        {/* Scrollable Modal Content with max-h-[60vh] */}
+        <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto pr-2">
 
           {/* Introduction */}
           <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 text-xs text-blue-900 font-medium leading-relaxed">
@@ -170,36 +170,37 @@ export function ConsentModal({ onAccept, onDecline, initialLang = "en" }) {
             </div>
           )}
 
-          {/* Action Buttons */}
-          <div className="flex gap-3 pt-2">
-            <button
-              onClick={handleAccept}
-              disabled={!allChecked}
-              className={`flex-1 py-4 rounded-2xl text-sm font-black transition flex items-center justify-center gap-2 shadow-lg ${
-                allChecked
-                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
-                  : "bg-slate-200 text-slate-400 cursor-not-allowed"
-              }`}
-            >
-              <ShieldCheck className="w-5 h-5" />
-              <span>{c.accept}</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-            <button
-              onClick={onDecline}
-              className="px-5 py-4 bg-slate-100 hover:bg-red-50 hover:text-red-700 text-slate-600 rounded-2xl text-xs font-bold transition"
-            >
-              {c.decline}
-            </button>
-          </div>
-
-          {/* Legal Footer */}
+          {/* Legal references */}
           <div className="text-center space-y-1 pt-2 border-t border-slate-100">
             <p className="text-[10px] text-slate-400 font-mono">{c.privacy_ref}</p>
             <p className="text-[10px] text-slate-400">{c.grievance}</p>
           </div>
 
         </div>
+
+        {/* Sticky Bottom Action Bar */}
+        <div className="sticky bottom-0 bg-white border-t border-slate-200 p-4 px-6 shrink-0 flex gap-3 shadow-lg">
+          <button
+            onClick={onDecline}
+            className="px-5 py-3.5 bg-slate-100 hover:bg-red-50 hover:text-red-700 text-slate-600 rounded-2xl text-xs font-bold transition cursor-pointer"
+          >
+            {c.decline}
+          </button>
+          <button
+            onClick={handleAccept}
+            disabled={!allChecked}
+            className={`flex-1 py-3.5 rounded-2xl text-sm font-black transition flex items-center justify-center gap-2 shadow-lg cursor-pointer ${
+              allChecked
+                ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                : "bg-slate-200 text-slate-400 cursor-not-allowed"
+            }`}
+          >
+            <ShieldCheck className="w-5 h-5" />
+            <span>{c.accept}</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+
       </div>
     </div>
   );
@@ -219,33 +220,34 @@ function ConsentSection({ number, title, body, checked, onChange, cbLabel, color
   };
 
   return (
-    <div className={`rounded-2xl border p-4 space-y-3 ${colors[color]}`}>
-      <div className="flex items-start gap-2">
+    <div 
+      onClick={() => onChange(!checked)}
+      className={`rounded-2xl border-2 p-4 space-y-3 cursor-pointer transition select-none ${
+        checked ? "shadow-sm ring-1 ring-blue-400/30" : "hover:border-slate-400"
+      } ${colors[color]}`}
+    >
+      <div className="flex items-start gap-2.5">
         <span className={`w-5 h-5 rounded-full text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5 ${
           color === "blue" ? "bg-blue-600" : color === "indigo" ? "bg-indigo-600" : "bg-emerald-600"
         } text-white`}>
           {number}
         </span>
-        <div>
+        <div className="flex-1">
           <h4 className="text-xs font-black text-slate-900 mb-1">{title}</h4>
           <p className="text-xs text-slate-600 leading-relaxed">{body}</p>
         </div>
       </div>
       {/* Checkbox */}
-      <label className="flex items-start gap-3 cursor-pointer group">
+      <div className="flex items-start gap-3 pt-1 border-t border-slate-200/60">
         <div
-          onClick={() => onChange(!checked)}
           className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition ${checkColors[color]}`}
         >
           {checked && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
         </div>
-        <span
-          onClick={() => onChange(!checked)}
-          className="text-xs font-semibold text-slate-800 leading-relaxed"
-        >
+        <span className="text-xs font-bold text-slate-800 leading-relaxed">
           {cbLabel}
         </span>
-      </label>
+      </div>
     </div>
   );
 }

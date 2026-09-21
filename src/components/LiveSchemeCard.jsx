@@ -270,7 +270,7 @@ export function LiveSchemeCard({
               className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-black py-2.5 px-3.5 rounded-xl flex items-center justify-center space-x-1.5 shadow-md transition cursor-pointer"
             >
               <Landmark className="w-3.5 h-3.5 text-amber-300" />
-              <span>{L("Apply via Partner Bank ➔", "வங்கிக்கு விண்ணப்பிக்க ➔", "बैंक आवेदन ➔")}</span>
+              <span>{L("Apply via Partner Bank →", "வங்கிக்கு விண்ணப்பிக்க →", "बैंक आवेदन →")}</span>
             </button>
             <button
               onClick={() => onSelect && onSelect(scheme)}

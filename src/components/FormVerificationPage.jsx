@@ -85,6 +85,10 @@ export function FormVerificationPage({
     income:    { status: 'idle', file: null, badge: null, extracted: null },
   });
 
+  const [mobileNumber, setMobileNumber] = useState("9876543210");
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpToast, setOtpToast] = useState(null);
   const [otpInput, setOtpInput] = useState("");
   const [otpVerified, setOtpVerified] = useState(false);
   const [otpError, setOtpError] = useState(null);
@@ -105,18 +109,17 @@ export function FormVerificationPage({
       let badge = "";
       let extracted = {};
       if (cardKey === 'aadhaar') {
-        badge = "Masked UID: XXXX-XXXX-9812 🟢 (Verhoeff Checksum Valid)";
+        badge = "Masked UID: XXXX-XXXX-9812 🟢";
         extracted = { uid: "XXXX-XXXX-9812", checksum: "VALID_VERHOEFF" };
       } else if (cardKey === 'pan') {
-        badge = "PAN Active: ABCDE1234F 🟢 (Format Validated)";
+        badge = "PAN Active: ABCDE1234F 🟢";
         extracted = { pan: "ABCDE1234F", status: "ACTIVE" };
       } else if (cardKey === 'community') {
-        badge = `Category Validated: ${profile.caste || 'OBC'} (TN-CST/8821) 🟢`;
-        extracted = { serial: "TN-CST/8821", category: profile.caste || "OBC" };
+        badge = "Category Validated: SC/ST (TN-CST/8821) 🟢";
+        extracted = { serial: "TN-CST/8821", category: "SC/ST" };
       } else if (cardKey === 'income') {
-        const incFmt = profile.income ? `₹${Number(profile.income).toLocaleString('en-IN')}` : "₹1,20,000";
-        badge = `Certified Income: ${incFmt} / yr 🟢`;
-        extracted = { serial: "TN-INC/4102", certified: profile.income || "120000" };
+        badge = "Certified Income: ₹5,00,000 / yr 🟢";
+        extracted = { serial: "TN-INC/4102", certified: "500000" };
       }
 
       setOcrCards(prev => ({
@@ -140,29 +143,43 @@ export function FormVerificationPage({
         aadhaar: {
           status: 'passed',
           file: 'sample_aadhaar_card.pdf',
-          badge: 'Masked UID: XXXX-XXXX-9812 🟢 (Verhoeff Valid)',
+          badge: 'Masked UID: XXXX-XXXX-9812 🟢',
           extracted: { uid: 'XXXX-XXXX-9812' }
         },
         pan: {
           status: 'passed',
           file: 'sample_pan_card.jpg',
-          badge: 'PAN Active: ABCDE1234F 🟢 (Format Valid)',
+          badge: 'PAN Active: ABCDE1234F 🟢',
           extracted: { pan: 'ABCDE1234F' }
         },
         community: {
           status: 'passed',
           file: 'sample_community_cert.pdf',
-          badge: `Category Validated: ${profile.caste || 'OBC'} (TN-CST/8821) 🟢`,
-          extracted: { category: profile.caste || 'OBC' }
+          badge: 'Category Validated: SC/ST (TN-CST/8821) 🟢',
+          extracted: { category: 'SC/ST' }
         },
         income: {
           status: 'passed',
           file: 'sample_income_cert.pdf',
-          badge: `Certified Income: ₹${Number(profile.income || 120000).toLocaleString('en-IN')} / yr 🟢`,
-          extracted: { income: profile.income || 120000 }
+          badge: 'Certified Income: ₹5,00,000 / yr 🟢',
+          extracted: { income: 500000 }
         }
       });
-      setOtpInput("2354");
+      // Do NOT pre-fill OTP; ensure SHG membership is set for smooth completion
+      setProfile(prev => ({ ...prev, shg_membership: prev.shg_membership || 'Yes' }));
+    }, 1000);
+  };
+
+  // Two-Stage OTP Send Simulation (1 second loader)
+  const handleSendOtp = () => {
+    if (!mobileNumber || mobileNumber.length < 10) return;
+    setIsSendingOtp(true);
+    setTimeout(() => {
+      setIsSendingOtp(false);
+      setOtpSent(true);
+      setOtpInput("");
+      setOtpToast("Demo OTP sent: 2354");
+      setTimeout(() => setOtpToast(null), 6000);
     }, 1000);
   };
 
@@ -172,6 +189,7 @@ export function FormVerificationPage({
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('demo') === '1' || urlParams.get('autodemo') === 'true') {
           handleDemoScanAll();
+          setOtpSent(true);
           setOtpVerified(true);
         }
       }
@@ -222,7 +240,7 @@ export function FormVerificationPage({
       case 4: return !!profile.sector;
       case 5: return Number(profile.income) > 0;
       case 6: return !!profile.caste;
-      case 7: return !!profile.shg_membership && allOcrPassed && otpVerified;
+      case 7: return allOcrPassed && otpVerified;
       default: return false;
     }
   };
@@ -857,48 +875,105 @@ export function FormVerificationPage({
 
               </div>
 
-              {/* OTP Input Section (Displayed ONLY after all 4 document cards display PASSED) */}
+              {/* Two-Stage Mobile OTP Flow (Displayed ONLY after all 4 document cards display PASSED) */}
               {allOcrPassed && (
-                <div className="bg-slate-900 text-white rounded-2xl p-5 space-y-3 animate-fadeIn">
+                <div className="bg-slate-900 text-white rounded-2xl p-5 space-y-4 animate-fadeIn">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-black uppercase text-slate-200 flex items-center gap-2">
                       <Key className="w-4 h-4 text-blue-400" />
-                      Final Step: Mobile OTP Verification
+                      Two-Stage Mobile OTP Verification
                     </span>
-                    <span className="text-[10px] font-mono bg-blue-500/20 text-blue-300 px-2.5 py-0.5 rounded-full border border-blue-400/40">
-                      All 4 Docs Verified ✓
+                    <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-400/40">
+                      4-Factor OCR Passed 🟢
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400">
-                    Enter the 4-digit demo verification code sent to your registered mobile (Test OTP: <b>2354</b>).
-                  </p>
 
-                  <div className="flex gap-2 max-w-sm">
-                    <input
-                      type="text"
-                      maxLength={4}
-                      placeholder="2354"
-                      value={otpInput}
-                      onChange={(e) => setOtpInput(e.target.value)}
-                      disabled={otpVerified}
-                      className="flex-1 px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-center text-lg font-black text-white focus:bg-slate-700 outline-none focus:ring-2 focus:ring-blue-500 font-mono tracking-widest disabled:opacity-50"
-                    />
-                    {!otpVerified ? (
-                      <button
-                        type="button"
-                        onClick={handleVerifyOtp}
-                        className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition cursor-pointer shadow-sm"
-                      >
-                        Verify OTP
-                      </button>
-                    ) : (
-                      <div className="px-4 py-2.5 bg-emerald-600 text-white text-xs font-black rounded-xl flex items-center gap-1.5">
-                        <Check className="w-4 h-4" />
-                        Verified 🟢
+                  {otpToast && (
+                    <div className="bg-blue-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md flex items-center justify-between animate-fadeIn">
+                      <span>📲 {otpToast}</span>
+                      <span className="text-[10px] opacity-80 font-mono">Test OTP: 2354</span>
+                    </div>
+                  )}
+
+                  {!otpSent ? (
+                    /* Stage 1: Mobile Input Stage */
+                    <div className="space-y-2.5">
+                      <p className="text-xs text-slate-400">
+                        Enter your Aadhaar-linked mobile number to receive the verification OTP.
+                      </p>
+                      <div className="flex flex-col sm:flex-row gap-2 max-w-md">
+                        <div className="relative flex-1">
+                          <span className="absolute left-3.5 top-3 text-xs font-bold text-slate-400">+91</span>
+                          <input
+                            type="text"
+                            maxLength={10}
+                            placeholder="Enter Aadhaar-Linked Mobile Number"
+                            value={mobileNumber}
+                            onChange={(e) => setMobileNumber(e.target.value.replace(/[^0-9]/g, ''))}
+                            className="w-full pl-12 pr-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm font-bold text-white focus:bg-slate-700 outline-none focus:ring-2 focus:ring-blue-500 font-mono tracking-wider"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleSendOtp}
+                          disabled={isSendingOtp || !mobileNumber || mobileNumber.length < 10}
+                          className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed text-white text-xs font-bold rounded-xl transition cursor-pointer shadow-sm flex items-center justify-center gap-2"
+                        >
+                          {isSendingOtp ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin text-white" />
+                              <span>Sending OTP... ⏳</span>
+                            </>
+                          ) : (
+                            <span>Send OTP 📲</span>
+                          )}
+                        </button>
                       </div>
-                    )}
-                  </div>
-                  {otpError && <p className="text-xs font-bold text-rose-400">{otpError}</p>}
+                    </div>
+                  ) : (
+                    /* Stage 2: OTP Dispatch & Verification Stage */
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-slate-400">
+                          Demo OTP dispatched to <b>+91 {mobileNumber}</b>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => { setOtpSent(false); setOtpVerified(false); setOtpInput(""); }}
+                          className="text-blue-400 hover:underline text-[11px] cursor-pointer"
+                        >
+                          Change Number
+                        </button>
+                      </div>
+
+                      <div className="flex gap-2 max-w-sm">
+                        <input
+                          type="text"
+                          maxLength={4}
+                          placeholder="2354"
+                          value={otpInput}
+                          onChange={(e) => setOtpInput(e.target.value.replace(/[^0-9]/g, ''))}
+                          disabled={otpVerified}
+                          className="flex-1 px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-center text-lg font-black text-white focus:bg-slate-700 outline-none focus:ring-2 focus:ring-blue-500 font-mono tracking-widest disabled:opacity-50"
+                        />
+                        {!otpVerified ? (
+                          <button
+                            type="button"
+                            onClick={handleVerifyOtp}
+                            className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition cursor-pointer shadow-sm"
+                          >
+                            Verify OTP
+                          </button>
+                        ) : (
+                          <div className="px-4 py-2.5 bg-emerald-600 text-white text-xs font-black rounded-xl flex items-center gap-1.5">
+                            <Check className="w-4 h-4" />
+                            Verified 🟢
+                          </div>
+                        )}
+                      </div>
+                      {otpError && <p className="text-xs font-bold text-rose-400">{otpError}</p>}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -916,13 +991,12 @@ export function FormVerificationPage({
                 {allOcrPassed && otpVerified ? (
                   <>
                     <Sparkles className="w-5 h-5 text-amber-300" />
-                    <span>Evaluate My Scheme Matches</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <span>Evaluate My Scheme Matches →</span>
                   </>
                 ) : (
                   <>
                     <Lock className="w-4 h-4 text-slate-400" />
-                    <span>Complete 4-Factor Upload Above</span>
+                    <span>🔒 Complete 4-Factor Upload Above</span>
                   </>
                 )}
               </button>
@@ -940,8 +1014,7 @@ export function FormVerificationPage({
             disabled={currentStepIndex === 1}
             className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-100 transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
-            <ArrowRight className="w-4 h-4 rotate-180" />
-            Back
+            ← Back
           </button>
 
           <span className="text-xs font-black text-slate-500 font-mono">
@@ -955,8 +1028,7 @@ export function FormVerificationPage({
               disabled={!isStepValid(currentStepIndex)}
               className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed rounded-xl text-sm font-bold text-white transition cursor-pointer shadow-xs"
             >
-              Next
-              <ArrowRight className="w-4 h-4" />
+              Next →
             </button>
           ) : (
             <div className="w-20" />

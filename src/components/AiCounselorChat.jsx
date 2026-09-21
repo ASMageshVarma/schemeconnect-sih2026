@@ -259,7 +259,8 @@ export function AiCounselorChat({ lang = "ta", t, isEmbedded = false, currentPro
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-40 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-4 py-3 rounded-full shadow-2xl flex items-center space-x-2.5 transition-all transform hover:scale-105 border border-purple-400/40"
+          style={{ bottom: '1.5rem', right: '1.5rem', zIndex: 40 }}
+          className="fixed z-40 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-4 py-3 rounded-full shadow-2xl flex items-center space-x-2.5 transition-all transform hover:scale-105 border border-purple-400/40 cursor-pointer"
         >
           <Bot className="w-5 h-5 animate-bounce" />
           <span className="text-xs font-black">
@@ -271,7 +272,10 @@ export function AiCounselorChat({ lang = "ta", t, isEmbedded = false, currentPro
 
       {/* Floating Chat Modal Box */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-full max-w-sm sm:max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col animate-fadeIn">
+        <div 
+          style={{ bottom: '1.5rem', right: '1.5rem', zIndex: 40 }}
+          className="fixed z-40 w-full max-w-sm sm:max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col animate-fadeIn"
+        >
           
           {/* Header */}
           <div className="bg-gradient-to-r from-purple-700 to-indigo-700 text-white p-4 flex items-center justify-between">

@@ -208,15 +208,31 @@ export default function App() {
     setView('recommendations');
   };
 
-  // ── Route to Bank (with JWT gateway) ─────────────────────────────────────
+  // ── Route to Bank (with JWT gateway & relative routing) ─────────────────────
   const handleRouteToBank = (scheme) => {
     setReferredSchemeForBank(scheme);
-    if (scheme._jwtToken) {
-      setShowJWTGateway(true);
-    } else {
-      try { confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } }); } catch {}
-      setView('beta-portal');
-    }
+    try {
+      if (scheme._jwtToken) {
+        sessionStorage.setItem("beta_jwt_token", scheme._jwtToken);
+      }
+      if (scheme._referralId) {
+        sessionStorage.setItem("beta_referral_id", scheme._referralId);
+      }
+      sessionStorage.setItem("beta_selected_scheme", JSON.stringify(scheme));
+      if (currentProfile) {
+        sessionStorage.setItem("beta_applicant_profile", JSON.stringify(currentProfile));
+      }
+      if (scheme._jwtPayload) {
+        sessionStorage.setItem("zkp_tokens", JSON.stringify({
+          token: scheme._jwtToken,
+          payload: scheme._jwtPayload,
+          referralId: scheme._referralId
+        }));
+      }
+    } catch (e) {}
+
+    // Programmatically redirect to Beta Banking Portal using dynamic relative routing
+    window.location.href = '/beta.html';
   };
 
   const handleJWTTokenAccepted = (jwtPayload) => {

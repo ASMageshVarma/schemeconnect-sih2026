@@ -92,10 +92,20 @@ export function RecommendationsGridPage({
       aaCashflowVerified: true
     });
     
-    navigateToBeta(token, referralId, true);
+    try {
+      sessionStorage.setItem("beta_jwt_token", token);
+      sessionStorage.setItem("beta_referral_id", referralId);
+      sessionStorage.setItem("beta_selected_scheme", JSON.stringify(scheme));
+      sessionStorage.setItem("zkp_tokens", JSON.stringify({ token, payload, referralId }));
+      sessionStorage.setItem("beta_applicant_profile", JSON.stringify(userProfile));
+    } catch (e) {
+      console.error("Storage error:", e);
+    }
 
     if (onRouteToBank) {
       onRouteToBank({ ...scheme, _jwtToken: token, _referralId: referralId, _jwtPayload: payload });
+    } else {
+      window.location.href = '/beta.html';
     }
   };
 

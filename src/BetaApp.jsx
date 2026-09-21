@@ -161,6 +161,19 @@ export function BetaApp() {
 
       if (token) {
         processIncomingToken(token);
+        try {
+          const rawScheme = sessionStorage.getItem("beta_selected_scheme");
+          if (rawScheme) {
+            const sc = JSON.parse(rawScheme);
+            if (sc && sc.scheme_name) {
+              setApplicant(prev => ({
+                ...prev,
+                scheme_name: sc.scheme_name,
+                scheme_id: sc.scheme_id || prev.scheme_id
+              }));
+            }
+          }
+        } catch (e) {}
         setActiveRoute("apply");
       } else if (view === "admin" || path.includes("admin") || window.location.hash.includes("admin")) {
         setActiveRoute("admin");
@@ -168,8 +181,22 @@ export function BetaApp() {
         setActiveRoute("home");
       } else {
         // Default sample citizen token
+        let defaultScheme = { 
+          scheme_id: "CGTMSE_GUARANTEE", 
+          scheme_name: "CGTMSE Collateral-Free Credit Guarantee", 
+          sanctioned_amount: 500000, 
+          concessional_interest_rate: 6.5 
+        };
+        try {
+          const rawScheme = sessionStorage.getItem("beta_selected_scheme");
+          if (rawScheme) {
+            const parsed = JSON.parse(rawScheme);
+            if (parsed && parsed.scheme_name) defaultScheme = parsed;
+          }
+        } catch (e) {}
+
         const demo = generateReferralJWT(
-          { scheme_id: "NSFDC_MICRO", scheme_name: "NSFDC Micro-Credit Finance Scheme", sanctioned_amount: 200000, concessional_interest_rate: 5.0 },
+          defaultScheme,
           { name: "Rajan S.", age: 39, income: 180000, caste: "OBC", sector: "Street Vendor" }
         );
         processIncomingToken(demo.token);
