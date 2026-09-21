@@ -8,10 +8,10 @@ import { grantConsent } from '../config/portalConfig';
 // ─── Trilingual Consent Content ────────────────────────────────────────────
 const CONSENT_CONTENT = {
   en: {
-    badge: "Project Expo Concept Prototype - Simulated Consent Gateway",
+    badge: "CARE InnoExpo '26 — Secure Consent Gateway",
     title: "Terms, Privacy & Data Consent",
     subtitle: "JanSetu AI — Autonomous Welfare Scheme Matching Prototype",
-    intro: "Before accessing the Scheme Discovery Engine, please read and provide your explicit consent to the following terms as mandated by the IT Act 2000, Digital Personal Data Protection Act 2023, and prototype ethical guidelines.",
+    intro: "Before accessing the Scheme Discovery Engine, please read and provide your explicit consent to the following terms as mandated by the IT Act 2000, Digital Personal Data Protection Act 2023, and ethical guidelines.",
     section1: "Section 1: Identity Verification (eKYC)",
     s1_body: "I authorize JanSetu AI to simulate a DigiLocker-linked eKYC verification using my submitted Aadhaar/PAN details for pre-screening purposes only. No biometric data is collected or retained.",
     section2: "Section 2: Data Privacy & Usage",
@@ -28,7 +28,7 @@ const CONSENT_CONTENT = {
     processing: "Please check all 3 consent boxes to continue.",
   },
   ta: {
-    badge: "Project Expo - Simulated Consent Gateway",
+    badge: "CARE InnoExpo '26 — மாதிரி ஒப்புதல் தளம்",
     title: "விதிமுறைகள், தனியுரிமை மற்றும் தரவு சம்மதம்",
     subtitle: "ஜன்சேது AI — மாதிரி நலத்திட்ட கண்டுபிடிப்பு மற்றும் கடன் தளம்",
     intro: "திட்டத்தைத் தேடுவதற்கு முன், IT சட்டம் 2000, டிஜிட்டல் தனிப்பட்ட தரவு பாதுகாப்பு சட்டம் 2023 வழிகாட்டுதல்களின்படி கீழ்க்கண்ட விதிமுறைகளை படிக்கவும் மற்றும் உங்கள் வெளிப்படையான சம்மதத்தை வழங்கவும்.",
@@ -48,7 +48,7 @@ const CONSENT_CONTENT = {
     processing: "தொடர அனைத்து 3 சம்மத பெட்டிகளையும் சரிபார்க்கவும்.",
   },
   hi: {
-    badge: "Project Expo - Simulated Consent Gateway",
+    badge: "CARE InnoExpo '26 — सहमति गेटवे",
     title: "नियम, गोपनीयता और डेटा सहमति",
     subtitle: "जनसेतु AI — कल्याण योजना खोज एवं ऋण प्रोटोटाइप",
     intro: "योजना खोज इंजन तक पहुँचने से पहले, कृपया IT अधिनियम 2000, डिजिटल व्यक्तिगत डेटा संरक्षण अधिनियम 2023 के अनुसार निम्नलिखित शर्तों को पढ़ें और स्पष्ट सहमति दें।",

@@ -39,7 +39,7 @@ export function Navbar({ lang = "en", setLang, t, view, setView, isOnline, fontS
           {/* Center / Right: Sleek Prototype Status Pill */}
           <div className="flex items-center space-x-3">
             <span className="inline-flex items-center bg-slate-800/60 border border-slate-700 text-slate-300 text-xs px-2.5 py-1 rounded-full backdrop-blur-md font-mono">
-              PROTOTYPE NODE • SIH 2026
+              CARE InnoExpo '26 Node
             </span>
 
             {/* Language Selector */}

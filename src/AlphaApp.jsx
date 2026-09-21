@@ -329,11 +329,11 @@ export function AlphaApp() {
                   </span>
                   <span className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-800/60 border border-slate-700 text-slate-300 backdrop-blur-md">
                     <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
-                    PROTOTYPE NODE • SIH 2026
+                    CARE InnoExpo '26 Node
                   </span>
                 </div>
                 <p className="text-[10px] text-slate-400 font-medium hidden sm:block">
-                  Project Expo Concept Prototype • Social Justice &amp; Welfare Policy Simulation Node
+                  National Scheme Governance Portal — JanSetu AI Policy Simulation Node
                 </p>
               </div>
             </div>
@@ -1124,7 +1124,7 @@ export function AlphaApp() {
 
           <div className="border-t border-slate-800/80 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px]">
             <p className="text-slate-500">
-              © 2026 ALPHA PORTAL • Project Expo Concept Prototype • Welfare Policy Simulation Node
+              © 2026 JanSetu AI — Alpha Governance Portal • CARE InnoExpo '26 • TECH TITANS
             </p>
             <div className="flex items-center gap-3">
               <span className="text-slate-400">Decoupled Triple-Portal Ecosystem</span>
