@@ -14,6 +14,8 @@ const TOTAL_STEPS = 7;
 
 export function FormVerificationPage({ 
   initialProfile, 
+  initialStep = 1,
+  resumeStoredStep = false,
   lang = "en", 
   t, 
   onSubmit, 
@@ -51,17 +53,22 @@ export function FormVerificationPage({
   }, [profile]);
 
   // ── Synchronized Wizard Step Index (1 to 7) ────────────────────────────────
+  // Defaults strictly to Step 1 (or initialStep prop). Only resumes if resumeStoredStep is explicitly true.
   const [currentStepIndex, setCurrentStepIndex] = useState(() => {
     try {
       if (typeof window !== "undefined") {
         const urlParams = new URLSearchParams(window.location.search);
         const urlStep = parseInt(urlParams.get('step'), 10);
         if (urlStep >= 1 && urlStep <= TOTAL_STEPS) return urlStep;
-        if (window.location.hash.includes('step7') || window.location.hash.includes('step=7')) return 7;
       }
-      const savedStep = localStorage.getItem('jansetu_wizard_step');
-      const parsed = parseInt(savedStep, 10);
-      if (parsed >= 1 && parsed <= TOTAL_STEPS) return parsed;
+      if (resumeStoredStep) {
+        const savedStep = localStorage.getItem('jansetu_wizard_step');
+        const parsed = parseInt(savedStep, 10);
+        if (parsed >= 1 && parsed <= TOTAL_STEPS) return parsed;
+      }
+      if (initialStep && initialStep >= 1 && initialStep <= TOTAL_STEPS) {
+        return initialStep;
+      }
     } catch (e) {}
     return 1;
   });
@@ -965,9 +972,9 @@ export function FormVerificationPage({
                             Verify OTP
                           </button>
                         ) : (
-                          <div className="px-4 py-2.5 bg-emerald-600 text-white text-xs font-black rounded-xl flex items-center gap-1.5">
+                          <div className="px-4 py-2.5 bg-emerald-600 text-white text-xs font-black rounded-xl flex items-center gap-1.5 shadow-sm animate-fadeIn">
                             <Check className="w-4 h-4" />
-                            Verified 🟢
+                            <span>Beneficiary Approved 🟢</span>
                           </div>
                         )}
                       </div>
@@ -977,26 +984,31 @@ export function FormVerificationPage({
                 </div>
               )}
 
-              {/* Main Action CTA */}
+              {/* Main Action CTA — 3 Explicit Verification States */}
               <button
                 type="button"
                 onClick={handleSubmit}
                 disabled={!allOcrPassed || !otpVerified}
                 className={`w-full py-4 font-black text-sm rounded-2xl shadow-lg transition flex items-center justify-center gap-2 cursor-pointer ${
                   allOcrPassed && otpVerified
-                    ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20'
+                    ? 'bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-700 hover:to-teal-800 text-white shadow-emerald-500/25 ring-2 ring-emerald-400/40'
                     : 'bg-slate-200 text-slate-500 cursor-not-allowed border border-slate-300'
                 }`}
               >
-                {allOcrPassed && otpVerified ? (
+                {!allOcrPassed ? (
                   <>
-                    <Sparkles className="w-5 h-5 text-amber-300" />
-                    <span>Evaluate My Scheme Matches →</span>
+                    <Lock className="w-4 h-4 text-slate-400" />
+                    <span>🔒 Complete Document Authentication Above to Proceed</span>
+                  </>
+                ) : !otpVerified ? (
+                  <>
+                    <Lock className="w-4 h-4 text-amber-500 animate-pulse" />
+                    <span className="text-slate-700 font-bold">🔒 Complete OTP Verification to Proceed</span>
                   </>
                 ) : (
                   <>
-                    <Lock className="w-4 h-4 text-slate-400" />
-                    <span>🔒 Complete 4-Factor Upload Above</span>
+                    <Sparkles className="w-5 h-5 text-amber-300 animate-bounce" />
+                    <span>Continue to Eligible Schemes →</span>
                   </>
                 )}
               </button>
@@ -1031,7 +1043,14 @@ export function FormVerificationPage({
               Next →
             </button>
           ) : (
-            <div className="w-20" />
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={!allOcrPassed || !otpVerified}
+              className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed rounded-xl text-sm font-bold text-white transition cursor-pointer shadow-xs"
+            >
+              <span>{allOcrPassed && otpVerified ? "Continue to Eligible Schemes →" : "Next →"}</span>
+            </button>
           )}
         </div>
 

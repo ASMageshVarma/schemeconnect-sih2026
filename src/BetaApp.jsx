@@ -22,8 +22,22 @@ export function BetaApp() {
   const [lang, setLang] = useState('en'); // 'en' | 'ta' | 'hi'
   const [activeRoute, setActiveRoute] = useState('apply'); // 'apply' (/apply) | 'admin' (/admin) | 'home' (/)
   
-  // Selected bank state (Defaults to ZETA BANK)
-  const [selectedBankId, setSelectedBankId] = useState("ZETA_BANK");
+  // Selected bank state (Parameterized by URL param ?bankId=... or sessionStorage beta_selected_bank)
+  const [selectedBankId, setSelectedBankId] = useState(() => {
+    try {
+      if (typeof window !== "undefined") {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlBank = urlParams.get('bankId');
+        if (urlBank) return urlBank;
+        const stored = sessionStorage.getItem('beta_selected_bank');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed.id) return parsed.id;
+        }
+      }
+    } catch (e) {}
+    return "ZETA_BANK";
+  });
   const selectedBank = PARTICIPATING_BANKS.find(b => b.id === selectedBankId) || PARTICIPATING_BANKS[0];
 
   // Token & Applicant state
@@ -291,6 +305,8 @@ export function BetaApp() {
     if (typeof window !== "undefined") {
       try {
         localStorage.setItem("beta_bank_applications_store_v1", JSON.stringify(updated));
+        localStorage.setItem("jansetu_approved_sanction", JSON.stringify(sanctionedOrder));
+        sessionStorage.setItem("jansetu_approved_sanction", JSON.stringify(sanctionedOrder));
       } catch (e) {}
     }
 
@@ -358,7 +374,7 @@ export function BetaApp() {
               <div>
                 <div className="flex items-center space-x-2">
                   <span className="font-bold text-base sm:text-lg text-white tracking-tight">
-                    🏦 ZETA BANK — Institutional Credit &amp; Loan Sanction Portal
+                    🏦 {selectedBank.name} — Institutional Credit &amp; Loan Sanction Portal
                   </span>
                   <span className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-800/60 border border-slate-700 text-slate-300 backdrop-blur-md">
                     <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
@@ -1236,13 +1252,13 @@ export function BetaApp() {
                   <div className="w-28 h-8 bg-slate-100 border border-dashed border-slate-400 rounded flex items-center justify-center text-[9px] font-mono text-slate-700 mb-1">
                     SEALED &amp; SIGNED
                   </div>
-                  <span className="text-[10px] font-bold text-slate-800">Chief Nodal Loan Officer • ZETA BANK</span>
+                  <span className="text-[10px] font-bold text-slate-800">Chief Nodal Loan Officer • {selectedBank.name}</span>
                 </div>
               </div>
 
             </div>
 
-            {/* Print / Download Controls */}
+            {/* Print / Download & Return Controls */}
             <div className="flex flex-col sm:flex-row gap-3 pt-2 print:hidden">
               <button
                 onClick={handleDownloadPDF}
@@ -1252,18 +1268,19 @@ export function BetaApp() {
                 <span>Download Sanction Letter PDF</span>
               </button>
 
-              <button
-                onClick={() => setSanctionedCertificate(null)}
-                className="py-3 px-5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-semibold cursor-pointer border border-slate-200"
+              <a
+                href="/?applicationApproved=true"
+                className="py-3 px-5 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-700 hover:to-teal-800 text-white rounded-xl text-xs font-black transition flex items-center justify-center gap-2 shadow-md cursor-pointer"
               >
-                Back to Console
-              </button>
+                <CheckCircle2 className="w-4 h-4 text-emerald-200" />
+                <span>Return to JanSetu AI (Main App) →</span>
+              </a>
 
               <button
-                onClick={() => navigateToSchemeConnect("/", true)}
-                className="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-semibold cursor-pointer flex items-center gap-1.5 border border-slate-200"
+                onClick={() => setSanctionedCertificate(null)}
+                className="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-semibold cursor-pointer border border-slate-200"
               >
-                <span>View in SchemeConnect ↗</span>
+                Back to Console
               </button>
             </div>
 

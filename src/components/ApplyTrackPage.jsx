@@ -6,10 +6,22 @@ import { ClipboardList, Calculator, MapPin, ArrowRight, FileText, CheckCircle2 }
  * Houses Financial Calculator and Find Channel Partners contextually
  * (moved out of Navbar per Priority 1 item 6).
  */
-export function ApplyTrackPage({ lang = 'en', t, onOpenCalculator, onOpenLocator, onViewSchemes, hasProfile }) {
+export function ApplyTrackPage({ 
+  lang = 'en', 
+  t, 
+  onOpenCalculator, 
+  onOpenLocator, 
+  onViewSchemes, 
+  onResumeWizard,
+  hasProfile 
+}) {
   const isTa = lang === 'ta';
   const isHi = lang === 'hi';
   const L = (en, ta, hi) => isHi ? hi : (isTa ? ta : en);
+
+  const savedStep = typeof window !== "undefined" ? localStorage.getItem('jansetu_wizard_step') : null;
+  const parsedSavedStep = savedStep ? parseInt(savedStep, 10) : null;
+  const hasIncompleteStep = parsedSavedStep && parsedSavedStep > 1 && parsedSavedStep <= 7;
 
   const tools = [
     {
@@ -68,8 +80,45 @@ export function ApplyTrackPage({ lang = 'en', t, onOpenCalculator, onOpenLocator
         </div>
       </div>
 
+      {/* Resume Incomplete Application option — designated resume entry point */}
+      {hasIncompleteStep && (
+        <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 border-2 border-blue-300 rounded-3xl p-5 mb-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+              <ClipboardList className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-black text-sm text-slate-900">
+                  {L(`Resume Incomplete Application (Step ${parsedSavedStep} of 7)`, `முந்தைய விண்ணப்பத்தைத் தொடரவும் (படி ${parsedSavedStep} / 7)`, `अधूरा आवेदन फिर शुरू करें (चरण ${parsedSavedStep} / 7)`)}
+                </span>
+                <span className="text-[10px] font-mono font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full border border-blue-200">
+                  {L("SAVED SESSION", "சேமிக்கப்பட்ட அமர்வு", "सहेजा गया सत्र")}
+                </span>
+              </div>
+              <p className="text-xs text-slate-600 mt-1">
+                {L(
+                  "You have an incomplete registration session stored in your browser. Pick up directly where you left off.",
+                  "உங்கள் உலாவியில் முடிக்கப்படாத விண்ணப்ப அமர்வு சேமிக்கப்பட்டுள்ளது. நீங்கள் விட்ட இடத்திலிருந்து தொடரலாம்.",
+                  "आपके ब्राउज़र में एक अधूरा आवेदन सत्र सहेजा गया है। जहाँ छोड़ा था वहीं से जारी रखें।"
+                )}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => onResumeWizard && onResumeWizard(parsedSavedStep)}
+            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-xl transition flex items-center gap-1.5 shadow-md shrink-0 cursor-pointer"
+          >
+            <span>{L("Resume Application →", "விண்ணப்பத்தைத் தொடர →", "आवेदन जारी रखें →")}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
       {/* Profile check nudge */}
-      {!hasProfile && (
+      {!hasProfile && !hasIncompleteStep && (
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 flex items-start gap-3">
           <CheckCircle2 className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
           <div>

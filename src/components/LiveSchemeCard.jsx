@@ -67,16 +67,17 @@ export function LiveSchemeCard({
       layout
       initial={{ opacity: 0, y: 15 }}
       animate={{
-        opacity: isEligible ? 1 : 0.72,
+        opacity: isEligible ? 1 : 0.65,
         scale: justUnlocked ? [1, 1.03, 1] : 1
       }}
       transition={{ duration: 0.35 }}
+      style={!isEligible ? { filter: 'grayscale(100%) contrast(80%) brightness(95%)' } : {}}
       className={`rounded-3xl border transition-all duration-300 flex flex-col justify-between p-5 sm:p-6 relative overflow-hidden ${
         isEligible
           ? justUnlocked
             ? 'bg-gradient-to-br from-emerald-50 via-white to-blue-50 border-emerald-500 shadow-xl ring-4 ring-emerald-400/30'
             : 'bg-white border-slate-200 shadow-sm hover:shadow-lg hover:border-blue-400'
-          : 'bg-slate-50/70 border border-slate-200/80 hover:opacity-100 hover:bg-white hover:border-slate-300'
+          : 'bg-slate-100/80 border border-slate-300/80 grayscale contrast-75 brightness-95 opacity-65 hover:opacity-80 shadow-none'
       }`}
     >
       {/* Live Unlock Banner */}

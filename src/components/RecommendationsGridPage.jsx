@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { LiveSchemeCard } from './LiveSchemeCard';
 import { AlphaGazetteModal } from './AlphaGazetteModal';
+import { BankSelectionModal } from './BankSelectionModal';
 import { rankAlphaSchemes } from '../utils/alphaMatcher';
 import { getAlphaSchemes, subscribeToAlphaChanges } from '../utils/realtimeSync';
 import { generateReferralJWT } from '../utils/jwtToken';
@@ -34,6 +35,7 @@ export function RecommendationsGridPage({
   const [lastPolicyUpdate, setLastPolicyUpdate] = useState(null);
   const [selectedSchemeDetail, setSelectedSchemeDetail] = useState(null);
   const [gazetteScheme, setGazetteScheme] = useState(null);
+  const [bankModalScheme, setBankModalScheme] = useState(null);
 
   // Policy changes listener
   useEffect(() => {
@@ -83,8 +85,18 @@ export function RecommendationsGridPage({
     return matchTab && matchSearch;
   });
 
+  // Step 1: Citizen clicks "Apply via Partner Bank" -> Opens Bank Selection Modal
   const handleBankApplicationRoute = (scheme) => {
-    const { token, payload, referralId } = generateReferralJWT(scheme, userProfile, {
+    setBankModalScheme(scheme);
+  };
+
+  // Step 2: Citizen chooses a partner bank -> Parameters are saved & forwarded
+  const handleConfirmBankSelection = (bank, scheme) => {
+    setBankModalScheme(null);
+    const targetScheme = scheme || bankModalScheme;
+    if (!targetScheme) return;
+
+    const { token, payload, referralId } = generateReferralJWT(targetScheme, userProfile, {
       trustScore: 98,
       ekycVerified: true,
       ocrConfidence: 96,
@@ -95,7 +107,8 @@ export function RecommendationsGridPage({
     try {
       sessionStorage.setItem("beta_jwt_token", token);
       sessionStorage.setItem("beta_referral_id", referralId);
-      sessionStorage.setItem("beta_selected_scheme", JSON.stringify(scheme));
+      sessionStorage.setItem("beta_selected_scheme", JSON.stringify(targetScheme));
+      sessionStorage.setItem("beta_selected_bank", JSON.stringify(bank));
       sessionStorage.setItem("zkp_tokens", JSON.stringify({ token, payload, referralId }));
       sessionStorage.setItem("beta_applicant_profile", JSON.stringify(userProfile));
     } catch (e) {
@@ -103,9 +116,15 @@ export function RecommendationsGridPage({
     }
 
     if (onRouteToBank) {
-      onRouteToBank({ ...scheme, _jwtToken: token, _referralId: referralId, _jwtPayload: payload });
+      onRouteToBank({ 
+        ...targetScheme, 
+        selectedBank: bank, 
+        _jwtToken: token, 
+        _referralId: referralId, 
+        _jwtPayload: payload 
+      });
     } else {
-      window.location.href = '/beta.html';
+      window.location.href = `/beta.html?bankId=${bank.id}`;
     }
   };
 
@@ -403,6 +422,18 @@ export function RecommendationsGridPage({
           scheme={gazetteScheme}
           lang={lang}
           onClose={() => setGazetteScheme(null)}
+        />
+      )}
+
+      {/* Partner Bank / NBFC Selection Modal */}
+      {bankModalScheme && (
+        <BankSelectionModal
+          isOpen={!!bankModalScheme}
+          scheme={bankModalScheme}
+          userProfile={userProfile}
+          lang={lang}
+          onClose={() => setBankModalScheme(null)}
+          onSelectBank={handleConfirmBankSelection}
         />
       )}
 

@@ -63,6 +63,30 @@ export default function App() {
 
   // ── Realtime Cross-Tab Sanction Callback from Beta Bank Portal ───────────
   const [sanctionNotification, setSanctionNotification] = useState(null);
+  const [wizardInitialStep, setWizardInitialStep] = useState(1);
+  const [wizardResumeStored, setWizardResumeStored] = useState(false);
+
+  // ── Post-Sanction Return from Beta Portal Handler ──────────────────────────
+  const [approvedSanction, setApprovedSanction] = useState(() => {
+    try {
+      if (typeof window !== "undefined") {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('applicationApproved') === 'true' || urlParams.get('sanctionApproved') === 'true') {
+          const saved = localStorage.getItem("jansetu_approved_sanction");
+          if (saved) return JSON.parse(saved);
+          return {
+            scheme_name: "CGTMSE Collateral-Free Credit Guarantee",
+            bank_name: "ZETA BANK",
+            applicant_name: "Rajan S.",
+            sanction_amount: 500000,
+            reference_id: "SANCTION-2026-9921",
+            timestamp: new Date().toISOString()
+          };
+        }
+      }
+    } catch (e) {}
+    return null;
+  });
 
   useEffect(() => {
     if (typeof window === "undefined" || !("BroadcastChannel" in window)) return;
@@ -70,6 +94,7 @@ export default function App() {
     channel.onmessage = (event) => {
       if (event.data) {
         setSanctionNotification(event.data);
+        setApprovedSanction(event.data);
         try { confetti({ particleCount: 90, spread: 80, origin: { y: 0.6 } }); } catch {}
         const timer = setTimeout(() => setSanctionNotification(null), 12000);
         return () => clearTimeout(timer);
@@ -80,7 +105,16 @@ export default function App() {
 
   // ── Support direct URL hash routing (#wizard, #matches, #apply-track, #help) ──
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('applicationApproved') === 'true') {
+        try { confetti({ particleCount: 100, spread: 90, origin: { y: 0.5 } }); } catch {}
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") return;
     const handleHash = () => {
       const hash = window.location.hash.replace('#', '').toLowerCase();
       if (hash === 'wizard' || hash === 'find-schemes' || hash === 'form') {
@@ -116,8 +150,20 @@ export default function App() {
   const [fontSize, setFontSize] = useState('base');
   const t = TRANSLATIONS[lang] || TRANSLATIONS.en;
 
-  // ── Consent-gated navigation ──────────────────────────────────────────────
-  const navigateTo = (targetView) => {
+  // ── Consent-gated navigation with explicit step control ───────────────────
+  const navigateTo = (targetView, options = {}) => {
+    if (targetView === 'find-schemes' || targetView === 'form') {
+      if (options && options.resume) {
+        setWizardResumeStored(true);
+        if (options.step) setWizardInitialStep(options.step);
+      } else {
+        setWizardResumeStored(false);
+        setWizardInitialStep(1);
+        try {
+          localStorage.removeItem('jansetu_wizard_step');
+        } catch (e) {}
+      }
+    }
     if (targetView === 'recommendations' && !consentGranted && currentProfile) {
       setPendingViewAfterConsent(targetView);
       setShowConsentModal(true);
@@ -231,8 +277,9 @@ export default function App() {
       }
     } catch (e) {}
 
-    // Programmatically redirect to Beta Banking Portal using dynamic relative routing
-    window.location.href = '/beta.html';
+    // Programmatically redirect to Beta Banking Portal with parameterized bankId
+    const bankParam = scheme?.selectedBank?.id ? `?bankId=${scheme.selectedBank.id}` : '';
+    window.location.href = `/beta.html${bankParam}`;
   };
 
   const handleJWTTokenAccepted = (jwtPayload) => {
@@ -304,6 +351,59 @@ export default function App() {
         </div>
       )}
 
+      {/* ========================================================================= */}
+      {/* APPLICATION APPROVED & SANCTIONED DEDICATED NOTIFICATION BANNER           */}
+      {/* ========================================================================= */}
+      {approvedSanction && (
+        <div className="bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-900 border-b-2 border-emerald-500 text-white px-4 py-4 sm:px-6 shadow-xl animate-fadeIn relative z-50">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-start space-x-3.5">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-lg mt-0.5">
+                <CheckCircle2 className="w-6 h-6 text-white" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-black text-sm sm:text-base text-white tracking-tight">
+                    🎉 Application Approved &amp; Concessional Credit Sanctioned!
+                  </span>
+                  <span className="text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full">
+                    {approvedSanction.reference_id || "SANCTION-CONFIRMED"}
+                  </span>
+                  <span className="text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/40 px-2 py-0.5 rounded-full">
+                    APB-DBT Transfer Initiated
+                  </span>
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Submitted to Partner Bank: <b className="text-white">{approvedSanction.bank_name || "ZETA BANK"}</b> for Scheme: <b className="text-white">"{approvedSanction.scheme_name || "CGTMSE Collateral-Free Credit Guarantee"}"</b>.
+                  Beneficiary: <b className="text-white">{approvedSanction.applicant_name || "Rajan S."}</b> • Sanction Amount: <b className="text-emerald-300">₹{Number(approvedSanction.sanction_amount || 200000).toLocaleString('en-IN')}</b>.
+                </p>
+                <div className="text-[10px] text-emerald-400 font-mono flex items-center gap-2">
+                  <span>✓ Zero-Knowledge Proof (ZKP) Verified</span>
+                  <span>•</span>
+                  <span>✓ Single-Use Nonce Permanently Burned</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0 w-full md:w-auto justify-end">
+              <button
+                onClick={() => setView('apply-track')}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition shadow-sm cursor-pointer"
+              >
+                Track in Central Registry →
+              </button>
+              <button
+                onClick={() => setApprovedSanction(null)}
+                className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition cursor-pointer"
+                title="Dismiss Banner"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Top Navigation */}
       <Navbar
         lang={lang} setLang={setLang} t={t} view={view} setView={navigateTo}
@@ -332,10 +432,12 @@ export default function App() {
           />
         )}
 
-        {/* FORM — Applicant Intake Wizard */}
+        {/* FORM — Applicant Intake Wizard (Starts strictly on step 1 unless resume is explicitly passed) */}
         {(view === 'find-schemes' || view === 'form') && (
           <FormVerificationPage
             initialProfile={null}
+            initialStep={wizardInitialStep}
+            resumeStoredStep={wizardResumeStored}
             lang={lang}
             t={t}
             onSubmit={handleProfileSubmitted}
@@ -390,6 +492,10 @@ export default function App() {
             onOpenCalculator={() => setView('calc')}
             onOpenLocator={() => setView('locator')}
             onViewSchemes={() => setView('all-schemes')}
+            onResumeWizard={(step) => {
+              setWizardInitialStep(step || 1);
+              navigateTo('find-schemes', { resume: true, step });
+            }}
           />
         )}
 

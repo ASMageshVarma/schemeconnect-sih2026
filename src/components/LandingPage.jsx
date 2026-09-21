@@ -198,13 +198,19 @@ export function LandingPage({
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14"
           >
             
-            {/* Primary CTA: 7-Step Guided Wizard */}
+            {/* Primary CTA: 7-Step Guided Wizard / New Applicant Registration */}
             <button
-              onClick={() => onNavigate("find-schemes")}
+              onClick={() => {
+                try {
+                  localStorage.removeItem('jansetu_wizard_step');
+                  sessionStorage.removeItem('jansetu_wizard_step');
+                } catch (e) {}
+                onNavigate("find-schemes", { resume: false });
+              }}
               className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 text-white font-black text-sm rounded-2xl shadow-xl hover:shadow-2xl transition flex items-center justify-center space-x-3 group transform hover:-translate-y-0.5 cursor-pointer"
             >
               <Sparkles className="w-5 h-5 text-amber-300" />
-              <span>{isTa ? "7-படி தகுதி வழிகாட்டியைத் தொடங்க (7-Step Wizard)" : "Start 7-Step Eligibility Wizard"}</span>
+              <span>{isTa ? "புதிய விண்ணப்பப் பதிவு (New Applicant Registration)" : "New Applicant Registration (7-Step Wizard)"}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition" />
             </button>
 
@@ -224,7 +230,10 @@ export function LandingPage({
             
             {/* Feature 1: Voice-to-Text */}
             <div 
-              onClick={() => onNavigate("find-schemes")}
+              onClick={() => {
+                try { localStorage.removeItem('jansetu_wizard_step'); } catch (e) {}
+                onNavigate("find-schemes", { resume: false });
+              }}
               className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-blue-400 transition cursor-pointer flex flex-col justify-between group"
             >
               <div>
@@ -251,7 +260,10 @@ export function LandingPage({
 
             {/* Feature 2: OCR Document Auto-Fill */}
             <div 
-              onClick={() => onNavigate("find-schemes")}
+              onClick={() => {
+                try { localStorage.removeItem('jansetu_wizard_step'); } catch (e) {}
+                onNavigate("find-schemes", { resume: false });
+              }}
               className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-indigo-400 transition cursor-pointer flex flex-col justify-between group"
             >
               <div>
