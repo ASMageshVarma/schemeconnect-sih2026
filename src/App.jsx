@@ -114,8 +114,15 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (typeof window !== "undefined") return;
+    if (typeof window === "undefined") return;
     const handleHash = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlStep = urlParams.get('step');
+      if (urlStep) {
+        setWizardInitialStep(parseInt(urlStep, 10));
+        setView('find-schemes');
+        return;
+      }
       const hash = window.location.hash.replace('#', '').toLowerCase();
       if (hash === 'wizard' || hash === 'find-schemes' || hash === 'form') {
         setView('find-schemes');
