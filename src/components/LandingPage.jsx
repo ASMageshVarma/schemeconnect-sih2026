@@ -74,8 +74,8 @@ export function LandingPage({
             <ShieldCheck className="w-4 h-4 text-blue-600" />
             <span>
               {isTa 
-                ? "ப்ராஜெக்ட் எக்ஸ்போ மாதிரி முன்மாதிரி • JanSetu AI நலத்திட்ட மாதிரி தளம்" 
-                : "Project Expo Concept Prototype • JanSetu AI Civic FinTech Simulation"}
+                ? "CARE InnoExpo '26 • TECH TITANS — JanSetu AI நலத்திட்ட தளம்" 
+                : "CARE InnoExpo '26 • TECH TITANS — JanSetu AI Civic FinTech Platform"}
             </span>
           </motion.div>
 

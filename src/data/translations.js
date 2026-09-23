@@ -2,7 +2,7 @@ export const TRANSLATIONS = {
   en: {
     app_title: "JanSetu AI",
     tagline: "Connecting SC Beneficiaries to Concessional Credit & 100+ Channel Partners",
-    ministry_badge: "Project Expo Concept Prototype • Civic FinTech Platform",
+    ministry_badge: "CARE InnoExpo '26 • TECH TITANS — Civic FinTech Platform",
     team_badge: "Team TECH TITANS • Saranathan College of Engineering",
     
     // Navbar

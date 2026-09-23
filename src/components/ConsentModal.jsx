@@ -10,7 +10,7 @@ const CONSENT_CONTENT = {
   en: {
     badge: "CARE InnoExpo '26 — Secure Consent Gateway",
     title: "Terms, Privacy & Data Consent",
-    subtitle: "JanSetu AI — Autonomous Welfare Scheme Matching Prototype",
+    subtitle: "JanSetu AI — CARE InnoExpo '26 • AI Welfare Scheme Discovery Platform",
     intro: "Before accessing the Scheme Discovery Engine, please read and provide your explicit consent to the following terms as mandated by the IT Act 2000, Digital Personal Data Protection Act 2023, and ethical guidelines.",
     section1: "Section 1: Identity Verification (eKYC)",
     s1_body: "I authorize JanSetu AI to simulate a DigiLocker-linked eKYC verification using my submitted Aadhaar/PAN details for pre-screening purposes only. No biometric data is collected or retained.",

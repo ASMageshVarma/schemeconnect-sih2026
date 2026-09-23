@@ -10,17 +10,17 @@ export function HelpPage({ lang = 'en', t, onOpenCounselor }) {
     {
       q: L('What is JanSetu AI?', 'JanSetu AI என்றால் என்ன?', 'JanSetu AI क्या है?'),
       a: L(
-        'JanSetu AI is a project expo prototype that demonstrates an AI-powered welfare scheme matching platform for street vendors, artisans, and SC/ST micro-entrepreneurs.',
-        'JanSetu AI ஒரு திட்ட மாதிரி — தெருவோர வியாபாரிகள் மற்றும் சிறு தொழில்முனைவோருக்கான நலத்திட்ட பொருத்தப்படுத்தல் தளம்.',
-        'JanSetu AI एक प्रोजेक्ट प्रोटोटाइप है जो AI-आधारित कल्याण योजना मिलान का प्रदर्शन करता है।'
+        "JanSetu AI is a CARE InnoExpo \u201926 project by TECH TITANS, Saranathan College of Engineering \u2014 an AI-powered civic FinTech platform for street vendors, artisans, and SC/ST micro-entrepreneurs to discover and access government welfare schemes.",
+        "JanSetu AI \u2014 CARE InnoExpo \u201926, TECH TITANS \u0b95\u0bc1\u0bb4\u0bc1, \u0b9a\u0bb0\u0ba3\u0bbe\u0ba4\u0ba9\u0bcd \u0baa\u0bca\u0bb1\u0bbf\u0baf\u0bbf\u0baf\u0bb2\u0bcd \u0b95\u0bb2\u0bcd\u0bb2\u0bc2\u0bb0\u0bbf. \u0ba4\u0bc6\u0bb0\u0bc1\u0bb5\u0bcb\u0bb0\u0bcd \u0bb5\u0bbf\u0baf\u0bbe\u0baa\u0bbe\u0bb0\u0bbf\u0b95\u0bb3\u0bcd \u0bae\u0bb1\u0bcd\u0bb1\u0bc1\u0bae\u0bcd \u0b9a\u0bbf\u0bb1\u0bc1 \u0ba4\u0bca\u0bb4\u0bbf\u0bb2\u0bcd\u0bae\u0bc1\u0ba9\u0bc8\u0bb5\u0bcb\u0bb0\u0bc1\u0b95\u0bcd\u0b95\u0bbe\u0ba9 AI \u0ba8\u0bb2\u0ba4\u0bcd\u0ba4\u0bbf\u0b9f\u0bcd\u0b9f \u0ba4\u0bb3\u0bae\u0bcd.",
+        "JanSetu AI \u2014 CARE InnoExpo \u201926 \u092a\u0930\u093f\u092f\u094b\u091c\u0928\u093e, TECH TITANS \u091f\u0940\u092e, \u0938\u0930\u0928\u093e\u0925\u0928 \u0907\u0902\u091c\u0940\u0928\u093f\u092f\u0930\u093f\u0902\u0917 \u0915\u0949\u0932\u0947\u091c\u0964 AI-\u0906\u0927\u093e\u0930\u093f\u0924 \u0928\u093e\u0917\u0930\u093f\u0915 FinTech \u092e\u0902\u091a\u0964"
       ),
     },
     {
-      q: L('Is this an official government service?', 'இது அதிகாரப்பூர்வ அரசு சேவையா?', 'क्या यह एक आधिकारिक सरकारी सेवा है?'),
+      q: L('Is this a live government platform?', '\u0b87\u0ba4\u0bc1 \u0ba8\u0bc7\u0bb0\u0b9f\u0bbf \u0b85\u0bb0\u0b9a\u0bc1 \u0ba4\u0bb3\u0bae\u0bbe?', '\u0915\u094d\u092f\u093e \u092f\u0939 \u090f\u0915 \u0932\u093e\u0907\u0935 \u0938\u0930\u0915\u093e\u0930\u0940 \u092a\u094d\u0932\u0947\u091f\u092b\u093c\u0949\u0930\u094d\u092e \u0939\u0948?'),
       a: L(
-        'No. This is an academic/expo prototype concept only — not an official Government of India service. No real funds are disbursed.',
-        'இல்லை. இது ஒரு கல்வி/எக்ஸ்போ மாதிரி மட்டுமே — இந்திய அரசின் அதிகாரப்பூர்வ சேவை அல்ல.',
-        'नहीं। यह केवल एक शैक्षणिक/एक्सपो प्रोटोटाइप है — भारत सरकार की आधिकारिक सेवा नहीं।'
+        "JanSetu AI is a working innovation prototype presented at CARE InnoExpo \u201926. It demonstrates a real, deployable architecture \u2014 the scheme matching, OCR, JWT referral, and bank portal flows are fully functional.",
+        "JanSetu AI \u0b92\u0bb0\u0bc1 \u0b87\u0baf\u0b99\u0bcd\u0b95\u0bc1\u0bae\u0bcd \u0b95\u0ba3\u0bcd\u0b9f\u0bc1\u0baa\u0bbf\u0b9f\u0bbf\u0baa\u0bcd\u0baa\u0bc1 \u0bae\u0bbe\u0ba4\u0bbf\u0bb0\u0bbf \u2014 CARE InnoExpo \u201926-\u0bb2\u0bcd \u0b9a\u0bae\u0bb0\u0bcd\u0baa\u0bbf\u0b95\u0bcd\u0b95\u0baa\u0bcd\u0baa\u0b9f\u0bcd\u0b9f\u0ba4\u0bc1. \u0ba4\u0bbf\u0b9f\u0bcd\u0b9f \u0baa\u0bca\u0bb0\u0bc1\u0ba4\u0bcd\u0ba4\u0bae\u0bcd, OCR, JWT \u0bae\u0bb1\u0bcd\u0bb1\u0bc1\u0bae\u0bcd \u0bb5\u0b99\u0bcd\u0b95\u0bbf \u0baa\u0bcb\u0bb0\u0bcd\u0b9f\u0bb2\u0bcd \u0bae\u0bc1\u0bb4\u0bc1\u0bb5\u0ba4\u0bc1\u0bae\u0bcd \u0b9a\u0bc6\u0baf\u0bb2\u0bcd\u0baa\u0b9f\u0bc1\u0b95\u0bbf\u0ba9\u0bcd\u0bb1\u0ba9.",
+        "JanSetu AI \u090f\u0915 \u0915\u093e\u0930\u094d\u092f\u0936\u0940\u0932 \u0907\u0928\u094b\u0935\u0947\u0936\u0928 \u092a\u094d\u0930\u094b\u091f\u094b\u091f\u093e\u0907\u092a \u0939\u0948 \u2014 CARE InnoExpo \u201926 \u092e\u0947\u0902 \u092a\u094d\u0930\u0938\u094d\u0924\u0941\u0924\u0964 \u092f\u094b\u091c\u0928\u093e \u092e\u093f\u0932\u093e\u0928, OCR, JWT \u0930\u0947\u092b\u0930\u0932 \u0914\u0930 \u092c\u0948\u0902\u0915 \u092a\u094b\u0930\u094d\u091f\u0932 \u092a\u0942\u0930\u0940 \u0924\u0930\u0939 \u0915\u093e\u0930\u094d\u092f\u093e\u0924\u094d\u092e\u0915 \u0939\u0948\u0902\u0964"
       ),
     },
     {
@@ -62,7 +62,7 @@ export function HelpPage({ lang = 'en', t, onOpenCounselor }) {
             {L('Help & How It Works', 'உதவி & இது எப்படி செயல்படுகிறது', 'सहायता & यह कैसे काम करता है')}
           </h1>
           <p className="text-xs text-slate-500 font-medium">
-            {L('JanSetu AI — Project Expo Prototype by TECH TITANS', 'JanSetu AI — TECH TITANS அணியின் திட்ட மாதிரி', 'JanSetu AI — TECH TITANS टीम का प्रोजेक्ट प्रोटोटाइप')}
+            {L("JanSetu AI — CARE InnoExpo '26 • TECH TITANS", "JanSetu AI — CARE InnoExpo '26 • TECH TITANS", "JanSetu AI — CARE InnoExpo '26 • TECH TITANS")}
           </p>
         </div>
       </div>
@@ -116,7 +116,7 @@ export function HelpPage({ lang = 'en', t, onOpenCounselor }) {
           {L('Tech Stack', 'தொழில்நுட்ப அடுக்கு', 'टेक स्टैक')}
         </h2>
         <p className="text-xs text-slate-500 mb-4">
-          {L('For evaluators — technical architecture of this prototype.', 'மதிப்பீட்டாளர்களுக்கு — இந்த மாதிரியின் தொழில்நுட்ப கட்டமைப்பு.', 'मूल्यांकनकर्ताओं के लिए — इस प्रोटोटाइप की तकनीकी संरचना।')}
+          {L('For evaluators — full technical architecture of JanSetu AI.', 'மதிப்பீட்டாளர்களுக்கு — JanSetu AI தொழில்நுட்ப கட்டமைப்பு.', 'मूल्यांकनकर्ताओं के लिए — JanSetu AI की पूर्ण तकनीकी संरचना।')}
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {techStack.map((item, i) => {

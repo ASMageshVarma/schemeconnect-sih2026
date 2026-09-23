@@ -20,20 +20,20 @@ export function OfficialPublicFooter({ lang = "en" }) {
               <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
                 <Building2 className="w-4 h-4" />
               </div>
-              <span>{L("About JanSetu AI Prototype", "ஜன்சேது AI மாதிரி பற்றி", "जनसेतु AI प्रोटोटाइप के बारे में")}</span>
+              <span>{L("About JanSetu AI", "ஜன்சேது AI பற்றி", "जनसेतु AI के बारे में")}</span>
             </div>
             
             <p className="text-slate-400 text-xs leading-relaxed">
               {L(
-                "JanSetu AI is an academic concept prototype empowering micro-entrepreneurs, street vendors, and Self-Help Groups (SHGs) to discover, verify, and access simulated concessional welfare credit with zero paperwork.",
-                "ஜன்சேது AI என்பது சிறு வணிகர்கள் மற்றும் தெருவோர வியாபாரிகள் மாதிரி நலத்திட்ட சலுகைக் கடன்களை காகிதமில்லா முறையில் பெற உதவும் மாதிரி முன்மாதிரி தளம் ஆகும்.",
-                "जनसेतु AI एक शैक्षणिक प्रोटोटाइप है जो सूक्ष्म उद्यमियों, सड़क विक्रेताओं और स्वयं सहायता समूहों (SHG) को शून्य कागजी कार्रवाई के साथ कल्याणकारी रियायती ऋण प्राप्त करने का अनुकरण करता है।"
+                "JanSetu AI — CARE InnoExpo '26 project by TECH TITANS, Saranathan College of Engineering. An AI-powered civic FinTech platform empowering micro-entrepreneurs, street vendors, and Self-Help Groups (SHGs) to discover and access government concessional welfare credit with zero paperwork.",
+                "ஜன்சேது AI — CARE InnoExpo '26 திட்டம், TECH TITANS குழு, சரணாதன் பொறியியல் கல்லூரி. சிறு வணிகர்கள் மற்றும் SHG-களுக்கு அரசு சலுகைக் கடன்களை காகிதமில்லா முறையில் வழங்கும் AI தளம்.",
+                "जनसेतु AI — CARE InnoExpo '26 परियोजना, TECH TITANS टीम, सरनाथन इंजीनियरिंग कॉलेज। सूक्ष्म उद्यमियों और SHG को शून्य कागजी कार्रवाई के साथ सरकारी रियायती कल्याण ऋण तक पहुँचाने वाला AI प्लेटफॉर्म।"
               )}
             </p>
 
             <div className="pt-1 flex items-center space-x-2 text-[11px] text-emerald-400">
               <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-              <span>{L("Academic Concept Prototype • Welfare Simulation", "கல்வி முன்மாதிரி • நலத்திட்ட மாதிரி", "अकादमिक प्रोटोटाइप • कल्याणकारी योजना अनुकरण")}</span>
+              <span>{L("CARE InnoExpo '26 • TECH TITANS — AI Civic FinTech", "CARE InnoExpo '26 • TECH TITANS — AI நலத்திட்ட தளம்", "CARE InnoExpo '26 • TECH TITANS — AI नागरिक FinTech")}</span>
             </div>
           </div>
 
@@ -41,7 +41,7 @@ export function OfficialPublicFooter({ lang = "en" }) {
           <div className="space-y-3">
             <h4 className="text-white font-bold text-sm tracking-tight flex items-center space-x-2">
               <Phone className="w-4 h-4 text-blue-400" />
-              <span>{L("Helpline & Prototype Support", "உதவி மையம் & மாதிரி ஆதரவு", "हेल्पलाइन एवं प्रोटोटाइप सहायता")}</span>
+              <span>{L("Helpline & Support", "உதவி மையம் & ஆதரவு", "हेल्पलाइन एवं सहायता")}</span>
             </h4>
 
             <div className="space-y-2 text-xs text-slate-400">
@@ -102,11 +102,11 @@ export function OfficialPublicFooter({ lang = "en" }) {
 
         {/* Bottom Copyright & Disclaimer */}
         <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-500 text-center sm:text-left">
-          <p>© 2026 JanSetu AI • Project Expo Concept Prototype. All rights reserved.</p>
-          <p className="flex items-center justify-center space-x-2 text-amber-400 font-medium">
-            <span>Concept Prototype</span>
+          <p>© 2026 JanSetu AI • CARE InnoExpo '26 • TECH TITANS. All rights reserved.</p>
+          <p className="flex items-center justify-center space-x-2 text-blue-400 font-medium">
+            <span>Saranathan College of Engineering</span>
             <span>•</span>
-            <span>Not an official Government of India service</span>
+            <span>CARE InnoExpo '26 — AI Civic FinTech Track</span>
           </p>
         </div>
 
