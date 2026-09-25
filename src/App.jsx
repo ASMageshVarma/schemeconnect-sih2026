@@ -263,6 +263,12 @@ export default function App() {
 
   // ── Route to Bank (with JWT gateway & relative routing) ─────────────────────
   const handleRouteToBank = (scheme) => {
+    if (scheme?._crossTabApproval) {
+      setApprovedSanction(scheme);
+      try { confetti({ particleCount: 100, spread: 80, origin: { y: 0.5 } }); } catch {}
+      return;
+    }
+
     setReferredSchemeForBank(scheme);
     try {
       if (scheme._jwtToken) {

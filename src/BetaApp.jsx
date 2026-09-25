@@ -310,12 +310,30 @@ export function BetaApp() {
       } catch (e) {}
     }
 
-    // 3. Emit live cross-portal BroadcastChannel notification to SchemeConnect
+    // 3. Emit live cross-portal BroadcastChannel notification & window.opener postMessage to SchemeConnect
+    try {
+      if (typeof window !== "undefined" && window.opener) {
+        window.opener.postMessage({
+          type: 'LOAN_APPROVED',
+          action: 'LOAN_SANCTIONED',
+          bankName: sanctionedOrder.bank_name,
+          sanctionId: refId,
+          referenceId: refId,
+          schemeId: sanctionedOrder.scheme_id,
+          schemeName: sanctionedOrder.scheme_name,
+          sanctionAmount: sanctionedOrder.sanction_amount,
+          applicantName: sanctionedOrder.applicant_name,
+          timestamp: new Date().toISOString()
+        }, '*');
+      }
+    } catch (e) {}
+
     try {
       if (typeof window !== "undefined" && "BroadcastChannel" in window) {
         const channel = new BroadcastChannel('schemeconnect_sanctions');
         channel.postMessage({
           action: 'LOAN_SANCTIONED',
+          type: 'LOAN_APPROVED',
           referralId: refId,
           schemeId: sanctionedOrder.scheme_id,
           schemeName: sanctionedOrder.scheme_name,
@@ -375,10 +393,6 @@ export function BetaApp() {
                 <div className="flex items-center space-x-2">
                   <span className="font-bold text-base sm:text-lg text-white tracking-tight">
                     🏦 {selectedBank.name} — Institutional Credit &amp; Loan Sanction Portal
-                  </span>
-                  <span className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-800/60 border border-slate-700 text-slate-300 backdrop-blur-md">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
-                    CARE InnoExpo '26 Node
                   </span>
                 </div>
                 <p className="text-[10px] text-slate-400 font-medium hidden sm:block">
@@ -1268,13 +1282,21 @@ export function BetaApp() {
                 <span>Download Sanction Letter PDF</span>
               </button>
 
-              <a
-                href="/?applicationApproved=true"
+              <button
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    if (window.opener) {
+                      window.close();
+                    } else {
+                      window.location.href = "/?applicationApproved=true";
+                    }
+                  }
+                }}
                 className="py-3 px-5 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-700 hover:to-teal-800 text-white rounded-xl text-xs font-black transition flex items-center justify-center gap-2 shadow-md cursor-pointer"
               >
                 <CheckCircle2 className="w-4 h-4 text-emerald-200" />
-                <span>Return to JanSetu AI (Main App) →</span>
-              </a>
+                <span>Return to JanSetu AI (Close Tab) →</span>
+              </button>
 
               <button
                 onClick={() => setSanctionedCertificate(null)}

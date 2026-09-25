@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { 
   CheckCircle2, Lock, Sparkles, ArrowLeft, 
   UserCheck, ChevronRight, Search, AlertTriangle, 
@@ -36,6 +36,50 @@ export function RecommendationsGridPage({
   const [selectedSchemeDetail, setSelectedSchemeDetail] = useState(null);
   const [gazetteScheme, setGazetteScheme] = useState(null);
   const [bankModalScheme, setBankModalScheme] = useState(null);
+  const [pendingBank, setPendingBank] = useState(null); // set when bank tab is open
+
+  // ── Cross-tab approval listeners (postMessage + storage event fallback) ───
+  useEffect(() => {
+    // 1. postMessage listener — bank tab calls window.opener.postMessage
+    const handleApprovalMessage = (event) => {
+      if (!event.data || event.data.type !== 'LOAN_APPROVED') return;
+      const { bankName, sanctionId, schemeId, schemeName, sanctionAmount, referenceId, applicantName } = event.data;
+      setBankModalScheme(null);
+      setPendingBank(null);
+      if (onRouteToBank) {
+        onRouteToBank({
+          _crossTabApproval: true,
+          bank_name: bankName,
+          scheme_name: schemeName,
+          scheme_id: schemeId,
+          sanction_amount: sanctionAmount,
+          reference_id: referenceId || sanctionId,
+          applicant_name: applicantName
+        });
+      }
+    };
+    window.addEventListener('message', handleApprovalMessage);
+
+    // 2. localStorage storage event fallback (same-origin tabs)
+    const handleStorageChange = (event) => {
+      if (event.key !== 'jansetu_approved_sanction' || !event.newValue) return;
+      try {
+        const data = JSON.parse(event.newValue);
+        if (!data || !data.reference_id) return;
+        setBankModalScheme(null);
+        setPendingBank(null);
+        if (onRouteToBank) {
+          onRouteToBank({ _crossTabApproval: true, ...data });
+        }
+      } catch (e) {}
+    };
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('message', handleApprovalMessage);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [onRouteToBank]);
 
   // Policy changes listener
   useEffect(() => {
@@ -90,9 +134,8 @@ export function RecommendationsGridPage({
     setBankModalScheme(scheme);
   };
 
-  // Step 2: Citizen chooses a partner bank -> Parameters are saved & forwarded
+  // Step 2: Citizen chooses a partner bank -> open bank portal in NEW TAB, keep JanSetu open
   const handleConfirmBankSelection = (bank, scheme) => {
-    setBankModalScheme(null);
     const targetScheme = scheme || bankModalScheme;
     if (!targetScheme) return;
 
@@ -103,7 +146,7 @@ export function RecommendationsGridPage({
       udyamVerified: true,
       aaCashflowVerified: true
     });
-    
+
     try {
       sessionStorage.setItem("beta_jwt_token", token);
       sessionStorage.setItem("beta_referral_id", referralId);
@@ -115,17 +158,13 @@ export function RecommendationsGridPage({
       console.error("Storage error:", e);
     }
 
-    if (onRouteToBank) {
-      onRouteToBank({ 
-        ...targetScheme, 
-        selectedBank: bank, 
-        _jwtToken: token, 
-        _referralId: referralId, 
-        _jwtPayload: payload 
-      });
-    } else {
-      window.location.href = `/beta.html?bankId=${bank.id}`;
-    }
+    // Open bank portal in a NEW TAB — JanSetu stays open & listens for postMessage/storage event
+    const schemeName = targetScheme.scheme_name || targetScheme.name || '';
+    const bankUrl = `beta.html?bankId=${encodeURIComponent(bank.id)}&scheme=${encodeURIComponent(schemeName)}&referralId=${encodeURIComponent(referralId)}`;
+    window.open(bankUrl, '_blank', 'noopener');
+
+    // Transition modal to 'awaiting approval' pending state (keep modal open)
+    setPendingBank(bank);
   };
 
   const handleSelectScheme = (scheme) => {
@@ -425,14 +464,15 @@ export function RecommendationsGridPage({
         />
       )}
 
-      {/* Partner Bank / NBFC Selection Modal */}
-      {bankModalScheme && (
+      {/* Partner Bank / NBFC Selection Modal — stays open in "pending" state while bank tab is open */}
+      {(bankModalScheme || pendingBank) && (
         <BankSelectionModal
-          isOpen={!!bankModalScheme}
+          isOpen={!!(bankModalScheme || pendingBank)}
           scheme={bankModalScheme}
           userProfile={userProfile}
           lang={lang}
-          onClose={() => setBankModalScheme(null)}
+          pendingBank={pendingBank}
+          onClose={() => { setBankModalScheme(null); setPendingBank(null); }}
           onSelectBank={handleConfirmBankSelection}
         />
       )}

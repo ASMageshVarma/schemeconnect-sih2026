@@ -1,10 +1,19 @@
 import React from 'react';
-import { Landmark, MapPin, CheckCircle2, ArrowRight, ShieldCheck, Zap, X, Star } from 'lucide-react';
+import { Landmark, MapPin, CheckCircle2, ArrowRight, ShieldCheck, Zap, X, Star, ExternalLink, Clock, Loader2 } from 'lucide-react';
 import { PARTICIPATING_BANKS } from '../utils/bankStore';
 
 /**
  * BankSelectionModal — Allows citizen to choose a partner bank/NBFC
  * before proceeding to that bank's parameterized application and sanction flow.
+ *
+ * Props:
+ *  isOpen       — boolean
+ *  onClose      — () => void
+ *  scheme       — scheme object
+ *  userProfile  — profile object
+ *  onSelectBank — (bank, scheme) => void  (parent opens bank tab & sets pendingBank)
+ *  pendingBank  — bank object | null  (set by parent while bank tab is open)
+ *  lang         — 'en' | 'ta' | 'hi'
  */
 export function BankSelectionModal({
   isOpen,
@@ -12,6 +21,7 @@ export function BankSelectionModal({
   scheme,
   userProfile,
   onSelectBank,
+  pendingBank = null,
   lang = 'en'
 }) {
   if (!isOpen || !scheme) return null;
@@ -88,6 +98,115 @@ export function BankSelectionModal({
     }
   ];
 
+  // ── PENDING STATE: Bank tab opened, awaiting approval ──────────────────────
+  if (pendingBank) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-fadeIn">
+        <div className="bg-white rounded-3xl max-w-md w-full border border-slate-200 shadow-2xl overflow-hidden">
+
+          {/* Header */}
+          <div className="bg-[#0f172a] text-white p-6">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center">
+                  <ExternalLink className="w-4 h-4 text-white" />
+                </div>
+                <span className="font-black text-base text-white">
+                  {L("Bank Portal Opened", "வங்கி போர்டல் திறக்கப்பட்டது", "बैंक पोर्टल खुला")}
+                </span>
+              </div>
+              <button
+                onClick={onClose}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+              {L(
+                `Redirected to ${pendingBank.name} portal in a new tab.`,
+                `${pendingBank.name} போர்டல் புதிய தாவலில் திறக்கப்பட்டது.`,
+                `${pendingBank.name} पोर्टल नए टैब में खुला।`
+              )}
+            </p>
+          </div>
+
+          {/* Waiting body */}
+          <div className="p-7 flex flex-col items-center text-center gap-5">
+            {/* Animated spinner */}
+            <div className="relative w-20 h-20">
+              <div className="absolute inset-0 rounded-full border-4 border-blue-100" />
+              <div className="absolute inset-0 rounded-full border-4 border-t-blue-600 animate-spin" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Landmark className="w-7 h-7 text-blue-600" />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <p className="font-black text-base text-slate-900">
+                {L("Awaiting Bank Approval…", "வங்கி அனுமதிக்காக காத்திருக்கிறது…", "बैंक अनुमोदन की प्रतीक्षा…")}
+              </p>
+              <p className="text-xs text-slate-500 leading-relaxed max-w-xs">
+                {L(
+                  `Complete the sanction process in the ${pendingBank.name} tab. This page will update automatically once your loan is approved.`,
+                  `${pendingBank.name} தாவலில் அனுமதி செயல்முறையை நிறைவு செய்யுங்கள். கடன் அனுமதிக்கப்பட்டவுடன் இந்தப் பக்கம் தானாகப் புதுப்பிக்கப்படும்.`,
+                  `${pendingBank.name} टैब में स्वीकृति प्रक्रिया पूरी करें। ऋण स्वीकृत होते ही यह पेज स्वतः अपडेट होगा।`
+                )}
+              </p>
+            </div>
+
+            {/* Step trail */}
+            <div className="w-full bg-slate-50 rounded-2xl border border-slate-100 p-4 text-left space-y-2.5">
+              <div className="flex items-center gap-2.5 text-xs">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span className="text-slate-700 font-semibold">
+                  {L("ZKP credentials forwarded via RS256 JWT", "RS256 JWT மூலம் ZKP நற்சான்றுகள் அனுப்பப்பட்டன", "RS256 JWT के माध्यम से ZKP क्रेडेंशियल भेजे गए")}
+                </span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span className="text-slate-700 font-semibold">
+                  {L(`Routing to: ${pendingBank.name}`, `${pendingBank.name}-க்கு திருப்பி விடப்பட்டது`, `${pendingBank.name} को रूट किया गया`)}
+                </span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs">
+                <Loader2 className="w-4 h-4 text-amber-500 shrink-0 animate-spin" />
+                <span className="text-amber-700 font-semibold">
+                  {L("Officer review & sanction in progress…", "அதிகாரி மதிப்பாய்வு & அனுமதி நடந்து வருகிறது…", "अधिकारी समीक्षा और स्वीकृति प्रगति में…")}
+                </span>
+              </div>
+            </div>
+
+            {/* Dismiss hint */}
+            <p className="text-[11px] text-slate-400">
+              {L(
+                "You may switch to the bank tab or keep this window open. Do not refresh this page.",
+                "வங்கி தாவலுக்கு மாறலாம் அல்லது இந்தச் சாளரத்தை திறந்து வைக்கலாம். இந்தப் பக்கத்தை புதுப்பிக்காதீர்கள்.",
+                "आप बैंक टैब पर स्विच कर सकते हैं या यह विंडो खुला रख सकते हैं। इस पेज को रीफ्रेश न करें।"
+              )}
+            </p>
+          </div>
+
+          {/* Footer */}
+          <div className="px-6 py-3.5 bg-slate-100 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-500">
+            <div className="flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5" />
+              <span>{L("JWT token valid for 15 minutes", "JWT டோக்கன் 15 நிமிடம் செல்லுபடியாகும்", "JWT टोकन 15 मिनट के लिए वैध")}</span>
+            </div>
+            <button
+              onClick={onClose}
+              className="font-bold text-slate-700 hover:text-slate-900 cursor-pointer"
+            >
+              {L("Dismiss", "மூடு", "बंद करें")}
+            </button>
+          </div>
+
+        </div>
+      </div>
+    );
+  }
+
+  // ── DEFAULT STATE: Bank selection list ─────────────────────────────────────
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-fadeIn">
       <div className="bg-white rounded-3xl max-w-2xl w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
@@ -119,11 +238,17 @@ export function BankSelectionModal({
 
           <p className="text-xs text-slate-300 mt-3 leading-relaxed">
             {L(
-              `Applying for: "${scheme.scheme_name}". Choose an authorized banking partner to review your pre-verified ZKP credentials and issue concessional credit.`,
-              `விண்ணப்பிக்கும் திட்டம்: "${scheme.scheme_name}". உங்கள் சரிபார்க்கப்பட்ட ZKP ஆவணங்களை மதிப்பாய்வு செய்து சலுகைக் கடன் வழங்க அனுமதிக்கப்பட்ட வங்கியைத் தேர்ந்தெடுக்கவும்.`,
-              `आवेदन योजना: "${scheme.scheme_name}"। अपनी पूर्व-सत्यापित साख की समीक्षा और रियायती ऋण जारी करने के लिए अधिकृत बैंकिंग भागीदार चुनें।`
+              `Applying for: "${scheme.scheme_name}". Choose an authorized banking partner to review your pre-verified ZKP credentials and issue concessional credit. The bank portal will open in a new tab — this page stays open.`,
+              `விண்ணப்பிக்கும் திட்டம்: "${scheme.scheme_name}". வங்கி போர்டல் புதிய தாவலில் திறக்கும் — இந்தப் பக்கம் திறந்தே இருக்கும்.`,
+              `आवेदन योजना: "${scheme.scheme_name}"। बैंक पोर्टल नए टैब में खुलेगा — यह पेज खुला रहेगा।`
             )}
           </p>
+
+          {/* New-tab notice pill */}
+          <div className="mt-3 inline-flex items-center gap-1.5 bg-blue-900/50 border border-blue-700/50 text-blue-300 text-[10px] font-bold px-2.5 py-1 rounded-full">
+            <ExternalLink className="w-3 h-3" />
+            <span>{L("Bank portal opens in a new tab — no page reload", "புதிய தாவலில் திறக்கும் — பக்க மறுஏற்றம் இல்லை", "नए टैब में खुलेगा — पेज रीलोड नहीं")}</span>
+          </div>
         </div>
 
         {/* Bank Selection List */}
@@ -185,8 +310,8 @@ export function BankSelectionModal({
                   onClick={() => onSelectBank(bank, scheme)}
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm hover:shadow cursor-pointer"
                 >
-                  <span>{L("Select & Proceed to Apply →", "தேர்ந்தெடுத்து விண்ணப்பிக்க →", "चुनें और आगे बढ़ें →")}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>{L("Select & Open in New Tab →", "தேர்ந்தெடுத்து புதிய தாவலில் திற →", "चुनें और नए टैब में खोलें →")}</span>
                 </button>
               </div>
             </div>
